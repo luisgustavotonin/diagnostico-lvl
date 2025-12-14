@@ -789,15 +789,15 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
                       <p className="text-xs text-slate-500">Defina se esta pergunta deve contribuir para o cálculo do Health Score</p>
                       <div>
                         <Select 
-                          value={form.weight_category || ''} 
-                          onValueChange={(v) => setForm({ ...form, weight_category: v })}
+                          value={form.weight_category || '_none'} 
+                          onValueChange={(v) => setForm({ ...form, weight_category: v === '_none' ? '' : v })}
                           disabled={!isModuleEnabledForHealthScore}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Selecione..." />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value={null}>Não participa do Health Score</SelectItem>
+                            <SelectItem value="_none">Não participa do Health Score</SelectItem>
                             {currentModule && (
                               <SelectItem value={currentModule.id}>
                                 Sim, participa - {currentModule.title}
