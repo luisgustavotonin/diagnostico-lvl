@@ -7,16 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Plus, X, Clock } from 'lucide-react';
 
 const DAYS = [
-  { key: 'seg', label: 'Segunda-feira' },
-  { key: 'ter', label: 'Terça-feira' },
-  { key: 'qua', label: 'Quarta-feira' },
-  { key: 'qui', label: 'Quinta-feira' },
-  { key: 'sex', label: 'Sexta-feira' },
-  { key: 'sab', label: 'Sábado' },
-  { key: 'dom', label: 'Domingo' }
+  { key: 'segunda', label: 'Segunda-feira' },
+  { key: 'terca', label: 'Terça-feira' },
+  { key: 'quarta', label: 'Quarta-feira' },
+  { key: 'quinta', label: 'Quinta-feira' },
+  { key: 'sexta', label: 'Sexta-feira' },
+  { key: 'sabado', label: 'Sábado' },
+  { key: 'domingo', label: 'Domingo' }
 ];
-
-const DEFAULT_HOURS = [{ start: '08:00', end: '12:00' }, { start: '13:00', end: '18:00' }];
 
 export default function BusinessHoursField({ value, onChange }) {
   const [schedule, setSchedule] = useState(() => {
@@ -24,74 +22,111 @@ export default function BusinessHoursField({ value, onChange }) {
       return value;
     }
     
-    // Inicializar com horário padrão para todos os dias
+    // Inicializar todos os dias como fechado
     const initial = {};
     DAYS.forEach(day => {
       initial[day.key] = {
-        open: true,
-        hours: [...DEFAULT_HOURS]
+        aberto: false,
+        periodos: []
       };
     });
     return initial;
   });
 
+  const [errors, setErrors] = useState({});
+
   useEffect(() => {
-    if (JSON.stringify(schedule) !== JSON.stringify(value)) {
+    if (onChange) {
       onChange(schedule);
     }
-  }, [schedule]);
+  }, [schedule, onChange]);
+
+  const validatePeriod = (dayKey, periodIndex, field, newValue) => {
+    const dayData = schedule[dayKey];
+    const periodo = dayData.periodos[periodIndex];
+    
+    const inicio = field === 'inicio' ? newValue : periodo.inicio;
+    const fim = field === 'fim' ? newValue : periodo.fim;
+
+    if (inicio && fim && inicio >= fim) {
+      setErrors(prev => ({
+        ...prev,
+        [`${dayKey}-${periodIndex}`]: 'Horário final deve ser maior que o inicial'
+      }));
+      return false;
+    }
+
+    setErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[`${dayKey}-${periodIndex}`];
+      return newErrors;
+    });
+    return true;
+  };
 
   const toggleDay = (dayKey) => {
-    setSchedule(prev => ({
-      ...prev,
-      [dayKey]: {
-        ...prev[dayKey],
-        open: !prev[dayKey]?.open
-      }
-    }));
-  };
-
-  const updateHours = (dayKey, index, field, value) => {
     setSchedule(prev => {
-      const dayData = prev[dayKey] || { open: true, hours: [...DEFAULT_HOURS] };
-      const newHours = [...dayData.hours];
-      newHours[index] = { ...newHours[index], [field]: value };
+      const isCurrentlyOpen = prev[dayKey]?.aberto;
       
       return {
         ...prev,
         [dayKey]: {
-          ...dayData,
-          hours: newHours
+          aberto: !isCurrentlyOpen,
+          periodos: !isCurrentlyOpen ? [{ inicio: '08:00', fim: '12:00' }, { inicio: '13:00', fim: '18:00' }] : []
         }
       };
     });
   };
 
-  const addInterval = (dayKey) => {
-    setSchedule(prev => {
-      const dayData = prev[dayKey] || { open: true, hours: [...DEFAULT_HOURS] };
-      return {
-        ...prev,
-        [dayKey]: {
-          ...dayData,
-          hours: [...dayData.hours, { start: '08:00', end: '18:00' }]
-        }
-      };
-    });
-  };
-
-  const removeInterval = (dayKey, index) => {
+  const updatePeriod = (dayKey, index, field, value) => {
     setSchedule(prev => {
       const dayData = prev[dayKey];
-      const newHours = dayData.hours.filter((_, i) => i !== index);
+      const newPeriodos = [...dayData.periodos];
+      newPeriodos[index] = { ...newPeriodos[index], [field]: value };
       
       return {
         ...prev,
         [dayKey]: {
           ...dayData,
-          hours: newHours.length > 0 ? newHours : [...DEFAULT_HOURS]
+          periodos: newPeriodos
         }
       };
+    });
+
+    validatePeriod(dayKey, index, field, value);
+  };
+
+  const addPeriod = (dayKey) => {
+    setSchedule(prev => {
+      const dayData = prev[dayKey];
+      return {
+        ...prev,
+        [dayKey]: {
+          ...dayData,
+          periodos: [...dayData.periodos, { inicio: '08:00', fim: '18:00' }]
+        }
+      };
+    });
+  };
+
+  const removePeriod = (dayKey, index) => {
+    setSchedule(prev => {
+      const dayData = prev[dayKey];
+      const newPeriodos = dayData.periodos.filter((_, i) => i !== index);
+      
+      return {
+        ...prev,
+        [dayKey]: {
+          ...dayData,
+          periodos: newPeriodos
+        }
+      };
+    });
+
+    setErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[`${dayKey}-${index}`];
+      return newErrors;
     });
   };
 
@@ -99,8 +134,8 @@ export default function BusinessHoursField({ value, onChange }) {
     <div className="space-y-3">
       <h3 className="text-lg font-semibold text-slate-800 mb-4">Horário de atendimento</h3>
       {DAYS.map(day => {
-        const dayData = schedule[day.key] || { open: false, hours: [...DEFAULT_HOURS] };
-        const isOpen = dayData.open;
+        const dayData = schedule[day.key] || { aberto: false, periodos: [] };
+        const isOpen = dayData.aberto;
         
         return (
           <Card key={day.key} className="p-4 border border-slate-200">
@@ -119,37 +154,42 @@ export default function BusinessHoursField({ value, onChange }) {
 
             {isOpen && (
               <div className="space-y-2">
-                {dayData.hours.map((interval, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <div className="relative flex-1">
-                      <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                      <Input
-                        type="time"
-                        value={interval.start}
-                        onChange={(e) => updateHours(day.key, index, 'start', e.target.value)}
-                        className="pl-10"
-                      />
+                {dayData.periodos.map((periodo, index) => (
+                  <div key={index}>
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1">
+                        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                        <Input
+                          type="time"
+                          value={periodo.inicio}
+                          onChange={(e) => updatePeriod(day.key, index, 'inicio', e.target.value)}
+                          className={`pl-10 ${errors[`${day.key}-${index}`] ? 'border-red-500' : ''}`}
+                        />
+                      </div>
+                      <span className="text-slate-500 text-sm">até</span>
+                      <div className="relative flex-1">
+                        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                        <Input
+                          type="time"
+                          value={periodo.fim}
+                          onChange={(e) => updatePeriod(day.key, index, 'fim', e.target.value)}
+                          className={`pl-10 ${errors[`${day.key}-${index}`] ? 'border-red-500' : ''}`}
+                        />
+                      </div>
+                      {dayData.periodos.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removePeriod(day.key, index)}
+                          className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      )}
                     </div>
-                    <span className="text-slate-500 text-sm">até</span>
-                    <div className="relative flex-1">
-                      <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                      <Input
-                        type="time"
-                        value={interval.end}
-                        onChange={(e) => updateHours(day.key, index, 'end', e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-                    {dayData.hours.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeInterval(day.key, index)}
-                        className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
+                    {errors[`${day.key}-${index}`] && (
+                      <p className="text-xs text-red-500 mt-1">{errors[`${day.key}-${index}`]}</p>
                     )}
                   </div>
                 ))}
@@ -158,7 +198,7 @@ export default function BusinessHoursField({ value, onChange }) {
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => addInterval(day.key)}
+                  onClick={() => addPeriod(day.key)}
                   className="w-full mt-2"
                 >
                   <Plus className="w-4 h-4 mr-2" /> Adicionar período
