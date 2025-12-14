@@ -172,38 +172,28 @@ export default function Admin() {
   };
 
   const handleSaveHealthScore = async (categories) => {
-    // Salvar lista de categorias
-    const categoryKeys = categories.map(c => c.key);
+    // Salvar lista de IDs dos módulos
+    const categoryModuleIds = categories.map(c => c.moduleId);
     const categoriesListSetting = settings.find(s => s.key === 'health_score_categories');
     
     if (categoriesListSetting) {
       await base44.entities.AppSettings.update(categoriesListSetting.id, { 
-        value: JSON.stringify(categoryKeys) 
+        value: JSON.stringify(categoryModuleIds) 
       });
     } else {
       await base44.entities.AppSettings.create({ 
         key: 'health_score_categories', 
-        value: JSON.stringify(categoryKeys) 
+        value: JSON.stringify(categoryModuleIds) 
       });
     }
     
-    // Salvar configurações de cada categoria
+    // Salvar configurações de cada módulo
     for (const cat of categories) {
-      const labelKey = `health_score_${cat.key}_label`;
-      const enabledKey = `health_score_${cat.key}_enabled`;
-      const weightKey = `health_score_${cat.key}_weight`;
-      const modulesKey = `health_score_${cat.key}_modules`;
+      const enabledKey = `health_score_module_${cat.moduleId}_enabled`;
+      const weightKey = `health_score_module_${cat.moduleId}_weight`;
       
-      const labelSetting = settings.find(s => s.key === labelKey);
       const enabledSetting = settings.find(s => s.key === enabledKey);
       const weightSetting = settings.find(s => s.key === weightKey);
-      const modulesSetting = settings.find(s => s.key === modulesKey);
-      
-      if (labelSetting) {
-        await base44.entities.AppSettings.update(labelSetting.id, { value: cat.label });
-      } else {
-        await base44.entities.AppSettings.create({ key: labelKey, value: cat.label });
-      }
       
       if (enabledSetting) {
         await base44.entities.AppSettings.update(enabledSetting.id, { value: String(cat.enabled) });
@@ -215,12 +205,6 @@ export default function Admin() {
         await base44.entities.AppSettings.update(weightSetting.id, { value: String(cat.weight) });
       } else {
         await base44.entities.AppSettings.create({ key: weightKey, value: String(cat.weight) });
-      }
-
-      if (modulesSetting) {
-        await base44.entities.AppSettings.update(modulesSetting.id, { value: JSON.stringify(cat.modules || []) });
-      } else {
-        await base44.entities.AppSettings.create({ key: modulesKey, value: JSON.stringify(cat.modules || []) });
       }
     }
     

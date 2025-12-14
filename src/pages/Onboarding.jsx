@@ -243,74 +243,60 @@ export default function Onboarding() {
 
   // Calcular Health Score
   const calculateHealthScore = () => {
-    // Carregar lista de categorias
+    // Carregar lista de módulos configurados
     const categoriesListSetting = healthScoreSettings.find(s => s.key === 'health_score_categories');
-    let categoryKeys = [];
+    let categoryModuleIds = [];
     
     if (categoriesListSetting) {
       try {
-        categoryKeys = JSON.parse(categoriesListSetting.value);
+        categoryModuleIds = JSON.parse(categoriesListSetting.value);
       } catch {
-        categoryKeys = ['marketing', 'comercial', 'operacao', 'metas'];
+        categoryModuleIds = [];
       }
-    } else {
-      categoryKeys = ['marketing', 'comercial', 'operacao', 'metas'];
+    }
+
+    if (categoryModuleIds.length === 0) {
+      return 0; // Sem módulos configurados
     }
 
     const weights = {};
     
-    categoryKeys.forEach(cat => {
-      const enabledSetting = healthScoreSettings.find(s => s.key === `health_score_${cat}_enabled`);
-      const weightSetting = healthScoreSettings.find(s => s.key === `health_score_${cat}_weight`);
-      const modulesSetting = healthScoreSettings.find(s => s.key === `health_score_${cat}_modules`);
+    categoryModuleIds.forEach(moduleId => {
+      const enabledSetting = healthScoreSettings.find(s => s.key === `health_score_module_${moduleId}_enabled`);
+      const weightSetting = healthScoreSettings.find(s => s.key === `health_score_module_${moduleId}_weight`);
       
       const isEnabled = enabledSetting ? enabledSetting.value === 'true' : true;
       const weightValue = weightSetting ? parseFloat(weightSetting.value) / 100 : 0.25;
       
-      let allowedModules = [];
-      if (modulesSetting) {
-        try {
-          allowedModules = JSON.parse(modulesSetting.value);
-        } catch {
-          allowedModules = [];
-        }
-      }
-      
       if (isEnabled) {
-        weights[cat] = { 
+        weights[moduleId] = { 
           weight: weightValue, 
           maxPoints: 0, 
-          earnedPoints: 0,
-          modules: allowedModules
+          earnedPoints: 0
         };
       }
     });
 
     questions.forEach(q => {
-      if (q.weight_category && q.weight_points && weights[q.weight_category]) {
-        const categoryWeight = weights[q.weight_category];
+      if (q.weight_points && weights[q.module_id]) {
+        const moduleWeight = weights[q.module_id];
         
-        // Se há módulos configurados, verificar se a pergunta está em um deles
-        if (categoryWeight.modules.length > 0 && !categoryWeight.modules.includes(q.module_id)) {
-          return; // Pular esta pergunta
-        }
-        
-        categoryWeight.maxPoints += q.weight_points;
+        moduleWeight.maxPoints += q.weight_points;
         
         const answer = answers[q.field_key];
         if (answer === 'Sim' || answer === true) {
-          categoryWeight.earnedPoints += q.weight_points;
+          moduleWeight.earnedPoints += q.weight_points;
         } else if (typeof answer === 'number' && answer > 0) {
-          categoryWeight.earnedPoints += Math.min(q.weight_points, answer);
+          moduleWeight.earnedPoints += Math.min(q.weight_points, answer);
         }
       }
     });
 
     let totalScore = 0;
-    Object.values(weights).forEach(cat => {
-      if (cat.maxPoints > 0) {
-        const categoryScore = (cat.earnedPoints / cat.maxPoints) * 100;
-        totalScore += categoryScore * cat.weight;
+    Object.values(weights).forEach(mod => {
+      if (mod.maxPoints > 0) {
+        const moduleScore = (mod.earnedPoints / mod.maxPoints) * 100;
+        totalScore += moduleScore * mod.weight;
       }
     });
 
