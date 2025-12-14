@@ -9,7 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Plus, Pencil, Trash2, ChevronRight, GripVertical } from 'lucide-react';
+import { Plus, Pencil, Trash2, ChevronRight, GripVertical, Wand2 } from 'lucide-react';
+import { autoScoreOptions } from './AutoScoreUtils';
 
 const FIELD_TYPES = [
   { value: 'text', label: 'Texto Curto' },
@@ -69,7 +70,7 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
     weight_category: '',
     weight_points: 0
   });
-  const [optionsText, setOptionsText] = useState('');
+  const [optionsArray, setOptionsArray] = useState([]);
 
   const handleNew = (moduleId, parentId = null) => {
     let maxOrder = 1;
@@ -100,30 +101,36 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
       condition_field: parentId ? questions.find(q => q.id === parentId)?.field_key : '',
       condition_operator: 'equals',
       condition_value: '',
-      weight_category: '',
-      weight_points: 0
+      weight_category: ''
     });
-    setOptionsText('');
+    setOptionsArray([]);
     setEditingQuestion(null);
     setDialogOpen(true);
   };
 
   const handleEdit = (question) => {
+    const opts = question.options || [];
+    // Converter formato antigo (string[]) para novo ({ label, score }[])
+    const formattedOptions = opts.map(opt => {
+      if (typeof opt === 'string') {
+        return { label: opt, score: 50 };
+      }
+      return opt;
+    });
+    
     setForm({
       ...question,
-      options: question.options || [],
-      weight_category: question.weight_category || 'none',
-      weight_points: question.weight_points || 0
+      options: formattedOptions,
+      weight_category: question.weight_category || ''
     });
-    setOptionsText((question.options || []).join('\n'));
+    setOptionsArray(formattedOptions);
     setEditingQuestion(question);
     setDialogOpen(true);
   };
 
   const handleSave = async () => {
-    const options = optionsText.split('\n').filter(o => o.trim());
-    const saveData = { ...form, options };
-    if (saveData.weight_category === 'none') {
+    const saveData = { ...form, options: optionsArray };
+    if (!saveData.weight_category) {
       saveData.weight_category = null;
     }
 
@@ -541,14 +548,93 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
             </div>
 
             {['radio', 'select', 'checkbox'].includes(form.field_type) && (
-              <div>
-                <Label>Opções (uma por linha)</Label>
-                <Textarea
-                  value={optionsText}
-                  onChange={(e) => setOptionsText(e.target.value)}
-                  placeholder="Opção 1&#10;Opção 2&#10;Opção 3"
-                  rows={4}
-                />
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <Label>Opções com Pontuação (0-100)</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setOptionsArray([...optionsArray, { label: '', score: 50 }]);
+                    }}
+                  >
+                    <Plus className="w-4 h-4 mr-1" /> Adicionar Opção
+                  </Button>
+                </div>
+
+                {optionsArray.length === 0 && (
+                  <p className="text-sm text-slate-500 italic">Nenhuma opção adicionada ainda</p>
+                )}
+
+                <div className="space-y-2">
+                  {optionsArray.map((option, index) => (
+                    <div key={index} className="flex gap-2 items-center">
+                      <Input
+                        placeholder="Texto da opção"
+                        value={option.label}
+                        onChange={(e) => {
+                          const newOptions = [...optionsArray];
+                          newOptions[index].label = e.target.value;
+                          setOptionsArray(newOptions);
+                        }}
+                        className="flex-1"
+                      />
+                      <Input
+                        type="number"
+                        min="0"
+                        max="100"
+                        placeholder="Score"
+                        value={option.score}
+                        onChange={(e) => {
+                          const newOptions = [...optionsArray];
+                          newOptions[index].score = parseInt(e.target.value) || 0;
+                          setOptionsArray(newOptions);
+                        }}
+                        className="w-20"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => {
+                          const newOptions = [...optionsArray];
+                          newOptions[index].score = autoScoreOptions([option.label])[0]?.score || 50;
+                          setOptionsArray(newOptions);
+                        }}
+                        title="Auto-preencher pontuação"
+                      >
+                        <Wand2 className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          setOptionsArray(optionsArray.filter((_, i) => i !== index));
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+
+                {optionsArray.length > 0 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const autoScored = autoScoreOptions(optionsArray);
+                      setOptionsArray(autoScored);
+                    }}
+                    className="w-full"
+                  >
+                    <Wand2 className="w-4 h-4 mr-2" />
+                    Auto-preencher Todas as Pontuações
+                  </Button>
+                )}
               </div>
             )}
 
@@ -626,36 +712,29 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
             )}
 
             <div className="p-4 bg-slate-50 rounded-lg space-y-3">
-              <Label className="font-medium">Pontuação (Health Score)</Label>
-              <p className="text-xs text-slate-500">Define como esta pergunta contribui para a nota final</p>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label className="text-xs">Módulo</Label>
-                  <Select 
-                    value={form.weight_category || form.module_id} 
-                    onValueChange={(v) => setForm({ ...form, weight_category: v })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione módulo..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={null}>Nenhum</SelectItem>
-                      {modules.filter(m => m.is_active).sort((a, b) => a.order - b.order).map(m => (
-                        <SelectItem key={m.id} value={m.id}>
-                          {m.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label className="text-xs">Pontos</Label>
-                  <Input
-                    type="number"
-                    value={form.weight_points}
-                    onChange={(e) => setForm({ ...form, weight_points: parseInt(e.target.value) || 0 })}
-                  />
-                </div>
+              <Label className="font-medium">Categoria para Health Score</Label>
+              <p className="text-xs text-slate-500">Selecione o módulo ao qual esta pergunta pertence para o cálculo do Health Score</p>
+              <div>
+                <Label className="text-xs">Módulo</Label>
+                <Select 
+                  value={form.weight_category || ''} 
+                  onValueChange={(v) => setForm({ ...form, weight_category: v })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Não participa do Health Score" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={null}>Não participa do Health Score</SelectItem>
+                    {modules.filter(m => m.is_active).sort((a, b) => a.order - b.order).map(m => (
+                      <SelectItem key={m.id} value={m.id}>
+                        {m.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-slate-400 mt-1">
+                  A pontuação vem das opções de resposta, não da pergunta
+                </p>
               </div>
             </div>
           </div>

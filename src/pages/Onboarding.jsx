@@ -241,7 +241,7 @@ export default function Onboarding() {
     }),
   });
 
-  // Calcular Health Score
+  // Calcular Health Score (NOVO - baseado em pontuação por resposta)
   const calculateHealthScore = () => {
     // Carregar lista de módulos configurados
     const categoriesListSetting = healthScoreSettings.find(s => s.key === 'health_score_categories');
@@ -259,6 +259,7 @@ export default function Onboarding() {
       return 0; // Sem módulos configurados
     }
 
+    // Montar estrutura de pesos por módulo
     const weights = {};
     
     categoryModuleIds.forEach(moduleId => {
@@ -271,36 +272,69 @@ export default function Onboarding() {
       if (isEnabled) {
         weights[moduleId] = { 
           weight: weightValue, 
-          maxPoints: 0, 
-          earnedPoints: 0
+          totalScore: 0,
+          count: 0
         };
       }
     });
 
+    // Calcular pontuação por pergunta (baseado na resposta selecionada)
     questions.forEach(q => {
-      if (q.weight_points && weights[q.module_id]) {
-        const moduleWeight = weights[q.module_id];
+      // Verificar se a pergunta participa do Health Score
+      if (!q.weight_category || !weights[q.weight_category]) return;
+      
+      // Verificar se a pergunta está visível (para condicionais)
+      if (!isQuestionVisible(q)) return;
+      
+      const userAnswer = answers[q.field_key];
+      if (!userAnswer) return;
+      
+      // Encontrar a pontuação da opção selecionada
+      let score = 0;
+      
+      if (q.options && Array.isArray(q.options) && q.options.length > 0) {
+        // Verificar se as opções estão no novo formato ({ label, score })
+        const firstOption = q.options[0];
         
-        moduleWeight.maxPoints += q.weight_points;
-        
-        const answer = answers[q.field_key];
-        if (answer === 'Sim' || answer === true) {
-          moduleWeight.earnedPoints += q.weight_points;
-        } else if (typeof answer === 'number' && answer > 0) {
-          moduleWeight.earnedPoints += Math.min(q.weight_points, answer);
+        if (typeof firstOption === 'object' && firstOption.label !== undefined) {
+          // Novo formato: buscar a opção selecionada
+          const selectedOption = q.options.find(opt => opt.label === userAnswer);
+          if (selectedOption && selectedOption.score !== undefined) {
+            score = selectedOption.score;
+          }
+        } else {
+          // Formato antigo (string[]): atribuir pontuação padrão
+          if (userAnswer === 'Sim' || userAnswer === true) {
+            score = 100;
+          } else if (userAnswer === 'Não' || userAnswer === false) {
+            score = 0;
+          } else {
+            score = 50; // Resposta parcial
+          }
         }
+      } else if (q.field_type === 'yes_no') {
+        // Perguntas sim/não sem opções configuradas
+        score = (userAnswer === 'Sim' || userAnswer === true) ? 100 : 0;
+      }
+      
+      // Adicionar à pontuação do módulo
+      weights[q.weight_category].totalScore += score;
+      weights[q.weight_category].count += 1;
+    });
+
+    // Calcular score final ponderado
+    let finalScore = 0;
+    
+    Object.values(weights).forEach(moduleData => {
+      if (moduleData.count > 0) {
+        // Média do módulo (0-100)
+        const moduleAverage = moduleData.totalScore / moduleData.count;
+        // Aplicar peso do módulo
+        finalScore += moduleAverage * moduleData.weight;
       }
     });
 
-    let totalScore = 0;
-    Object.values(weights).forEach(mod => {
-      if (mod.maxPoints > 0) {
-        const moduleScore = (mod.earnedPoints / mod.maxPoints) * 100;
-        totalScore += moduleScore * mod.weight;
-      }
-    });
-
-    return Math.round(totalScore);
+    return Math.round(finalScore);
   };
 
   // Gerar relatório básico
@@ -345,7 +379,10 @@ export default function Onboarding() {
     setSaving(true);
     
     const healthScore = calculateHealthScore();
-    const healthLevel = healthScore >= 70 ? 'Alta' : healthScore >= 40 ? 'Média' : 'Baixa';
+    let healthLevel = 'Crítico';
+    if (healthScore >= 80) healthLevel = 'Maduro / Escalável';
+    else if (healthScore >= 60) healthLevel = 'Estruturado';
+    else if (healthScore >= 40) healthLevel = 'Instável';
     const basicReport = generateBasicReport();
 
     const tipo = String(answers.tipo_unidade || '').toLowerCase();
