@@ -192,15 +192,25 @@ export default function ProjectsTable({
                     )}
                   </TableCell>
                   <TableCell>
-                    {project.status === 'IN_PROGRESS' && (
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => onOpenProject(project)}
-                      >
-                        <ExternalLink className="w-4 h-4 mr-1" /> Abrir e finalizar
-                      </Button>
-                    )}
+                    {project.status === 'IN_PROGRESS' ? (
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => onOpenProject(project)}
+                        >
+                          <ExternalLink className="w-4 h-4 mr-1" /> Abrir e finalizar
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onDelete(project)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ) : null}
                   </TableCell>
                 </TableRow>
               ))
