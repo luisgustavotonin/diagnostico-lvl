@@ -27,7 +27,7 @@ const FIELD_TYPES = [
 ];
 
 const WEIGHT_CATEGORIES = [
-  { value: '', label: 'Nenhuma' },
+  { value: 'none', label: 'Nenhuma' },
   { value: 'marketing', label: 'Marketing & Presença Digital (30%)' },
   { value: 'comercial', label: 'Comercial & Atendimento (30%)' },
   { value: 'operacao', label: 'Operação & Estrutura (20%)' },
@@ -98,7 +98,7 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete 
     setForm({
       ...question,
       options: question.options || [],
-      weight_category: question.weight_category || '',
+      weight_category: question.weight_category || 'none',
       weight_points: question.weight_points || 0
     });
     setOptionsText((question.options || []).join('\n'));
@@ -108,7 +108,11 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete 
 
   const handleSave = () => {
     const options = optionsText.split('\n').filter(o => o.trim());
-    onSave(editingQuestion?.id, { ...form, options });
+    const saveData = { ...form, options };
+    if (saveData.weight_category === 'none') {
+      saveData.weight_category = null;
+    }
+    onSave(editingQuestion?.id, saveData);
     setDialogOpen(false);
   };
 
