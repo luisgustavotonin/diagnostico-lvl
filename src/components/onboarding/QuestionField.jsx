@@ -149,13 +149,16 @@ export default function QuestionField({ question, value, onChange, error }) {
         );
 
       case 'radio':
+        const radioOptions = (question.options || []).map(opt => 
+          typeof opt === 'string' ? opt : opt.label
+        );
         return (
           <Select value={value || ''} onValueChange={onChange}>
             <SelectTrigger className={error ? 'border-red-500' : ''}>
               <SelectValue placeholder={question.placeholder || "Selecione uma opção..."} />
             </SelectTrigger>
             <SelectContent>
-              {(question.options || []).map((option, idx) => (
+              {radioOptions.map((option, idx) => (
                 <SelectItem key={idx} value={option}>{option}</SelectItem>
               ))}
             </SelectContent>
@@ -163,13 +166,16 @@ export default function QuestionField({ question, value, onChange, error }) {
         );
 
       case 'select':
+        const selectOptions = (question.options || []).map(opt => 
+          typeof opt === 'string' ? opt : opt.label
+        );
         return (
           <Select value={value || ''} onValueChange={onChange}>
             <SelectTrigger className={error ? 'border-red-500' : ''}>
               <SelectValue placeholder={question.placeholder || "Selecione..."} />
             </SelectTrigger>
             <SelectContent>
-              {(question.options || []).map((option, idx) => (
+              {selectOptions.map((option, idx) => (
                 <SelectItem key={idx} value={option}>{option}</SelectItem>
               ))}
             </SelectContent>
@@ -178,9 +184,12 @@ export default function QuestionField({ question, value, onChange, error }) {
 
       case 'checkbox':
         const selectedValues = Array.isArray(value) ? value : [];
+        const checkboxOptions = (question.options || []).map(opt => 
+          typeof opt === 'string' ? opt : opt.label
+        );
         return (
           <div className="space-y-2">
-            {(question.options || []).map((option, idx) => (
+            {checkboxOptions.map((option, idx) => (
               <div key={idx} className="flex items-center space-x-2">
                 <Checkbox
                   id={`${question.field_key}-${idx}`}
