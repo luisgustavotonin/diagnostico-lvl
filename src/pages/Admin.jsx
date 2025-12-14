@@ -5,7 +5,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Loader2, Building2, ListTree, Eye, Settings } from 'lucide-react';
 import { toast } from "sonner";
-import { createPageUrl } from '../utils';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 import StatsCards from '../components/admin/StatsCards';
@@ -53,6 +52,8 @@ export default function Admin() {
         ]
       }, '-created_date');
     },
+    refetchInterval: 5000, // Atualiza a cada 5 segundos
+    refetchOnWindowFocus: true, // Atualiza quando voltar para a aba
   });
 
   // Carregar módulos
@@ -283,8 +284,7 @@ ESTRUTURA OBRIGATÓRIA DO DIAGNÓSTICO:
   };
 
   const handleOpenProject = (project) => {
-    const url = createPageUrl('Onboarding') + `?project=${project.id}`;
-    window.open(url, '_blank');
+    window.open(`/Onboarding?project=${project.id}`, '_blank');
   };
 
   const confirmDelete = () => {
