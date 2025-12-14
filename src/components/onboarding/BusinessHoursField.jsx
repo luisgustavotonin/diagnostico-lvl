@@ -20,7 +20,7 @@ const DEFAULT_HOURS = [{ start: '08:00', end: '18:00' }];
 
 export default function BusinessHoursField({ value, onChange }) {
   const [schedule, setSchedule] = useState(() => {
-    if (value && typeof value === 'object') {
+    if (value && typeof value === 'object' && Object.keys(value).length > 0) {
       return value;
     }
     
@@ -36,7 +36,9 @@ export default function BusinessHoursField({ value, onChange }) {
   });
 
   useEffect(() => {
-    onChange(schedule);
+    if (JSON.stringify(schedule) !== JSON.stringify(value)) {
+      onChange(schedule);
+    }
   }, [schedule]);
 
   const toggleDay = (dayKey) => {

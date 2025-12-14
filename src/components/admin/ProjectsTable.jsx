@@ -44,6 +44,9 @@ export default function ProjectsTable({
   };
 
   const filteredProjects = projects.filter(p => {
+    // Filtrar apenas projetos salvos (IN_PROGRESS ou COMPLETED)
+    if (p.status === 'DRAFT') return false;
+
     const searchLower = search.toLowerCase();
     return (
       (p.unit_name || '').toLowerCase().includes(searchLower) ||

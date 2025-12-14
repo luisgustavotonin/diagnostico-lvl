@@ -96,7 +96,7 @@ export default function Onboarding() {
   const handleStart = async () => {
     setSaving(true);
     const project = await base44.entities.Project.create({
-      status: 'IN_PROGRESS',
+      status: 'DRAFT',
       current_module: 1,
       answers_json: {}
     });
@@ -107,7 +107,7 @@ export default function Onboarding() {
   };
 
   // Salvar progresso
-  const saveProgress = async () => {
+  const saveProgress = async (markAsInProgress = false) => {
     if (!projectId) return;
     
     // Extrair dados principais das respostas
@@ -115,6 +115,11 @@ export default function Onboarding() {
       answers_json: answers,
       current_module: currentModuleNum
     };
+
+    // Se for salvamento manual, mudar status para IN_PROGRESS
+    if (markAsInProgress) {
+      updateData.status = 'IN_PROGRESS';
+    }
 
     // Mapear campos conhecidos
     if (answers.unit_name) updateData.unit_name = answers.unit_name;
@@ -124,6 +129,13 @@ export default function Onboarding() {
     if (answers.phone) updateData.phone = answers.phone;
 
     await base44.entities.Project.update(projectId, updateData);
+  };
+
+  // Salvar rascunho manualmente
+  const handleSaveDraft = async () => {
+    setSaving(true);
+    await saveProgress(true);
+    setSaving(false);
   };
 
   // Atualizar resposta
@@ -358,7 +370,7 @@ export default function Onboarding() {
             />
           )}
 
-          <div className="flex justify-between mt-10 pt-6 border-t border-slate-100">
+          <div className="flex justify-between items-center mt-10 pt-6 border-t border-slate-100">
             <Button
               variant="outline"
               onClick={handlePrevious}
@@ -369,17 +381,31 @@ export default function Onboarding() {
               Anterior
             </Button>
 
-            <Button
-              onClick={handleNext}
-              disabled={saving}
-              className="bg-slate-800 hover:bg-slate-700 text-white px-6"
-            >
-              {saving ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              ) : null}
-              {currentModuleNum === activeModules.length ? 'Concluir' : 'Próximo'}
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={handleSaveDraft}
+                disabled={saving}
+                className="px-6"
+              >
+                {saving ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : null}
+                Salvar Progresso
+              </Button>
+
+              <Button
+                onClick={handleNext}
+                disabled={saving}
+                className="bg-slate-800 hover:bg-slate-700 text-white px-6"
+              >
+                {saving ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : null}
+                {currentModuleNum === activeModules.length ? 'Concluir' : 'Próximo'}
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </div>
           </div>
         </Card>
       </div>
