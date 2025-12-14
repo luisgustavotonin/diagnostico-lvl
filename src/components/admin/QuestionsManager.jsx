@@ -458,12 +458,14 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
                 </Select>
               </div>
               <div>
-                <Label>Ordem</Label>
+                <Label>Posição</Label>
                 <Input
                   type="number"
                   value={form.order}
-                  onChange={(e) => setForm({ ...form, order: parseInt(e.target.value) })}
+                  disabled
+                  className="bg-slate-50"
                 />
+                <p className="text-xs text-slate-500 mt-1">Arraste para reordenar</p>
               </div>
             </div>
 
