@@ -132,17 +132,17 @@ export default function BusinessHoursField({ value, onChange }) {
 
   return (
     <div className="space-y-3">
-      <h3 className="text-lg font-semibold text-slate-800 mb-4">Horário de atendimento</h3>
+      <h3 className="text-xl font-semibold text-slate-900 mb-6">Horário de atendimento</h3>
       {DAYS.map(day => {
         const dayData = schedule[day.key] || { aberto: false, periodos: [] };
         const isOpen = dayData.aberto;
         
         return (
-          <Card key={day.key} className="p-4 border border-slate-200">
-            <div className="flex items-center justify-between mb-3">
-              <Label className="text-base font-medium text-slate-700">{day.label}</Label>
-              <div className="flex items-center gap-2">
-                <span className={`text-sm ${isOpen ? 'text-teal-600' : 'text-slate-400'}`}>
+          <Card key={day.key} className="p-5 border border-slate-200 bg-white">
+            <div className="flex items-center justify-between">
+              <Label className="text-base font-medium text-slate-800">{day.label}</Label>
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-slate-500">
                   {isOpen ? 'Aberto' : 'Fechado'}
                 </span>
                 <Switch
@@ -153,7 +153,7 @@ export default function BusinessHoursField({ value, onChange }) {
             </div>
 
             {isOpen && (
-              <div className="space-y-2">
+              <div className="space-y-2 mt-4">
                 {dayData.periodos.map((periodo, index) => (
                   <div key={index}>
                     <div className="flex items-center gap-2">
