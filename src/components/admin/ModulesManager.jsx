@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -50,6 +51,19 @@ export default function ModulesManager({ modules, onSave, onDelete }) {
     setDialogOpen(false);
   };
 
+  const handleDragEnd = (result) => {
+    if (!result.destination) return;
+
+    const items = Array.from(sortedModules);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    // Atualizar ordem de todos os módulos
+    items.forEach((module, index) => {
+      onSave(module.id, { ...module, order: index + 1 });
+    });
+  };
+
   const sortedModules = [...modules].sort((a, b) => a.order - b.order);
 
   return (
@@ -61,33 +75,56 @@ export default function ModulesManager({ modules, onSave, onDelete }) {
         </Button>
       </div>
 
-      <div className="space-y-3">
-        {sortedModules.map((module) => (
-          <Card key={module.id} className="p-4 flex items-center gap-4">
-            <GripVertical className="w-5 h-5 text-slate-300 cursor-move" />
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-slate-500">#{module.number}</span>
-                <h4 className="font-medium">{module.title}</h4>
-                {!module.is_active && (
-                  <span className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded">Inativo</span>
-                )}
-              </div>
-              {module.description && (
-                <p className="text-sm text-slate-500 mt-1">{module.description}</p>
-              )}
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Droppable droppableId="modules-list">
+          {(provided) => (
+            <div
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+              className="space-y-3"
+            >
+              {sortedModules.map((module, index) => (
+                <Draggable key={module.id} draggableId={module.id} index={index}>
+                  {(provided, snapshot) => (
+                    <Card
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      className={`p-4 flex items-center gap-4 ${
+                        snapshot.isDragging ? 'shadow-lg' : ''
+                      }`}
+                    >
+                      <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing">
+                        <GripVertical className="w-5 h-5 text-slate-400" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-slate-500">#{module.number}</span>
+                          <h4 className="font-medium">{module.title}</h4>
+                          {!module.is_active && (
+                            <span className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded">Inativo</span>
+                          )}
+                        </div>
+                        {module.description && (
+                          <p className="text-sm text-slate-500 mt-1">{module.description}</p>
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="ghost" size="icon" onClick={() => handleEdit(module)}>
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => onDelete(module.id)}>
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </Button>
+                      </div>
+                    </Card>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
             </div>
-            <div className="flex gap-2">
-              <Button variant="ghost" size="icon" onClick={() => handleEdit(module)}>
-                <Pencil className="w-4 h-4" />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={() => onDelete(module.id)}>
-                <Trash2 className="w-4 h-4 text-red-500" />
-              </Button>
-            </div>
-          </Card>
-        ))}
-      </div>
+          )}
+        </Droppable>
+      </DragDropContext>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
