@@ -80,8 +80,6 @@ export default function PreviewSimulator({ modules, questions }) {
   };
 
   const handleNext = () => {
-    if (!validateCurrentModule()) return;
-    
     if (currentModuleNum < activeModules.length) {
       setCurrentModuleNum(prev => prev + 1);
       setErrors({});
