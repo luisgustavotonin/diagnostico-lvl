@@ -773,10 +773,11 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
 
             {(() => {
               const isModuleEnabledForHealthScore = form.module_id && enabledHealthModules.includes(form.module_id);
+              const currentModule = modules.find(m => m.id === form.module_id);
               
               return (
                 <div className={`p-4 rounded-lg space-y-3 ${isModuleEnabledForHealthScore ? 'bg-slate-50' : 'bg-slate-100 opacity-60'}`}>
-                  <Label className="font-medium">Categoria para Health Score</Label>
+                  <Label className="font-medium">Participa do Health Score?</Label>
                   {!isModuleEnabledForHealthScore ? (
                     <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
                       <p className="text-xs text-amber-800">
@@ -785,36 +786,27 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
                     </div>
                   ) : (
                     <>
-                      <p className="text-xs text-slate-500">Selecione o módulo ao qual esta pergunta pertence para o cálculo do Health Score</p>
+                      <p className="text-xs text-slate-500">Defina se esta pergunta deve contribuir para o cálculo do Health Score</p>
                       <div>
-                        <Label className="text-xs">Módulo</Label>
                         <Select 
                           value={form.weight_category || ''} 
                           onValueChange={(v) => setForm({ ...form, weight_category: v })}
                           disabled={!isModuleEnabledForHealthScore}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Não participa do Health Score" />
+                            <SelectValue placeholder="Selecione..." />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value={null}>Não participa do Health Score</SelectItem>
-                            {modules
-                              .filter(m => m.is_active && enabledHealthModules.includes(m.id))
-                              .sort((a, b) => a.order - b.order)
-                              .map(m => (
-                                <SelectItem key={m.id} value={m.id}>
-                                  {m.title}
-                                </SelectItem>
-                              ))}
+                            {currentModule && (
+                              <SelectItem value={currentModule.id}>
+                                Sim, participa - {currentModule.title}
+                              </SelectItem>
+                            )}
                           </SelectContent>
                         </Select>
-                        {enabledHealthModules.length === 0 && (
-                          <p className="text-xs text-amber-600 mt-1">
-                            ⚠️ Nenhum módulo habilitado nas Configurações do Health Score
-                          </p>
-                        )}
                         <p className="text-xs text-slate-400 mt-1">
-                          Apenas módulos habilitados nas configurações aparecem aqui
+                          A pergunta só pode contribuir para o módulo ao qual pertence
                         </p>
                       </div>
                     </>
