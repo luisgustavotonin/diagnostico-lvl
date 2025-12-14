@@ -18,9 +18,17 @@ export default function ProjectsTable({
   onViewAI,
   onOpenProject,
   aiEnabled,
-  generatingAI
+  generatingAI,
+  onSearchChange
 }) {
   const [search, setSearch] = useState('');
+
+  const handleSearchChange = (value) => {
+    setSearch(value);
+    if (onSearchChange) {
+      onSearchChange(value);
+    }
+  };
 
   const formatPhone = (phone) => {
     if (!phone) return '-';
@@ -46,14 +54,7 @@ export default function ProjectsTable({
   const filteredProjects = projects.filter(p => {
     // Filtrar apenas projetos salvos (IN_PROGRESS ou COMPLETED)
     if (p.status === 'DRAFT') return false;
-
-    const searchLower = search.toLowerCase();
-    return (
-      (p.unit_name || '').toLowerCase().includes(searchLower) ||
-      (p.city || '').toLowerCase().includes(searchLower) ||
-      (p.cnpj || '').includes(searchLower) ||
-      (p.phone || '').includes(searchLower)
-    );
+    return true;
   });
 
   const getHealthBadge = (score, level) => {
@@ -79,7 +80,7 @@ export default function ProjectsTable({
         <Input
           placeholder="Buscar por nome, cidade, CNPJ ou telefone..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => handleSearchChange(e.target.value)}
           className="pl-10"
         />
       </div>
@@ -88,13 +89,13 @@ export default function ProjectsTable({
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50">
-              <TableHead>Data</TableHead>
-              <TableHead>Nome</TableHead>
-              <TableHead>Tipo</TableHead>
-              <TableHead>Cidade</TableHead>
-              <TableHead>Health Query</TableHead>
-              <TableHead>Relatório Básico</TableHead>
-              <TableHead>Relatório + IA</TableHead>
+              <TableHead className="w-[100px]">Data</TableHead>
+              <TableHead className="w-[300px]">Nome</TableHead>
+              <TableHead className="w-[120px]">Tipo</TableHead>
+              <TableHead className="w-[150px]">Cidade</TableHead>
+              <TableHead className="w-[140px]">Health Query</TableHead>
+              <TableHead className="w-[140px]">Relatório Básico</TableHead>
+              <TableHead className="w-[140px]">Relatório + IA</TableHead>
               <TableHead>Ações</TableHead>
             </TableRow>
           </TableHeader>
