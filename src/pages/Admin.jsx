@@ -28,10 +28,30 @@ export default function Admin() {
 
   const queryClient = useQueryClient();
 
+  const [searchQuery, setSearchQuery] = useState('');
+
   // Carregar projetos
   const { data: projects = [], isLoading: loadingProjects } = useQuery({
-    queryKey: ['projects'],
-    queryFn: () => base44.entities.Project.list('-created_date'),
+    queryKey: ['projects', searchQuery],
+    queryFn: async () => {
+      if (!searchQuery.trim()) {
+        return base44.entities.Project.list('-created_date');
+      }
+      
+      // Buscar na base com regex case-insensitive
+      const normalizedSearch = searchQuery
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+      
+      return base44.entities.Project.filter({
+        $or: [
+          { unit_name: { $regex: normalizedSearch, $options: 'i' } },
+          { city: { $regex: normalizedSearch, $options: 'i' } },
+          { cnpj: { $regex: searchQuery.replace(/\D/g, ''), $options: 'i' } },
+          { phone: { $regex: searchQuery.replace(/\D/g, ''), $options: 'i' } }
+        ]
+      }, '-created_date');
+    },
   });
 
   // Carregar módulos
@@ -327,6 +347,7 @@ ESTRUTURA OBRIGATÓRIA DO DIAGNÓSTICO:
                 onOpenProject={handleOpenProject}
                 aiEnabled={aiEnabled}
                 generatingAI={generatingAI}
+                onSearchChange={setSearchQuery}
               />
             </Card>
           </TabsContent>
