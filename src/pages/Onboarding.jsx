@@ -137,14 +137,16 @@ export default function Onboarding() {
   const saveProgress = async () => {
     if (!projectId) return;
     
-    // Extrair dados principais das respostas
     const updateData = {
       answers_json: answers,
       current_module: currentModuleNum
     };
 
-    // Mapear campos conhecidos - usar nomes exatos dos field_keys
+    // Mapear campos do módulo 1 para facilitar busca
+    if (answers.nome_consultorio) updateData.unit_name = answers.nome_consultorio;
+    if (answers.nome_fantasia) updateData.unit_name = answers.nome_fantasia;
     if (answers.nome_unidade) updateData.unit_name = answers.nome_unidade;
+    
     if (answers.tipo_unidade) {
       const tipo = String(answers.tipo_unidade).toLowerCase();
       updateData.unit_type = tipo === 'consultório' || tipo === 'consultorio' ? 'consultorio' : 'clinica';
