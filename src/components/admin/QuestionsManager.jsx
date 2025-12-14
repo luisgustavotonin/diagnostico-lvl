@@ -173,20 +173,36 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
     setModuleDialogOpen(false);
   };
 
-  const handleDragEnd = (result, moduleId) => {
+  const handleDragEnd = (result) => {
     if (!result.destination) return;
 
-    const moduleQuestions = getQuestionsByModule(moduleId);
-    const items = Array.from(moduleQuestions);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
+    const droppableId = result.destination.droppableId;
+    
+    // Verifica se é um grupo de perguntas condicionais
+    if (droppableId.startsWith('conditional-')) {
+      const parentId = droppableId.replace('conditional-', '');
+      const conditionalQuestions = getConditionalQuestions(parentId);
+      const items = Array.from(conditionalQuestions);
+      const [reorderedItem] = items.splice(result.source.index, 1);
+      items.splice(result.destination.index, 0, reorderedItem);
 
-    // Atualizar ordem de todas as perguntas afetadas
-    items.forEach((question, index) => {
-      if (question.order !== index + 1) {
+      // Atualizar ordem de todas as perguntas condicionais
+      items.forEach((question, index) => {
         onSave(question.id, { ...question, order: index + 1 });
-      }
-    });
+      });
+    } else {
+      // Perguntas principais do módulo
+      const moduleId = droppableId.replace('module-', '');
+      const mainQuestions = getMainQuestions(moduleId);
+      const items = Array.from(mainQuestions);
+      const [reorderedItem] = items.splice(result.source.index, 1);
+      items.splice(result.destination.index, 0, reorderedItem);
+
+      // Atualizar ordem de todas as perguntas principais
+      items.forEach((question, index) => {
+        onSave(question.id, { ...question, order: index + 1 });
+      });
+    }
   };
 
   return (
@@ -224,7 +240,7 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
               </div>
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-4">
-              <DragDropContext onDragEnd={(result) => handleDragEnd(result, module.id)}>
+              <DragDropContext onDragEnd={handleDragEnd}>
                 <Droppable droppableId={`module-${module.id}`}>
                   {(provided) => (
                     <div
@@ -277,59 +293,57 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
                               </Card>
 
                               {getConditionalQuestions(question.id).length > 0 && (
-                                <DragDropContext onDragEnd={(result) => handleDragEnd(result, module.id)}>
-                                  <Droppable droppableId={`conditional-${question.id}`}>
-                                    {(provided) => (
-                                      <div
-                                        {...provided.droppableProps}
-                                        ref={provided.innerRef}
-                                        className="ml-8 mt-2 space-y-2"
-                                      >
-                                        {getConditionalQuestions(question.id).map((cond, condIndex) => (
-                                          <Draggable key={cond.id} draggableId={cond.id} index={condIndex}>
-                                            {(provided, snapshot) => (
-                                              <Card
-                                                ref={provided.innerRef}
-                                                {...provided.draggableProps}
-                                                className={`p-3 flex items-center gap-3 border-l-4 border-blue-200 ${
-                                                  snapshot.isDragging ? 'shadow-lg' : ''
-                                                }`}
-                                              >
-                                                <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing">
-                                                  <GripVertical className="w-4 h-4 text-blue-400" />
+                                <Droppable droppableId={`conditional-${question.id}`}>
+                                  {(provided) => (
+                                    <div
+                                      {...provided.droppableProps}
+                                      ref={provided.innerRef}
+                                      className="ml-8 mt-2 space-y-2"
+                                    >
+                                      {getConditionalQuestions(question.id).map((cond, condIndex) => (
+                                        <Draggable key={cond.id} draggableId={cond.id} index={condIndex}>
+                                          {(provided, snapshot) => (
+                                            <Card
+                                              ref={provided.innerRef}
+                                              {...provided.draggableProps}
+                                              className={`p-3 flex items-center gap-3 border-l-4 border-blue-200 ${
+                                                snapshot.isDragging ? 'shadow-lg' : ''
+                                              }`}
+                                            >
+                                              <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing">
+                                                <GripVertical className="w-4 h-4 text-blue-400" />
+                                              </div>
+                                              <ChevronRight className="w-4 h-4 text-blue-400" />
+                                              <div className="flex-1">
+                                                <div className="flex items-center gap-2 flex-wrap">
+                                                  <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded">
+                                                    Condicional
+                                                  </span>
+                                                  <span className="text-xs bg-slate-100 px-2 py-0.5 rounded">
+                                                    {FIELD_TYPES.find(t => t.value === cond.field_type)?.label}
+                                                  </span>
                                                 </div>
-                                                <ChevronRight className="w-4 h-4 text-blue-400" />
-                                                <div className="flex-1">
-                                                  <div className="flex items-center gap-2 flex-wrap">
-                                                    <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded">
-                                                      Condicional
-                                                    </span>
-                                                    <span className="text-xs bg-slate-100 px-2 py-0.5 rounded">
-                                                      {FIELD_TYPES.find(t => t.value === cond.field_type)?.label}
-                                                    </span>
-                                                  </div>
-                                                  <p className="mt-1 text-sm">{cond.text}</p>
-                                                  <p className="text-xs text-slate-400 mt-0.5">
-                                                    Se {cond.condition_field} {cond.condition_operator} "{cond.condition_value}"
-                                                  </p>
-                                                </div>
-                                                <div className="flex gap-1">
-                                                  <Button variant="ghost" size="icon" onClick={() => handleEdit(cond)}>
-                                                    <Pencil className="w-4 h-4" />
-                                                  </Button>
-                                                  <Button variant="ghost" size="icon" onClick={() => onDelete(cond.id)}>
-                                                    <Trash2 className="w-4 h-4 text-red-500" />
-                                                  </Button>
-                                                </div>
-                                              </Card>
-                                            )}
-                                          </Draggable>
-                                        ))}
-                                        {provided.placeholder}
-                                      </div>
-                                    )}
-                                  </Droppable>
-                                </DragDropContext>
+                                                <p className="mt-1 text-sm">{cond.text}</p>
+                                                <p className="text-xs text-slate-400 mt-0.5">
+                                                  Se {cond.condition_field} {cond.condition_operator} "{cond.condition_value}"
+                                                </p>
+                                              </div>
+                                              <div className="flex gap-1">
+                                                <Button variant="ghost" size="icon" onClick={() => handleEdit(cond)}>
+                                                  <Pencil className="w-4 h-4" />
+                                                </Button>
+                                                <Button variant="ghost" size="icon" onClick={() => onDelete(cond.id)}>
+                                                  <Trash2 className="w-4 h-4 text-red-500" />
+                                                </Button>
+                                              </div>
+                                            </Card>
+                                          )}
+                                        </Draggable>
+                                      ))}
+                                      {provided.placeholder}
+                                    </div>
+                                  )}
+                                </Droppable>
                               )}
                             </div>
                           )}
