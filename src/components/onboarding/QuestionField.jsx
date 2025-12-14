@@ -9,11 +9,22 @@ import PhoneMask from '../masks/PhoneMask';
 import CNPJMask from '../masks/CNPJMask';
 import CEPMask from '../masks/CEPMask';
 import CurrencyMask from '../masks/CurrencyMask';
+import BusinessHoursField from './BusinessHoursField';
 import { HelpCircle } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function QuestionField({ question, value, onChange, error }) {
   const renderField = () => {
+    // Campo especial para horário de atendimento
+    if (question.field_key === 'horario_atendimento' || question.field_type === 'business_hours') {
+      return (
+        <BusinessHoursField
+          value={value}
+          onChange={onChange}
+        />
+      );
+    }
+
     switch (question.field_type) {
       case 'text':
         return (
