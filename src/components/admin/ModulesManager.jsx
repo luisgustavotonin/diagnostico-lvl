@@ -60,7 +60,14 @@ export default function ModulesManager({ modules, onSave, onDelete }) {
 
     // Atualizar ordem de todos os módulos
     items.forEach((module, index) => {
-      onSave(module.id, { ...module, order: index + 1 });
+      const updatedData = {
+        number: module.number,
+        order: index + 1,
+        title: module.title,
+        description: module.description || '',
+        is_active: module.is_active
+      };
+      onSave(module.id, updatedData);
     });
   };
 
