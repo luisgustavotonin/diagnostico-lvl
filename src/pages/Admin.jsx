@@ -547,7 +547,11 @@ ESTRUTURA OBRIGATÓRIA DO DIAGNÓSTICO:
                 <SettingsPanel aiEnabled={aiEnabled} onToggleAI={handleToggleAI} />
               </Card>
               <Card className="p-6">
-                <HealthScoreSettings settings={settings} onSave={handleSaveHealthScore} />
+                <HealthScoreSettings 
+                  settings={settings} 
+                  modules={modules} 
+                  onSave={handleSaveHealthScore} 
+                />
               </Card>
             </div>
           </TabsContent>
