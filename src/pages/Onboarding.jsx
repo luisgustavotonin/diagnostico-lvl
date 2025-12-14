@@ -16,36 +16,6 @@ export default function Onboarding() {
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
   const [completed, setCompleted] = useState(false);
-  const [loadingProject, setLoadingProject] = useState(true);
-
-  // Verificar se há um projeto na URL para retomar
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const projectIdFromUrl = urlParams.get('project');
-    
-    if (projectIdFromUrl) {
-      loadExistingProject(projectIdFromUrl);
-    } else {
-      setLoadingProject(false);
-    }
-  }, []);
-
-  const loadExistingProject = async (id) => {
-    try {
-      const project = await base44.entities.Project.filter({ id });
-      if (project && project.length > 0) {
-        const proj = project[0];
-        setProjectId(proj.id);
-        setAnswers(proj.answers_json || {});
-        setCurrentModuleNum(proj.current_module || 1);
-        setStep('module');
-      }
-    } catch (error) {
-      console.error('Erro ao carregar projeto:', error);
-    } finally {
-      setLoadingProject(false);
-    }
-  };
 
   // Carregar módulos
   const { data: modules = [], isLoading: loadingModules } = useQuery({
@@ -146,12 +116,12 @@ export default function Onboarding() {
       current_module: currentModuleNum
     };
 
-    // Mapear campos conhecidos
-    if (answers.unit_name) updateData.unit_name = answers.unit_name;
-    if (answers.unit_type) updateData.unit_type = answers.unit_type;
-    if (answers.city) updateData.city = answers.city;
+    // Mapear campos conhecidos - usar nomes exatos dos field_keys
+    if (answers.nome_unidade) updateData.unit_name = answers.nome_unidade;
+    if (answers.tipo_unidade) updateData.unit_type = answers.tipo_unidade;
+    if (answers.cidade) updateData.city = answers.cidade;
     if (answers.cnpj) updateData.cnpj = answers.cnpj;
-    if (answers.phone) updateData.phone = answers.phone;
+    if (answers.telefone) updateData.phone = answers.telefone;
 
     await base44.entities.Project.update(projectId, updateData);
   };
@@ -168,11 +138,11 @@ export default function Onboarding() {
       status: 'IN_PROGRESS'
     };
 
-    if (answers.unit_name) updateData.unit_name = answers.unit_name;
-    if (answers.unit_type) updateData.unit_type = answers.unit_type;
-    if (answers.city) updateData.city = answers.city;
+    if (answers.nome_unidade) updateData.unit_name = answers.nome_unidade;
+    if (answers.tipo_unidade) updateData.unit_type = answers.tipo_unidade;
+    if (answers.cidade) updateData.city = answers.cidade;
     if (answers.cnpj) updateData.cnpj = answers.cnpj;
-    if (answers.phone) updateData.phone = answers.phone;
+    if (answers.telefone) updateData.phone = answers.telefone;
 
     await base44.entities.Project.update(projectId, updateData);
     setSaving(false);
@@ -297,18 +267,18 @@ export default function Onboarding() {
       health_score: healthScore,
       health_level: healthLevel,
       report_basic_text: basicReport,
-      unit_name: answers.unit_name || '',
-      unit_type: answers.unit_type || '',
-      city: answers.city || '',
+      unit_name: answers.nome_unidade || answers.nome_consultorio || answers.nome_fantasia || '',
+      unit_type: answers.tipo_unidade || '',
+      city: answers.cidade || '',
       cnpj: answers.cnpj || '',
-      phone: answers.phone || ''
+      phone: answers.telefone || ''
     });
 
     setCompleted(true);
     setSaving(false);
   };
 
-  if (loadingModules || loadingQuestions || loadingProject) {
+  if (loadingModules || loadingQuestions) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
         <Loader2 className="w-8 h-8 animate-spin text-slate-600" />
