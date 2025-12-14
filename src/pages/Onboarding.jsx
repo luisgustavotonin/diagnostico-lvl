@@ -291,7 +291,7 @@ export default function Onboarding() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4">
         <Card className="max-w-2xl w-full p-8 md:p-12 text-center shadow-xl border-0">
-          <div className="w-20 h-20 bg-teal-500 rounded-3xl mx-auto mb-6 flex items-center justify-center">
+          <div className="w-20 h-20 bg-slate-800 rounded-3xl mx-auto mb-6 flex items-center justify-center">
             <CheckCircle2 className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-4">
@@ -299,38 +299,38 @@ export default function Onboarding() {
           </h1>
           <p className="text-lg text-slate-600 mb-6 leading-relaxed">
             Este processo nos ajuda a conhecer sua clínica e montar a{' '}
-            <span className="text-teal-600 font-semibold">estratégia de tráfego perfeita</span> para você.
+            <span className="text-slate-800 font-semibold">estratégia de tráfego perfeita</span> para você.
           </p>
 
           <div className="flex items-center justify-center gap-2 mb-8 text-slate-600">
-            <svg className="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span className="font-medium">Tempo estimado: <span className="font-bold text-slate-800">5 a 10 minutos</span></span>
           </div>
 
           <div className="space-y-3 mb-8">
-            <div className="bg-teal-50 p-4 rounded-lg flex items-center gap-3 text-left">
-              <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg className="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-slate-50 p-4 rounded-lg flex items-center gap-3 text-left">
+              <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <span className="text-slate-700 font-medium">Estratégia personalizada para sua clínica</span>
             </div>
 
-            <div className="bg-teal-50 p-4 rounded-lg flex items-center gap-3 text-left">
-              <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg className="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-slate-50 p-4 rounded-lg flex items-center gap-3 text-left">
+              <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>
               <span className="text-slate-700 font-medium">Diagnóstico completo do seu marketing</span>
             </div>
 
-            <div className="bg-teal-50 p-4 rounded-lg flex items-center gap-3 text-left">
-              <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg className="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-slate-50 p-4 rounded-lg flex items-center gap-3 text-left">
+              <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
               </div>
@@ -342,7 +342,7 @@ export default function Onboarding() {
             size="lg" 
             onClick={handleStart}
             disabled={saving}
-            className="bg-teal-600 hover:bg-teal-700 text-white px-8 py-6 text-lg rounded-xl w-full mb-4"
+            className="bg-slate-800 hover:bg-slate-700 text-white px-8 py-6 text-lg rounded-xl w-full mb-4"
           >
             {saving ? (
               <Loader2 className="w-5 h-5 animate-spin mr-2" />

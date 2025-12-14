@@ -104,69 +104,67 @@ export default function BusinessHoursField({ value, onChange }) {
         
         return (
           <Card key={day.key} className="p-4 border border-slate-200">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label className="text-base font-medium text-slate-700">{day.label}</Label>
-                <div className="flex items-center gap-2">
-                  <span className={`text-sm font-medium ${isOpen ? 'text-teal-600' : 'text-slate-400'}`}>
-                    {isOpen ? 'Aberto' : 'Fechado'}
-                  </span>
-                  <Switch
-                    checked={isOpen}
-                    onCheckedChange={() => toggleDay(day.key)}
-                  />
-                </div>
+            <div className="flex items-center justify-between mb-3">
+              <Label className="text-base font-medium text-slate-700">{day.label}</Label>
+              <div className="flex items-center gap-2">
+                <span className={`text-sm ${isOpen ? 'text-teal-600' : 'text-slate-400'}`}>
+                  {isOpen ? 'Aberto' : 'Fechado'}
+                </span>
+                <Switch
+                  checked={isOpen}
+                  onCheckedChange={() => toggleDay(day.key)}
+                />
               </div>
-
-              {isOpen && (
-                <div className="space-y-2">
-                  {dayData.hours.map((interval, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <div className="relative flex-1">
-                        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                        <Input
-                          type="time"
-                          value={interval.start}
-                          onChange={(e) => updateHours(day.key, index, 'start', e.target.value)}
-                          className="pl-10"
-                        />
-                      </div>
-                      <span className="text-slate-500 text-sm">até</span>
-                      <div className="relative flex-1">
-                        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                        <Input
-                          type="time"
-                          value={interval.end}
-                          onChange={(e) => updateHours(day.key, index, 'end', e.target.value)}
-                          className="pl-10"
-                        />
-                      </div>
-                      {dayData.hours.length > 1 && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeInterval(day.key, index)}
-                          className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </div>
-                  ))}
-                  
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => addInterval(day.key)}
-                    className="w-full mt-2"
-                  >
-                    <Plus className="w-4 h-4 mr-2" /> Adicionar período
-                  </Button>
-                </div>
-              )}
             </div>
+
+            {isOpen && (
+              <div className="space-y-2">
+                {dayData.hours.map((interval, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                      <Input
+                        type="time"
+                        value={interval.start}
+                        onChange={(e) => updateHours(day.key, index, 'start', e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                    <span className="text-slate-500 text-sm">até</span>
+                    <div className="relative flex-1">
+                      <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                      <Input
+                        type="time"
+                        value={interval.end}
+                        onChange={(e) => updateHours(day.key, index, 'end', e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                    {dayData.hours.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeInterval(day.key, index)}
+                        className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+                
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addInterval(day.key)}
+                  className="w-full mt-2"
+                >
+                  <Plus className="w-4 h-4 mr-2" /> Adicionar período
+                </Button>
+              </div>
+            )}
           </Card>
         );
       })}
