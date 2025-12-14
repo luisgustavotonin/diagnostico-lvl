@@ -117,7 +117,10 @@ export default function ProjectsTable({
                     )}
                   </TableCell>
                   <TableCell className="font-medium">
-                    {project.unit_name || '-'}
+                    {project.unit_type === 'consultorio' 
+                      ? (project.answers_json?.nome_consultorio || project.unit_name || '-')
+                      : (project.answers_json?.nome_fantasia || project.unit_name || '-')
+                    }
                   </TableCell>
                   <TableCell className="capitalize">
                     {project.unit_type === 'consultorio' ? 'Consultório' : 

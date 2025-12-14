@@ -379,19 +379,7 @@ export default function Onboarding() {
             Em breve, um consultor dará continuidade ao atendimento.
           </p>
           {!completed && (
-            <div className="flex gap-3 justify-center mt-8">
-              <Button 
-                variant="outline"
-                size="lg" 
-                onClick={handleSaveProgress}
-                disabled={saving}
-                className="px-8 py-6 text-lg rounded-xl"
-              >
-                {saving ? (
-                  <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                ) : null}
-                Salvar Progresso
-              </Button>
+            <div className="flex justify-center mt-8">
               <Button 
                 size="lg" 
                 onClick={handleComplete}
