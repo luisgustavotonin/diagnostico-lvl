@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Sliders, Save, AlertCircle, Plus, Trash2 } from 'lucide-react';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -14,7 +15,7 @@ const DEFAULT_CATEGORIES = [
   { key: 'metas', label: 'Metas', defaultWeight: 20, defaultEnabled: true }
 ];
 
-export default function HealthScoreSettings({ settings, onSave }) {
+export default function HealthScoreSettings({ settings, modules, onSave }) {
   const [categories, setCategories] = useState([]);
   const [saving, setSaving] = useState(false);
   const [newCategoryLabel, setNewCategoryLabel] = useState('');
@@ -39,12 +40,23 @@ export default function HealthScoreSettings({ settings, onSave }) {
       const labelSetting = settings.find(s => s.key === `health_score_${key}_label`);
       const enabledSetting = settings.find(s => s.key === `health_score_${key}_enabled`);
       const weightSetting = settings.find(s => s.key === `health_score_${key}_weight`);
+      const modulesSetting = settings.find(s => s.key === `health_score_${key}_modules`);
+      
+      let selectedModules = [];
+      if (modulesSetting) {
+        try {
+          selectedModules = JSON.parse(modulesSetting.value);
+        } catch {
+          selectedModules = [];
+        }
+      }
       
       return {
         key,
         label: labelSetting ? labelSetting.value : (defaultCat?.label || key),
         enabled: enabledSetting ? enabledSetting.value === 'true' : (defaultCat?.defaultEnabled ?? true),
-        weight: weightSetting ? parseFloat(weightSetting.value) : (defaultCat?.defaultWeight || 25)
+        weight: weightSetting ? parseFloat(weightSetting.value) : (defaultCat?.defaultWeight || 25),
+        modules: selectedModules
       };
     });
     
@@ -90,7 +102,8 @@ export default function HealthScoreSettings({ settings, onSave }) {
       key,
       label: newCategoryLabel.trim(),
       enabled: true,
-      weight: Math.max(0, remainingWeight)
+      weight: Math.max(0, remainingWeight),
+      modules: []
     }]);
     
     setNewCategoryLabel('');

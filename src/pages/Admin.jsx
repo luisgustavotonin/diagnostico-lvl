@@ -192,10 +192,12 @@ export default function Admin() {
       const labelKey = `health_score_${cat.key}_label`;
       const enabledKey = `health_score_${cat.key}_enabled`;
       const weightKey = `health_score_${cat.key}_weight`;
+      const modulesKey = `health_score_${cat.key}_modules`;
       
       const labelSetting = settings.find(s => s.key === labelKey);
       const enabledSetting = settings.find(s => s.key === enabledKey);
       const weightSetting = settings.find(s => s.key === weightKey);
+      const modulesSetting = settings.find(s => s.key === modulesKey);
       
       if (labelSetting) {
         await base44.entities.AppSettings.update(labelSetting.id, { value: cat.label });
@@ -213,6 +215,12 @@ export default function Admin() {
         await base44.entities.AppSettings.update(weightSetting.id, { value: String(cat.weight) });
       } else {
         await base44.entities.AppSettings.create({ key: weightKey, value: String(cat.weight) });
+      }
+
+      if (modulesSetting) {
+        await base44.entities.AppSettings.update(modulesSetting.id, { value: JSON.stringify(cat.modules || []) });
+      } else {
+        await base44.entities.AppSettings.create({ key: modulesKey, value: JSON.stringify(cat.modules || []) });
       }
     }
     

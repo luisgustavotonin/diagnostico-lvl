@@ -243,31 +243,65 @@ export default function Onboarding() {
 
   // Calcular Health Score
   const calculateHealthScore = () => {
-    // Carregar pesos e status das categorias das configurações
-    const categories = ['marketing', 'comercial', 'operacao', 'metas'];
+    // Carregar lista de categorias
+    const categoriesListSetting = healthScoreSettings.find(s => s.key === 'health_score_categories');
+    let categoryKeys = [];
+    
+    if (categoriesListSetting) {
+      try {
+        categoryKeys = JSON.parse(categoriesListSetting.value);
+      } catch {
+        categoryKeys = ['marketing', 'comercial', 'operacao', 'metas'];
+      }
+    } else {
+      categoryKeys = ['marketing', 'comercial', 'operacao', 'metas'];
+    }
+
     const weights = {};
     
-    categories.forEach(cat => {
+    categoryKeys.forEach(cat => {
       const enabledSetting = healthScoreSettings.find(s => s.key === `health_score_${cat}_enabled`);
       const weightSetting = healthScoreSettings.find(s => s.key === `health_score_${cat}_weight`);
+      const modulesSetting = healthScoreSettings.find(s => s.key === `health_score_${cat}_modules`);
       
       const isEnabled = enabledSetting ? enabledSetting.value === 'true' : true;
-      const weightValue = weightSetting ? parseFloat(weightSetting.value) / 100 : (cat === 'marketing' || cat === 'comercial' ? 0.30 : 0.20);
+      const weightValue = weightSetting ? parseFloat(weightSetting.value) / 100 : 0.25;
+      
+      let allowedModules = [];
+      if (modulesSetting) {
+        try {
+          allowedModules = JSON.parse(modulesSetting.value);
+        } catch {
+          allowedModules = [];
+        }
+      }
       
       if (isEnabled) {
-        weights[cat] = { weight: weightValue, maxPoints: 0, earnedPoints: 0 };
+        weights[cat] = { 
+          weight: weightValue, 
+          maxPoints: 0, 
+          earnedPoints: 0,
+          modules: allowedModules
+        };
       }
     });
 
     questions.forEach(q => {
       if (q.weight_category && q.weight_points && weights[q.weight_category]) {
-        weights[q.weight_category].maxPoints += q.weight_points;
+        const categoryWeight = weights[q.weight_category];
+        
+        // Se há módulos configurados, verificar se a pergunta está em um deles
+        if (categoryWeight.modules.length > 0 && !categoryWeight.modules.includes(q.module_id)) {
+          return; // Pular esta pergunta
+        }
+        
+        categoryWeight.maxPoints += q.weight_points;
         
         const answer = answers[q.field_key];
         if (answer === 'Sim' || answer === true) {
-          weights[q.weight_category].earnedPoints += q.weight_points;
+          categoryWeight.earnedPoints += q.weight_points;
         } else if (typeof answer === 'number' && answer > 0) {
-          weights[q.weight_category].earnedPoints += Math.min(q.weight_points, answer);
+          categoryWeight.earnedPoints += Math.min(q.weight_points, answer);
         }
       }
     });
