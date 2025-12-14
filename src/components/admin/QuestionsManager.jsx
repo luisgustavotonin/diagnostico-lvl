@@ -261,6 +261,9 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
                                 </div>
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="text-xs font-semibold bg-slate-200 text-slate-700 px-2 py-0.5 rounded">
+                                      #{index + 1}
+                                    </span>
                                     <span className="text-xs bg-slate-100 px-2 py-0.5 rounded">
                                       {FIELD_TYPES.find(t => t.value === question.field_type)?.label}
                                     </span>
@@ -316,6 +319,9 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
                                               <ChevronRight className="w-4 h-4 text-blue-400" />
                                               <div className="flex-1">
                                                 <div className="flex items-center gap-2 flex-wrap">
+                                                  <span className="text-xs font-semibold bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
+                                                    #{index + 1}.{condIndex + 1}
+                                                  </span>
                                                   <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded">
                                                     Condicional
                                                   </span>
