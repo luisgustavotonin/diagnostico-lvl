@@ -51,6 +51,15 @@ export default function ProjectsTable({
     return cnpj;
   };
 
+  const formatCPF = (cpf) => {
+    if (!cpf) return '-';
+    const clean = cpf.replace(/\D/g, '');
+    if (clean.length === 11) {
+      return `${clean.slice(0, 3)}.${clean.slice(3, 6)}.${clean.slice(6, 9)}-${clean.slice(9)}`;
+    }
+    return cpf;
+  };
+
   const filteredProjects = projects.filter(p => {
     // Filtrar apenas projetos salvos (IN_PROGRESS ou COMPLETED)
     if (p.status === 'DRAFT') return false;
@@ -91,7 +100,7 @@ export default function ProjectsTable({
             <TableRow className="bg-slate-50">
               <TableHead className="min-w-[100px]">Data</TableHead>
               <TableHead className="min-w-[250px]">Nome</TableHead>
-              <TableHead className="min-w-[120px]">Tipo</TableHead>
+              <TableHead className="min-w-[180px]">CPF/CNPJ</TableHead>
               <TableHead className="min-w-[150px]">Cidade</TableHead>
               <TableHead className="min-w-[140px]">Health Query</TableHead>
               <TableHead className="min-w-[140px]">Relatório Básico</TableHead>
@@ -122,9 +131,11 @@ export default function ProjectsTable({
                       : (project.answers_json?.nome_fantasia || project.unit_name || '-')
                     }
                   </TableCell>
-                  <TableCell className="capitalize">
-                    {project.unit_type === 'consultorio' ? 'Consultório' : 
-                     project.unit_type === 'clinica' ? 'Clínica' : '-'}
+                  <TableCell>
+                    {project.unit_type === 'consultorio' 
+                      ? formatCPF(project.cpf)
+                      : formatCNPJ(project.cnpj)
+                    }
                   </TableCell>
                   <TableCell>{project.city || '-'}</TableCell>
                   <TableCell>

@@ -150,9 +150,16 @@ export default function Onboarding() {
     if (answers.tipo_unidade) {
       const tipo = String(answers.tipo_unidade).toLowerCase();
       updateData.unit_type = tipo === 'consultório' || tipo === 'consultorio' ? 'consultorio' : 'clinica';
+      
+      // Se for consultório, salvar CPF; se for clínica, salvar CNPJ
+      if (updateData.unit_type === 'consultorio' && answers.cpf) {
+        updateData.cpf = answers.cpf;
+      } else if (updateData.unit_type === 'clinica' && answers.cnpj) {
+        updateData.cnpj = answers.cnpj;
+      }
     }
+    
     if (answers.cidade) updateData.city = answers.cidade;
-    if (answers.cnpj) updateData.cnpj = answers.cnpj;
     if (answers.telefone) updateData.phone = answers.telefone;
 
     await base44.entities.Project.update(projectId, updateData);
@@ -170,13 +177,22 @@ export default function Onboarding() {
       status: 'IN_PROGRESS'
     };
 
+    if (answers.nome_consultorio) updateData.unit_name = answers.nome_consultorio;
+    if (answers.nome_fantasia) updateData.unit_name = answers.nome_fantasia;
     if (answers.nome_unidade) updateData.unit_name = answers.nome_unidade;
+    
     if (answers.tipo_unidade) {
       const tipo = String(answers.tipo_unidade).toLowerCase();
       updateData.unit_type = tipo === 'consultório' || tipo === 'consultorio' ? 'consultorio' : 'clinica';
+      
+      if (updateData.unit_type === 'consultorio' && answers.cpf) {
+        updateData.cpf = answers.cpf;
+      } else if (updateData.unit_type === 'clinica' && answers.cnpj) {
+        updateData.cnpj = answers.cnpj;
+      }
     }
+    
     if (answers.cidade) updateData.city = answers.cidade;
-    if (answers.cnpj) updateData.cnpj = answers.cnpj;
     if (answers.telefone) updateData.phone = answers.telefone;
 
     await base44.entities.Project.update(projectId, updateData);
@@ -295,6 +311,9 @@ export default function Onboarding() {
     const healthLevel = healthScore >= 70 ? 'Alta' : healthScore >= 40 ? 'Média' : 'Baixa';
     const basicReport = generateBasicReport();
 
+    const tipo = String(answers.tipo_unidade || '').toLowerCase();
+    const unitType = tipo === 'consultório' || tipo === 'consultorio' ? 'consultorio' : tipo === 'clínica' || tipo === 'clinica' ? 'clinica' : '';
+    
     await base44.entities.Project.update(projectId, {
       status: 'COMPLETED',
       answers_json: answers,
@@ -302,13 +321,11 @@ export default function Onboarding() {
       health_score: healthScore,
       health_level: healthLevel,
       report_basic_text: basicReport,
-      unit_name: answers.nome_unidade || answers.nome_consultorio || answers.nome_fantasia || '',
-      unit_type: (() => {
-        const tipo = String(answers.tipo_unidade || '').toLowerCase();
-        return tipo === 'consultório' || tipo === 'consultorio' ? 'consultorio' : tipo === 'clínica' || tipo === 'clinica' ? 'clinica' : '';
-      })(),
+      unit_name: answers.nome_consultorio || answers.nome_fantasia || answers.nome_unidade || '',
+      unit_type: unitType,
       city: answers.cidade || '',
-      cnpj: answers.cnpj || '',
+      cpf: unitType === 'consultorio' ? (answers.cpf || '') : '',
+      cnpj: unitType === 'clinica' ? (answers.cnpj || '') : '',
       phone: answers.telefone || ''
     });
 
