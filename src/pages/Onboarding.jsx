@@ -106,8 +106,8 @@ export default function Onboarding() {
     setSaving(false);
   };
 
-  // Salvar progresso
-  const saveProgress = async (markAsInProgress = false) => {
+  // Salvar progresso (apenas dados, sem mudar status)
+  const saveProgress = async () => {
     if (!projectId) return;
     
     // Extrair dados principais das respostas
@@ -115,11 +115,6 @@ export default function Onboarding() {
       answers_json: answers,
       current_module: currentModuleNum
     };
-
-    // Se for salvamento manual, mudar status para IN_PROGRESS
-    if (markAsInProgress) {
-      updateData.status = 'IN_PROGRESS';
-    }
 
     // Mapear campos conhecidos
     if (answers.unit_name) updateData.unit_name = answers.unit_name;
@@ -131,10 +126,25 @@ export default function Onboarding() {
     await base44.entities.Project.update(projectId, updateData);
   };
 
-  // Salvar rascunho manualmente
-  const handleSaveDraft = async () => {
+  // Salvar e marcar como "Em Andamento"
+  const handleSaveProgress = async () => {
+    if (!projectId) return;
+    
     setSaving(true);
-    await saveProgress(true);
+    
+    const updateData = {
+      answers_json: answers,
+      current_module: currentModuleNum,
+      status: 'IN_PROGRESS'
+    };
+
+    if (answers.unit_name) updateData.unit_name = answers.unit_name;
+    if (answers.unit_type) updateData.unit_type = answers.unit_type;
+    if (answers.city) updateData.city = answers.city;
+    if (answers.cnpj) updateData.cnpj = answers.cnpj;
+    if (answers.phone) updateData.phone = answers.phone;
+
+    await base44.entities.Project.update(projectId, updateData);
     setSaving(false);
   };
 
@@ -330,18 +340,32 @@ export default function Onboarding() {
             Em breve, um consultor dará continuidade ao atendimento.
           </p>
           {!completed && (
-            <Button 
-              size="lg" 
-              onClick={handleComplete}
-              disabled={saving}
-              className="mt-8 bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-6 text-lg rounded-xl"
-            >
-              {saving ? (
-                <Loader2 className="w-5 h-5 animate-spin mr-2" />
-              ) : null}
-              Confirmar Conclusão
-              <CheckCircle2 className="w-5 h-5 ml-2" />
-            </Button>
+            <div className="flex gap-3 justify-center mt-8">
+              <Button 
+                variant="outline"
+                size="lg" 
+                onClick={handleSaveProgress}
+                disabled={saving}
+                className="px-8 py-6 text-lg rounded-xl"
+              >
+                {saving ? (
+                  <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                ) : null}
+                Salvar Progresso
+              </Button>
+              <Button 
+                size="lg" 
+                onClick={handleComplete}
+                disabled={saving}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-6 text-lg rounded-xl"
+              >
+                {saving ? (
+                  <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                ) : null}
+                Confirmar Conclusão
+                <CheckCircle2 className="w-5 h-5 ml-2" />
+              </Button>
+            </div>
           )}
         </Card>
       </div>
@@ -384,7 +408,7 @@ export default function Onboarding() {
             <div className="flex gap-3">
               <Button
                 variant="outline"
-                onClick={handleSaveDraft}
+                onClick={handleSaveProgress}
                 disabled={saving}
                 className="px-6"
               >
