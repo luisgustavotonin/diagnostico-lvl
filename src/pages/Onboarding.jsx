@@ -145,7 +145,10 @@ export default function Onboarding() {
 
     // Mapear campos conhecidos - usar nomes exatos dos field_keys
     if (answers.nome_unidade) updateData.unit_name = answers.nome_unidade;
-    if (answers.tipo_unidade) updateData.unit_type = answers.tipo_unidade;
+    if (answers.tipo_unidade) {
+      const tipo = String(answers.tipo_unidade).toLowerCase();
+      updateData.unit_type = tipo === 'consultório' || tipo === 'consultorio' ? 'consultorio' : 'clinica';
+    }
     if (answers.cidade) updateData.city = answers.cidade;
     if (answers.cnpj) updateData.cnpj = answers.cnpj;
     if (answers.telefone) updateData.phone = answers.telefone;
@@ -166,7 +169,10 @@ export default function Onboarding() {
     };
 
     if (answers.nome_unidade) updateData.unit_name = answers.nome_unidade;
-    if (answers.tipo_unidade) updateData.unit_type = answers.tipo_unidade;
+    if (answers.tipo_unidade) {
+      const tipo = String(answers.tipo_unidade).toLowerCase();
+      updateData.unit_type = tipo === 'consultório' || tipo === 'consultorio' ? 'consultorio' : 'clinica';
+    }
     if (answers.cidade) updateData.city = answers.cidade;
     if (answers.cnpj) updateData.cnpj = answers.cnpj;
     if (answers.telefone) updateData.phone = answers.telefone;
@@ -295,7 +301,10 @@ export default function Onboarding() {
       health_level: healthLevel,
       report_basic_text: basicReport,
       unit_name: answers.nome_unidade || answers.nome_consultorio || answers.nome_fantasia || '',
-      unit_type: answers.tipo_unidade || '',
+      unit_type: (() => {
+        const tipo = String(answers.tipo_unidade || '').toLowerCase();
+        return tipo === 'consultório' || tipo === 'consultorio' ? 'consultorio' : tipo === 'clínica' || tipo === 'clinica' ? 'clinica' : '';
+      })(),
       city: answers.cidade || '',
       cnpj: answers.cnpj || '',
       phone: answers.telefone || ''

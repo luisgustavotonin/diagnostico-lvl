@@ -86,7 +86,7 @@ export default function ProjectsTable({
       </div>
 
       <div className="rounded-xl border bg-white overflow-x-auto">
-        <Table className="min-w-full">
+        <Table className="w-full table-auto">
           <TableHeader>
             <TableRow className="bg-slate-50">
               <TableHead className="min-w-[100px]">Data</TableHead>
