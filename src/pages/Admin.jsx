@@ -172,12 +172,36 @@ export default function Admin() {
   };
 
   const handleSaveHealthScore = async (categories) => {
+    // Salvar lista de categorias
+    const categoryKeys = categories.map(c => c.key);
+    const categoriesListSetting = settings.find(s => s.key === 'health_score_categories');
+    
+    if (categoriesListSetting) {
+      await base44.entities.AppSettings.update(categoriesListSetting.id, { 
+        value: JSON.stringify(categoryKeys) 
+      });
+    } else {
+      await base44.entities.AppSettings.create({ 
+        key: 'health_score_categories', 
+        value: JSON.stringify(categoryKeys) 
+      });
+    }
+    
+    // Salvar configurações de cada categoria
     for (const cat of categories) {
+      const labelKey = `health_score_${cat.key}_label`;
       const enabledKey = `health_score_${cat.key}_enabled`;
       const weightKey = `health_score_${cat.key}_weight`;
       
+      const labelSetting = settings.find(s => s.key === labelKey);
       const enabledSetting = settings.find(s => s.key === enabledKey);
       const weightSetting = settings.find(s => s.key === weightKey);
+      
+      if (labelSetting) {
+        await base44.entities.AppSettings.update(labelSetting.id, { value: cat.label });
+      } else {
+        await base44.entities.AppSettings.create({ key: labelKey, value: cat.label });
+      }
       
       if (enabledSetting) {
         await base44.entities.AppSettings.update(enabledSetting.id, { value: String(cat.enabled) });

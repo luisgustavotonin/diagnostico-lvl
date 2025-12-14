@@ -4,10 +4,10 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Sliders, Save, AlertCircle } from 'lucide-react';
+import { Sliders, Save, AlertCircle, Plus, Trash2 } from 'lucide-react';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-const CATEGORIES = [
+const DEFAULT_CATEGORIES = [
   { key: 'marketing', label: 'Marketing', defaultWeight: 30, defaultEnabled: true },
   { key: 'comercial', label: 'Comercial', defaultWeight: 30, defaultEnabled: true },
   { key: 'operacao', label: 'Operação', defaultWeight: 20, defaultEnabled: true },
@@ -17,18 +17,37 @@ const CATEGORIES = [
 export default function HealthScoreSettings({ settings, onSave }) {
   const [categories, setCategories] = useState([]);
   const [saving, setSaving] = useState(false);
+  const [newCategoryLabel, setNewCategoryLabel] = useState('');
 
   useEffect(() => {
-    const loadedCategories = CATEGORIES.map(cat => {
-      const enabledSetting = settings.find(s => s.key === `health_score_${cat.key}_enabled`);
-      const weightSetting = settings.find(s => s.key === `health_score_${cat.key}_weight`);
+    // Carregar lista de categorias das configurações
+    const categoriesListSetting = settings.find(s => s.key === 'health_score_categories');
+    let categoryKeys = [];
+    
+    if (categoriesListSetting) {
+      try {
+        categoryKeys = JSON.parse(categoriesListSetting.value);
+      } catch {
+        categoryKeys = DEFAULT_CATEGORIES.map(c => c.key);
+      }
+    } else {
+      categoryKeys = DEFAULT_CATEGORIES.map(c => c.key);
+    }
+
+    const loadedCategories = categoryKeys.map(key => {
+      const defaultCat = DEFAULT_CATEGORIES.find(c => c.key === key);
+      const labelSetting = settings.find(s => s.key === `health_score_${key}_label`);
+      const enabledSetting = settings.find(s => s.key === `health_score_${key}_enabled`);
+      const weightSetting = settings.find(s => s.key === `health_score_${key}_weight`);
       
       return {
-        ...cat,
-        enabled: enabledSetting ? enabledSetting.value === 'true' : cat.defaultEnabled,
-        weight: weightSetting ? parseFloat(weightSetting.value) : cat.defaultWeight
+        key,
+        label: labelSetting ? labelSetting.value : (defaultCat?.label || key),
+        enabled: enabledSetting ? enabledSetting.value === 'true' : (defaultCat?.defaultEnabled ?? true),
+        weight: weightSetting ? parseFloat(weightSetting.value) : (defaultCat?.defaultWeight || 25)
       };
     });
+    
     setCategories(loadedCategories);
   }, [settings]);
 
@@ -54,6 +73,31 @@ export default function HealthScoreSettings({ settings, onSave }) {
   const isValidTotal = () => {
     const total = getTotalWeight();
     return Math.abs(total - 100) < 0.01;
+  };
+
+  const handleAddCategory = () => {
+    if (!newCategoryLabel.trim()) return;
+    
+    const key = newCategoryLabel.toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]/g, '_');
+    
+    if (categories.find(c => c.key === key)) return;
+    
+    const remainingWeight = 100 - getTotalWeight();
+    setCategories(prev => [...prev, {
+      key,
+      label: newCategoryLabel.trim(),
+      enabled: true,
+      weight: Math.max(0, remainingWeight)
+    }]);
+    
+    setNewCategoryLabel('');
+  };
+
+  const handleDeleteCategory = (key) => {
+    setCategories(prev => prev.filter(cat => cat.key !== key));
   };
 
   const handleSave = async () => {
@@ -90,26 +134,55 @@ export default function HealthScoreSettings({ settings, onSave }) {
         </Alert>
       )}
 
-      <div className="grid gap-4">
-        {categories.map((cat) => (
-          <Card key={cat.key} className={`p-5 ${!cat.enabled ? 'opacity-50' : ''}`}>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Label className="text-base font-medium text-slate-700">
-                    {cat.label}
-                  </Label>
+      <div className="space-y-4">
+        <Card className="p-4 bg-slate-50">
+          <div className="flex gap-2">
+            <Input
+              placeholder="Nome da nova categoria..."
+              value={newCategoryLabel}
+              onChange={(e) => setNewCategoryLabel(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleAddCategory()}
+            />
+            <Button 
+              onClick={handleAddCategory}
+              variant="outline"
+              className="gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Adicionar
+            </Button>
+          </div>
+        </Card>
+
+        <div className="grid gap-4">
+          {categories.map((cat) => (
+            <Card key={cat.key} className={`p-5 ${!cat.enabled ? 'opacity-50' : ''}`}>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Label className="text-base font-medium text-slate-700">
+                      {cat.label}
+                    </Label>
+                    <span className="text-xs text-slate-400">({cat.key})</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteCategory(cat.key)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                    <span className="text-sm text-slate-500">
+                      {cat.enabled ? 'Ativa' : 'Inativa'}
+                    </span>
+                    <Switch
+                      checked={cat.enabled}
+                      onCheckedChange={() => handleToggle(cat.key)}
+                    />
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-slate-500">
-                    {cat.enabled ? 'Ativa' : 'Inativa'}
-                  </span>
-                  <Switch
-                    checked={cat.enabled}
-                    onCheckedChange={() => handleToggle(cat.key)}
-                  />
-                </div>
-              </div>
 
               {cat.enabled && (
                 <div className="space-y-2">
@@ -138,9 +211,10 @@ export default function HealthScoreSettings({ settings, onSave }) {
                   </div>
                 </div>
               )}
-            </div>
-          </Card>
-        ))}
+              </div>
+            </Card>
+          ))}
+        </div>
       </div>
 
       <div className="flex justify-between items-center pt-4 border-t">
