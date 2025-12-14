@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import PhoneMask from '../masks/PhoneMask';
 import CNPJMask from '../masks/CNPJMask';
+import CPFMask from '../masks/CPFMask';
 import CEPMask from '../masks/CEPMask';
 import CurrencyMask from '../masks/CurrencyMask';
 import BusinessHoursField from './BusinessHoursField';
@@ -92,6 +93,16 @@ export default function QuestionField({ question, value, onChange, error }) {
       case 'cnpj':
         return (
           <CNPJMask
+            value={value}
+            onChange={onChange}
+            placeholder={question.placeholder}
+            className={error ? 'border-red-500' : ''}
+          />
+        );
+
+      case 'cpf':
+        return (
+          <CPFMask
             value={value}
             onChange={onChange}
             placeholder={question.placeholder}
