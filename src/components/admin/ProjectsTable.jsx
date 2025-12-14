@@ -85,18 +85,18 @@ export default function ProjectsTable({
         />
       </div>
 
-      <div className="rounded-xl border bg-white overflow-hidden">
-        <Table>
+      <div className="rounded-xl border bg-white overflow-x-auto">
+        <Table className="min-w-full">
           <TableHeader>
             <TableRow className="bg-slate-50">
-              <TableHead className="w-[100px]">Data</TableHead>
-              <TableHead className="w-[300px]">Nome</TableHead>
-              <TableHead className="w-[120px]">Tipo</TableHead>
-              <TableHead className="w-[150px]">Cidade</TableHead>
-              <TableHead className="w-[140px]">Health Query</TableHead>
-              <TableHead className="w-[140px]">Relatório Básico</TableHead>
-              <TableHead className="w-[140px]">Relatório + IA</TableHead>
-              <TableHead>Ações</TableHead>
+              <TableHead className="min-w-[100px]">Data</TableHead>
+              <TableHead className="min-w-[250px]">Nome</TableHead>
+              <TableHead className="min-w-[120px]">Tipo</TableHead>
+              <TableHead className="min-w-[150px]">Cidade</TableHead>
+              <TableHead className="min-w-[140px]">Health Query</TableHead>
+              <TableHead className="min-w-[140px]">Relatório Básico</TableHead>
+              <TableHead className="min-w-[140px]">Relatório + IA</TableHead>
+              <TableHead className="min-w-[200px]">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
