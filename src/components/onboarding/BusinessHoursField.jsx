@@ -21,7 +21,6 @@ export default function BusinessHoursField({ value, onChange }) {
       return value;
     }
     
-    // Inicializar todos os dias como fechado
     const initial = {};
     DAYS.forEach(day => {
       initial[day.key] = {
@@ -38,30 +37,7 @@ export default function BusinessHoursField({ value, onChange }) {
     if (onChange) {
       onChange(schedule);
     }
-  }, [schedule, onChange]);
-
-  const validatePeriod = (dayKey, periodIndex, field, newValue) => {
-    const dayData = schedule[dayKey];
-    const periodo = dayData.periodos[periodIndex];
-    
-    const inicio = field === 'inicio' ? newValue : periodo.inicio;
-    const fim = field === 'fim' ? newValue : periodo.fim;
-
-    if (inicio && fim && inicio >= fim) {
-      setErrors(prev => ({
-        ...prev,
-        [`${dayKey}-${periodIndex}`]: 'Horário final deve ser maior que o inicial'
-      }));
-      return false;
-    }
-
-    setErrors(prev => {
-      const newErrors = { ...prev };
-      delete newErrors[`${dayKey}-${periodIndex}`];
-      return newErrors;
-    });
-    return true;
-  };
+  }, [schedule]);
 
   const toggleDay = (dayKey) => {
     setSchedule(prev => {
@@ -77,11 +53,22 @@ export default function BusinessHoursField({ value, onChange }) {
     });
   };
 
-  const updatePeriod = (dayKey, index, field, value) => {
+  const updatePeriod = (dayKey, index, field, newValue) => {
     setSchedule(prev => {
       const dayData = prev[dayKey];
       const newPeriodos = [...dayData.periodos];
-      newPeriodos[index] = { ...newPeriodos[index], [field]: value };
+      newPeriodos[index] = { ...newPeriodos[index], [field]: newValue };
+      
+      const periodo = newPeriodos[index];
+      if (periodo.inicio && periodo.fim && periodo.inicio >= periodo.fim) {
+        setErrors(e => ({ ...e, [`${dayKey}-${index}`]: 'Horário final deve ser maior que o inicial' }));
+      } else {
+        setErrors(e => {
+          const newErrors = { ...e };
+          delete newErrors[`${dayKey}-${index}`];
+          return newErrors;
+        });
+      }
       
       return {
         ...prev,
@@ -91,8 +78,6 @@ export default function BusinessHoursField({ value, onChange }) {
         }
       };
     });
-
-    validatePeriod(dayKey, index, field, value);
   };
 
   const addPeriod = (dayKey) => {
@@ -105,27 +90,6 @@ export default function BusinessHoursField({ value, onChange }) {
           periodos: [...dayData.periodos, { inicio: '08:00', fim: '18:00' }]
         }
       };
-    });
-  };
-
-  const removePeriod = (dayKey, index) => {
-    setSchedule(prev => {
-      const dayData = prev[dayKey];
-      const newPeriodos = dayData.periodos.filter((_, i) => i !== index);
-      
-      return {
-        ...prev,
-        [dayKey]: {
-          ...dayData,
-          periodos: newPeriodos
-        }
-      };
-    });
-
-    setErrors(prev => {
-      const newErrors = { ...prev };
-      delete newErrors[`${dayKey}-${index}`];
-      return newErrors;
     });
   };
 
