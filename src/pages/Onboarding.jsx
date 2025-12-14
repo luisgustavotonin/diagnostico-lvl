@@ -16,6 +16,36 @@ export default function Onboarding() {
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
   const [completed, setCompleted] = useState(false);
+  const [loadingProject, setLoadingProject] = useState(true);
+
+  // Verificar se há um projeto na URL para retomar
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const projectIdFromUrl = urlParams.get('project');
+    
+    if (projectIdFromUrl) {
+      loadExistingProject(projectIdFromUrl);
+    } else {
+      setLoadingProject(false);
+    }
+  }, []);
+
+  const loadExistingProject = async (id) => {
+    try {
+      const project = await base44.entities.Project.filter({ id });
+      if (project && project.length > 0) {
+        const proj = project[0];
+        setProjectId(proj.id);
+        setAnswers(proj.answers_json || {});
+        setCurrentModuleNum(proj.current_module || 1);
+        setStep('module');
+      }
+    } catch (error) {
+      console.error('Erro ao carregar projeto:', error);
+    } finally {
+      setLoadingProject(false);
+    }
+  };
 
   // Carregar módulos
   const { data: modules = [], isLoading: loadingModules } = useQuery({
@@ -278,7 +308,7 @@ export default function Onboarding() {
     setSaving(false);
   };
 
-  if (loadingModules || loadingQuestions) {
+  if (loadingModules || loadingQuestions || loadingProject) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
         <Loader2 className="w-8 h-8 animate-spin text-slate-600" />

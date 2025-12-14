@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Loader2, Building2, ListTree, Eye, Settings } from 'lucide-react';
 import { toast } from "sonner";
+import { createPageUrl } from '../utils';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 import StatsCards from '../components/admin/StatsCards';
@@ -282,7 +283,8 @@ ESTRUTURA OBRIGATÓRIA DO DIAGNÓSTICO:
   };
 
   const handleOpenProject = (project) => {
-    window.open(`/Onboarding?project=${project.id}`, '_blank');
+    const url = createPageUrl('Onboarding') + `?project=${project.id}`;
+    window.open(url, '_blank');
   };
 
   const confirmDelete = () => {
