@@ -116,12 +116,26 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
     setDialogOpen(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const options = optionsText.split('\n').filter(o => o.trim());
     const saveData = { ...form, options };
     if (saveData.weight_category === 'none') {
       saveData.weight_category = null;
     }
+
+    // Se for uma nova pergunta principal e a posição foi alterada, reordenar
+    if (!editingQuestion && !form.is_conditional) {
+      const moduleQuestions = getMainQuestions(form.module_id);
+      const targetOrder = saveData.order;
+
+      // Ajustar ordem das perguntas existentes que estão na posição alvo ou depois
+      for (const q of moduleQuestions) {
+        if (q.order >= targetOrder) {
+          await onSave(q.id, { ...q, order: q.order + 1 });
+        }
+      }
+    }
+
     onSave(editingQuestion?.id, saveData);
     setDialogOpen(false);
   };
@@ -459,13 +473,26 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
               </div>
               <div>
                 <Label>Posição</Label>
-                <Input
-                  type="number"
-                  value={form.order}
-                  disabled
-                  className="bg-slate-50"
-                />
-                <p className="text-xs text-slate-500 mt-1">Arraste para reordenar</p>
+                {form.is_conditional ? (
+                  <>
+                    <Input
+                      value={`${getMainQuestions(form.module_id).findIndex(q => q.id === form.parent_question_id) + 1}.${form.order}`}
+                      disabled
+                      className="bg-slate-50"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">Arraste para reordenar</p>
+                  </>
+                ) : (
+                  <>
+                    <Input
+                      type="number"
+                      min="1"
+                      value={form.order}
+                      onChange={(e) => setForm({ ...form, order: parseInt(e.target.value) || 1 })}
+                    />
+                    <p className="text-xs text-slate-500 mt-1">Define onde inserir a pergunta</p>
+                  </>
+                )}
               </div>
             </div>
 
