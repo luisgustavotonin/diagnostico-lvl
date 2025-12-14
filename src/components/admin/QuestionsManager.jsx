@@ -123,15 +123,27 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
       saveData.weight_category = null;
     }
 
-    // Se for uma nova pergunta principal e a posição foi alterada, reordenar
-    if (!editingQuestion && !form.is_conditional) {
-      const moduleQuestions = getMainQuestions(form.module_id);
-      const targetOrder = saveData.order;
+    // Se for uma nova pergunta e a posição foi alterada, reordenar
+    if (!editingQuestion) {
+      if (form.is_conditional) {
+        // Reordenar perguntas condicionais do mesmo pai
+        const conditionalQuestions = getConditionalQuestions(form.parent_question_id);
+        const targetOrder = saveData.order;
 
-      // Ajustar ordem das perguntas existentes que estão na posição alvo ou depois
-      for (const q of moduleQuestions) {
-        if (q.order >= targetOrder) {
-          await onSave(q.id, { ...q, order: q.order + 1 });
+        for (const q of conditionalQuestions) {
+          if (q.order >= targetOrder) {
+            await onSave(q.id, { ...q, order: q.order + 1 });
+          }
+        }
+      } else {
+        // Reordenar perguntas principais do módulo
+        const moduleQuestions = getMainQuestions(form.module_id);
+        const targetOrder = saveData.order;
+
+        for (const q of moduleQuestions) {
+          if (q.order >= targetOrder) {
+            await onSave(q.id, { ...q, order: q.order + 1 });
+          }
         }
       }
     }
@@ -475,12 +487,19 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
                 <Label>Posição</Label>
                 {form.is_conditional ? (
                   <>
-                    <Input
-                      value={`${getMainQuestions(form.module_id).findIndex(q => q.id === form.parent_question_id) + 1}.${form.order}`}
-                      disabled
-                      className="bg-slate-50"
-                    />
-                    <p className="text-xs text-slate-500 mt-1">Arraste para reordenar</p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-slate-600">
+                        {getMainQuestions(form.module_id).findIndex(q => q.id === form.parent_question_id) + 1}.
+                      </span>
+                      <Input
+                        type="number"
+                        min="1"
+                        value={form.order}
+                        onChange={(e) => setForm({ ...form, order: parseInt(e.target.value) || 1 })}
+                        className="flex-1"
+                      />
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1">Define a posição entre as condicionais</p>
                   </>
                 ) : (
                   <>
