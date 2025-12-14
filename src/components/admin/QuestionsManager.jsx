@@ -28,13 +28,7 @@ const FIELD_TYPES = [
   { value: 'checkbox', label: 'Múltipla Escolha' }
 ];
 
-const WEIGHT_CATEGORIES = [
-  { value: 'none', label: 'Nenhuma' },
-  { value: 'marketing', label: 'Marketing & Presença Digital (30%)' },
-  { value: 'comercial', label: 'Comercial & Atendimento (30%)' },
-  { value: 'operacao', label: 'Operação & Estrutura (20%)' },
-  { value: 'metas', label: 'Metas & Planejamento (20%)' }
-];
+
 
 const OPERATORS = [
   { value: 'equals', label: 'Igual a' },
@@ -636,17 +630,20 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
               <p className="text-xs text-slate-500">Define como esta pergunta contribui para a nota final</p>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-xs">Categoria</Label>
+                  <Label className="text-xs">Módulo</Label>
                   <Select 
-                    value={form.weight_category} 
+                    value={form.weight_category || form.module_id} 
                     onValueChange={(v) => setForm({ ...form, weight_category: v })}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione..." />
+                      <SelectValue placeholder="Selecione módulo..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {WEIGHT_CATEGORIES.map(c => (
-                        <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                      <SelectItem value={null}>Nenhum</SelectItem>
+                      {modules.filter(m => m.is_active).sort((a, b) => a.order - b.order).map(m => (
+                        <SelectItem key={m.id} value={m.id}>
+                          {m.title}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>

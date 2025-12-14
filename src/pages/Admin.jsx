@@ -22,6 +22,7 @@ import ReportEditor from '../components/admin/ReportEditor';
 export default function Admin() {
   const [activeTab, setActiveTab] = useState('units');
   const [aiEnabled, setAiEnabled] = useState(true);
+  const [healthScoreEnabled, setHealthScoreEnabled] = useState(true);
   const [generatingAI, setGeneratingAI] = useState(null);
   const [viewerOpen, setViewerOpen] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
@@ -81,6 +82,11 @@ export default function Admin() {
     const aiSetting = settings.find(s => s.key === 'ai_enabled');
     if (aiSetting) {
       setAiEnabled(aiSetting.value === 'true');
+    }
+    
+    const healthScoreSetting = settings.find(s => s.key === 'health_score_enabled');
+    if (healthScoreSetting) {
+      setHealthScoreEnabled(healthScoreSetting.value === 'true');
     }
   }, [settings]);
 
@@ -169,6 +175,18 @@ export default function Admin() {
     }
     queryClient.invalidateQueries({ queryKey: ['settings'] });
     toast.success(enabled ? 'IA ativada' : 'IA desativada');
+  };
+
+  const handleToggleHealthScore = async (enabled) => {
+    setHealthScoreEnabled(enabled);
+    const existingSetting = settings.find(s => s.key === 'health_score_enabled');
+    if (existingSetting) {
+      await base44.entities.AppSettings.update(existingSetting.id, { value: String(enabled) });
+    } else {
+      await base44.entities.AppSettings.create({ key: 'health_score_enabled', value: String(enabled) });
+    }
+    queryClient.invalidateQueries({ queryKey: ['settings'] });
+    toast.success(enabled ? 'Health Score ativado' : 'Health Score desativado');
   };
 
   const handleSaveHealthScore = async (categories) => {
@@ -550,7 +568,9 @@ ESTRUTURA OBRIGATÓRIA DO DIAGNÓSTICO:
                 <HealthScoreSettings 
                   settings={settings} 
                   modules={modules} 
-                  onSave={handleSaveHealthScore} 
+                  onSave={handleSaveHealthScore}
+                  healthScoreEnabled={healthScoreEnabled}
+                  onToggleHealthScore={handleToggleHealthScore}
                 />
               </Card>
             </div>

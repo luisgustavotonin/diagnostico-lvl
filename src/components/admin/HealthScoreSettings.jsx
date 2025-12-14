@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sliders, Save, AlertCircle, Plus, Trash2 } from 'lucide-react';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-export default function HealthScoreSettings({ settings, modules, onSave }) {
+export default function HealthScoreSettings({ settings, modules, onSave, healthScoreEnabled, onToggleHealthScore }) {
   const [categories, setCategories] = useState([]);
   const [saving, setSaving] = useState(false);
   const [selectedModuleId, setSelectedModuleId] = useState('');
@@ -112,17 +112,37 @@ export default function HealthScoreSettings({ settings, modules, onSave }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start gap-3">
-        <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
-          <Sliders className="w-5 h-5 text-slate-600" />
+      <div className="flex items-start justify-between">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
+            <Sliders className="w-5 h-5 text-slate-600" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-slate-800">Configuração do Health Score</h3>
+            <p className="text-sm text-slate-500 mt-1">
+              Configure quais categorias participam do cálculo e seus respectivos pesos percentuais
+            </p>
+          </div>
         </div>
-        <div>
-          <h3 className="text-lg font-semibold text-slate-800">Configuração do Health Score</h3>
-          <p className="text-sm text-slate-500 mt-1">
-            Configure quais categorias participam do cálculo e seus respectivos pesos percentuais
-          </p>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-slate-600">
+            {healthScoreEnabled ? 'Ativo' : 'Inativo'}
+          </span>
+          <Switch
+            checked={healthScoreEnabled}
+            onCheckedChange={onToggleHealthScore}
+          />
         </div>
       </div>
+      
+      {!healthScoreEnabled && (
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            O cálculo do Health Score está desativado. Ative para começar a usar esta funcionalidade.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {!isValid && (
         <Alert variant="destructive">
@@ -133,7 +153,7 @@ export default function HealthScoreSettings({ settings, modules, onSave }) {
         </Alert>
       )}
 
-      <div className="space-y-4">
+      <div className="space-y-4" style={{ opacity: healthScoreEnabled ? 1 : 0.5, pointerEvents: healthScoreEnabled ? 'auto' : 'none' }}>
         <Card className="p-4 bg-slate-50">
           <div className="flex gap-2">
             <Select value={selectedModuleId} onValueChange={setSelectedModuleId}>
@@ -235,7 +255,7 @@ export default function HealthScoreSettings({ settings, modules, onSave }) {
         </div>
         <Button 
           onClick={handleSave}
-          disabled={!isValid || saving}
+          disabled={!isValid || saving || !healthScoreEnabled}
           className="gap-2"
         >
           <Save className="w-4 h-4" />
