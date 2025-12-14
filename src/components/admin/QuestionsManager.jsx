@@ -11,8 +11,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Plus, Pencil, Trash2, ChevronRight } from 'lucide-react';
 
 const FIELD_TYPES = [
-  { value: 'text', label: 'Texto curto' },
-  { value: 'textarea', label: 'Texto longo' },
+  { value: 'text', label: 'Texto Curto' },
+  { value: 'textarea', label: 'Texto Longo' },
   { value: 'number', label: 'Número' },
   { value: 'email', label: 'E-mail' },
   { value: 'date', label: 'Data' },
@@ -21,9 +21,9 @@ const FIELD_TYPES = [
   { value: 'cep', label: 'CEP' },
   { value: 'currency_cents', label: 'Moeda (R$)' },
   { value: 'yes_no', label: 'Sim/Não' },
-  { value: 'radio', label: 'Escolha única' },
-  { value: 'select', label: 'Lista suspensa' },
-  { value: 'checkbox', label: 'Múltipla escolha' }
+  { value: 'radio', label: 'Escolha Única' },
+  { value: 'select', label: 'Lista Suspensa' },
+  { value: 'checkbox', label: 'Múltipla Escolha' }
 ];
 
 const WEIGHT_CATEGORIES = [
@@ -42,9 +42,18 @@ const OPERATORS = [
   { value: 'less_than', label: 'Menor que' }
 ];
 
-export default function QuestionsManager({ modules, questions, onSave, onDelete }) {
+export default function QuestionsManager({ modules, questions, onSave, onDelete, onSaveModule, onDeleteModule }) {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [moduleDialogOpen, setModuleDialogOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState(null);
+  const [editingModule, setEditingModule] = useState(null);
+  const [moduleForm, setModuleForm] = useState({
+    number: 1,
+    order: 1,
+    title: '',
+    description: '',
+    is_active: true
+  });
   const [form, setForm] = useState({
     module_id: '',
     order: 1,
@@ -132,20 +141,69 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete 
     return questions.filter(q => q.parent_question_id === parentId).sort((a, b) => a.order - b.order);
   };
 
+  const handleNewModule = () => {
+    const maxOrder = Math.max(...modules.map(m => m.order), 0);
+    const maxNumber = Math.max(...modules.map(m => m.number), 0);
+    setModuleForm({
+      number: maxNumber + 1,
+      order: maxOrder + 1,
+      title: '',
+      description: '',
+      is_active: true
+    });
+    setEditingModule(null);
+    setModuleDialogOpen(true);
+  };
+
+  const handleEditModule = (module) => {
+    setModuleForm({
+      number: module.number,
+      order: module.order,
+      title: module.title,
+      description: module.description || '',
+      is_active: module.is_active
+    });
+    setEditingModule(module);
+    setModuleDialogOpen(true);
+  };
+
+  const handleSaveModule = () => {
+    onSaveModule(editingModule?.id, moduleForm);
+    setModuleDialogOpen(false);
+  };
+
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Perguntas por Módulo</h3>
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold">Módulos e Perguntas</h3>
+        <Button onClick={handleNewModule}>
+          <Plus className="w-4 h-4 mr-2" /> Novo Módulo
+        </Button>
+      </div>
 
       <Accordion type="multiple" className="space-y-3">
         {sortedModules.map((module) => (
           <AccordionItem key={module.id} value={module.id} className="border rounded-lg">
             <AccordionTrigger className="px-4 hover:no-underline">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-slate-500">#{module.number}</span>
-                <span className="font-medium">{module.title}</span>
-                <span className="text-xs bg-slate-100 px-2 py-0.5 rounded">
-                  {getQuestionsByModule(module.id).length} perguntas
-                </span>
+              <div className="flex items-center justify-between w-full pr-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-slate-500">#{module.number}</span>
+                  <span className="font-medium">{module.title}</span>
+                  <span className="text-xs bg-slate-100 px-2 py-0.5 rounded">
+                    {getQuestionsByModule(module.id).length} perguntas
+                  </span>
+                  {!module.is_active && (
+                    <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded">Inativo</span>
+                  )}
+                </div>
+                <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                  <Button variant="ghost" size="icon" onClick={() => handleEditModule(module)}>
+                    <Pencil className="w-4 h-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={() => onDeleteModule(module.id)}>
+                    <Trash2 className="w-4 h-4 text-red-500" />
+                  </Button>
+                </div>
               </div>
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-4">
@@ -228,6 +286,63 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete 
           </AccordionItem>
         ))}
       </Accordion>
+
+      <Dialog open={moduleDialogOpen} onOpenChange={setModuleDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {editingModule ? 'Editar Módulo' : 'Novo Módulo'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Número</Label>
+                <Input
+                  type="number"
+                  value={moduleForm.number}
+                  onChange={(e) => setModuleForm({ ...moduleForm, number: parseInt(e.target.value) })}
+                />
+              </div>
+              <div>
+                <Label>Ordem</Label>
+                <Input
+                  type="number"
+                  value={moduleForm.order}
+                  onChange={(e) => setModuleForm({ ...moduleForm, order: parseInt(e.target.value) })}
+                />
+              </div>
+            </div>
+            <div>
+              <Label>Título</Label>
+              <Input
+                value={moduleForm.title}
+                onChange={(e) => setModuleForm({ ...moduleForm, title: e.target.value })}
+                placeholder="Título do módulo"
+              />
+            </div>
+            <div>
+              <Label>Descrição</Label>
+              <Textarea
+                value={moduleForm.description}
+                onChange={(e) => setModuleForm({ ...moduleForm, description: e.target.value })}
+                placeholder="Descrição opcional"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={moduleForm.is_active}
+                onCheckedChange={(checked) => setModuleForm({ ...moduleForm, is_active: checked })}
+              />
+              <Label>Ativo</Label>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setModuleDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={handleSaveModule}>Salvar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -350,10 +465,10 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete 
 
             {form.is_conditional && (
               <div className="p-4 bg-blue-50 rounded-lg space-y-3">
-                <Label className="text-blue-800 font-medium">Condição de Exibição</Label>
+                <Label className="text-blue-800 font-medium">Condição para Exibir</Label>
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <Label className="text-xs">Campo</Label>
+                    <Label className="text-xs">Campo (field_key)</Label>
                     <Input
                       value={form.condition_field}
                       onChange={(e) => setForm({ ...form, condition_field: e.target.value })}
@@ -388,7 +503,8 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete 
             )}
 
             <div className="p-4 bg-slate-50 rounded-lg space-y-3">
-              <Label className="font-medium">Health Score (opcional)</Label>
+              <Label className="font-medium">Pontuação (Health Score)</Label>
+              <p className="text-xs text-slate-500">Define como esta pergunta contribui para a nota final</p>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label className="text-xs">Categoria</Label>

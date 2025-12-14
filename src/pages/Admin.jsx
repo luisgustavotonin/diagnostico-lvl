@@ -332,20 +332,15 @@ ESTRUTURA OBRIGATÓRIA DO DIAGNÓSTICO:
           </TabsContent>
 
           <TabsContent value="modules">
-            <Card className="p-6 space-y-8">
-              <ModulesManager
+            <Card className="p-6">
+              <QuestionsManager
                 modules={modules}
-                onSave={handleSaveModule}
-                onDelete={handleDeleteModule}
+                questions={questions}
+                onSaveModule={handleSaveModule}
+                onDeleteModule={handleDeleteModule}
+                onSave={handleSaveQuestion}
+                onDelete={handleDeleteQuestion}
               />
-              <div className="border-t pt-8">
-                <QuestionsManager
-                  modules={modules}
-                  questions={questions}
-                  onSave={handleSaveQuestion}
-                  onDelete={handleDeleteQuestion}
-                />
-              </div>
             </Card>
           </TabsContent>
 
