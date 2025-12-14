@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import QuestionField from './QuestionField';
+import BusinessHoursField from './BusinessHoursField';
 
 export default function ModuleQuestions({ 
   module, 
@@ -85,6 +86,19 @@ export default function ModuleQuestions({
             ))}
           </div>
         ))}
+
+        <div className="space-y-2 pt-4">
+          <label className="text-base font-medium text-slate-700">
+            Horário de Atendimento <span className="text-red-500">*</span>
+          </label>
+          <BusinessHoursField
+            value={answers['horario_atendimento']}
+            onChange={(val) => onAnswerChange('horario_atendimento', val)}
+          />
+          {errors['horario_atendimento'] && (
+            <p className="text-sm text-red-600">Este campo é obrigatório</p>
+          )}
+        </div>
       </div>
     </div>
   );
