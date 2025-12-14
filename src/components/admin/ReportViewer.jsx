@@ -204,13 +204,13 @@ export default function ReportViewer({ open, onClose, project, type }) {
             <div class="content">
               ${reportContent ? reportContent.split('\n').map(line => {
                 line = line.trim();
-                if (line.startsWith('# ')) return \`<h1>\${line.slice(2)}</h1>\`;
-                if (line.startsWith('## ')) return \`<h2>\${line.slice(3)}</h2>\`;
-                if (line.startsWith('### ')) return \`<h3>\${line.slice(4)}</h3>\`;
-                if (line.startsWith('**') && line.endsWith('**')) return \`<p><strong>\${line.slice(2, -2)}</strong></p>\`;
-                if (line.startsWith('- ')) return \`<li>\${line.slice(2)}</li>\`;
+                if (line.startsWith('# ')) return '<h1>' + line.slice(2) + '</h1>';
+                if (line.startsWith('## ')) return '<h2>' + line.slice(3) + '</h2>';
+                if (line.startsWith('### ')) return '<h3>' + line.slice(4) + '</h3>';
+                if (line.startsWith('**') && line.endsWith('**')) return '<p><strong>' + line.slice(2, -2) + '</strong></p>';
+                if (line.startsWith('- ')) return '<li>' + line.slice(2) + '</li>';
                 if (line === '---') return '<hr style="border: none; border-top: 2px solid #e2e8f0; margin: 40px 0;">';
-                return line ? \`<p>\${line}</p>\` : '<br>';
+                return line ? '<p>' + line + '</p>' : '<br>';
               }).join('') : '<p>Sem conteúdo</p>'}
             </div>
             
