@@ -131,8 +131,6 @@ export default function BusinessHoursField({ value, onChange }) {
 
   return (
     <div className="space-y-3">
-      <h3 className="text-xl font-semibold text-slate-800 mb-4">Horário de atendimento</h3>
-      
       {DAYS.map(day => {
         const dayData = schedule[day.key] || { aberto: false, periodos: [] };
         const isOpen = dayData.aberto;
