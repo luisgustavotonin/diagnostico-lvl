@@ -172,6 +172,22 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
     setModuleDialogOpen(false);
   };
 
+  const handleDragEnd = (result, moduleId) => {
+    if (!result.destination) return;
+
+    const moduleQuestions = getQuestionsByModule(moduleId);
+    const items = Array.from(moduleQuestions);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    // Atualizar ordem de todas as perguntas afetadas
+    items.forEach((question, index) => {
+      if (question.order !== index + 1) {
+        onSave(question.id, { ...question, order: index + 1 });
+      }
+    });
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
