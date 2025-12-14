@@ -233,14 +233,31 @@ export default function Onboarding() {
     }
   };
 
+  // Carregar configurações do Health Score
+  const { data: healthScoreSettings = [] } = useQuery({
+    queryKey: ['healthScoreSettings'],
+    queryFn: () => base44.entities.AppSettings.filter({
+      key: { $regex: '^health_score_' }
+    }),
+  });
+
   // Calcular Health Score
   const calculateHealthScore = () => {
-    const weights = {
-      marketing: { weight: 0.30, maxPoints: 0, earnedPoints: 0 },
-      comercial: { weight: 0.30, maxPoints: 0, earnedPoints: 0 },
-      operacao: { weight: 0.20, maxPoints: 0, earnedPoints: 0 },
-      metas: { weight: 0.20, maxPoints: 0, earnedPoints: 0 }
-    };
+    // Carregar pesos e status das categorias das configurações
+    const categories = ['marketing', 'comercial', 'operacao', 'metas'];
+    const weights = {};
+    
+    categories.forEach(cat => {
+      const enabledSetting = healthScoreSettings.find(s => s.key === `health_score_${cat}_enabled`);
+      const weightSetting = healthScoreSettings.find(s => s.key === `health_score_${cat}_weight`);
+      
+      const isEnabled = enabledSetting ? enabledSetting.value === 'true' : true;
+      const weightValue = weightSetting ? parseFloat(weightSetting.value) / 100 : (cat === 'marketing' || cat === 'comercial' ? 0.30 : 0.20);
+      
+      if (isEnabled) {
+        weights[cat] = { weight: weightValue, maxPoints: 0, earnedPoints: 0 };
+      }
+    });
 
     questions.forEach(q => {
       if (q.weight_category && q.weight_points && weights[q.weight_category]) {

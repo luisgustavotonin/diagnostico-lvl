@@ -15,6 +15,7 @@ import ModulesManager from '../components/admin/ModulesManager';
 import QuestionsManager from '../components/admin/QuestionsManager';
 import PreviewSimulator from '../components/admin/PreviewSimulator';
 import SettingsPanel from '../components/admin/SettingsPanel';
+import HealthScoreSettings from '../components/admin/HealthScoreSettings';
 import ReportViewer from '../components/admin/ReportViewer';
 import ReportEditor from '../components/admin/ReportEditor';
 
@@ -168,6 +169,31 @@ export default function Admin() {
     }
     queryClient.invalidateQueries({ queryKey: ['settings'] });
     toast.success(enabled ? 'IA ativada' : 'IA desativada');
+  };
+
+  const handleSaveHealthScore = async (categories) => {
+    for (const cat of categories) {
+      const enabledKey = `health_score_${cat.key}_enabled`;
+      const weightKey = `health_score_${cat.key}_weight`;
+      
+      const enabledSetting = settings.find(s => s.key === enabledKey);
+      const weightSetting = settings.find(s => s.key === weightKey);
+      
+      if (enabledSetting) {
+        await base44.entities.AppSettings.update(enabledSetting.id, { value: String(cat.enabled) });
+      } else {
+        await base44.entities.AppSettings.create({ key: enabledKey, value: String(cat.enabled) });
+      }
+      
+      if (weightSetting) {
+        await base44.entities.AppSettings.update(weightSetting.id, { value: String(cat.weight) });
+      } else {
+        await base44.entities.AppSettings.create({ key: weightKey, value: String(cat.weight) });
+      }
+    }
+    
+    queryClient.invalidateQueries({ queryKey: ['settings'] });
+    toast.success('Configurações do Health Score salvas');
   };
 
   const handleViewReport = (project) => {
@@ -500,9 +526,14 @@ ESTRUTURA OBRIGATÓRIA DO DIAGNÓSTICO:
           </TabsContent>
 
           <TabsContent value="settings">
-            <Card className="p-6">
-              <SettingsPanel aiEnabled={aiEnabled} onToggleAI={handleToggleAI} />
-            </Card>
+            <div className="space-y-6">
+              <Card className="p-6">
+                <SettingsPanel aiEnabled={aiEnabled} onToggleAI={handleToggleAI} />
+              </Card>
+              <Card className="p-6">
+                <HealthScoreSettings settings={settings} onSave={handleSaveHealthScore} />
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
