@@ -76,6 +76,24 @@ export default function HealthScoreSettings({ settings, modules, onSave }) {
     ));
   };
 
+  const handleModuleToggle = (categoryKey, moduleId) => {
+    setCategories(prev => 
+      prev.map(cat => {
+        if (cat.key === categoryKey) {
+          const modules = cat.modules || [];
+          const isSelected = modules.includes(moduleId);
+          return {
+            ...cat,
+            modules: isSelected 
+              ? modules.filter(id => id !== moduleId)
+              : [...modules, moduleId]
+          };
+        }
+        return cat;
+      })
+    );
+  };
+
   const getTotalWeight = () => {
     return categories
       .filter(cat => cat.enabled)
@@ -198,31 +216,65 @@ export default function HealthScoreSettings({ settings, modules, onSave }) {
                 </div>
 
               {cat.enabled && (
-                <div className="space-y-2">
-                  <Label className="text-sm text-slate-600">
-                    Peso no cálculo (%)
-                  </Label>
-                  <div className="flex items-center gap-3">
-                    <Input
-                      type="number"
-                      min="0"
-                      max="100"
-                      step="0.1"
-                      value={cat.weight}
-                      onChange={(e) => handleWeightChange(cat.key, e.target.value)}
-                      className="max-w-[120px]"
-                    />
-                    <div className="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden">
-                      <div 
-                        className="bg-slate-600 h-full transition-all duration-300"
-                        style={{ width: `${cat.weight}%` }}
+                <>
+                  <div className="space-y-2">
+                    <Label className="text-sm text-slate-600">
+                      Peso no cálculo (%)
+                    </Label>
+                    <div className="flex items-center gap-3">
+                      <Input
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.1"
+                        value={cat.weight}
+                        onChange={(e) => handleWeightChange(cat.key, e.target.value)}
+                        className="max-w-[120px]"
                       />
+                      <div className="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <div 
+                          className="bg-slate-600 h-full transition-all duration-300"
+                          style={{ width: `${cat.weight}%` }}
+                        />
+                      </div>
+                      <span className="text-sm font-medium text-slate-700 min-w-[60px] text-right">
+                        {cat.weight.toFixed(1)}%
+                      </span>
                     </div>
-                    <span className="text-sm font-medium text-slate-700 min-w-[60px] text-right">
-                      {cat.weight.toFixed(1)}%
-                    </span>
                   </div>
-                </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm text-slate-600">
+                      Módulos que contam nesta categoria
+                    </Label>
+                    <div className="grid grid-cols-2 gap-2 p-3 bg-slate-50 rounded-lg">
+                      {modules && modules.length > 0 ? (
+                        modules
+                          .filter(m => m.is_active)
+                          .sort((a, b) => a.order - b.order)
+                          .map(module => (
+                            <div key={module.id} className="flex items-center gap-2">
+                              <Checkbox
+                                id={`${cat.key}-${module.id}`}
+                                checked={cat.modules?.includes(module.id) || false}
+                                onCheckedChange={() => handleModuleToggle(cat.key, module.id)}
+                              />
+                              <label 
+                                htmlFor={`${cat.key}-${module.id}`}
+                                className="text-sm cursor-pointer"
+                              >
+                                {module.title}
+                              </label>
+                            </div>
+                          ))
+                      ) : (
+                        <p className="text-sm text-slate-400 col-span-2">
+                          Nenhum módulo disponível
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </>
               )}
               </div>
             </Card>
