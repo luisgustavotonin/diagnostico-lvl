@@ -117,6 +117,9 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
       maxOrder = mainQuestions.length > 0 ? Math.max(...mainQuestions.map(q => q.order)) + 1 : 1;
     }
     
+    // Pré-selecionar o módulo se estiver habilitado para Health Score
+    const defaultWeightCategory = enabledHealthModules.includes(moduleId) ? moduleId : '';
+    
     setForm({
       module_id: moduleId,
       order: maxOrder,
@@ -133,7 +136,7 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
       condition_field: parentId ? questions.find(q => q.id === parentId)?.field_key : '',
       condition_operator: 'equals',
       condition_value: '',
-      weight_category: ''
+      weight_category: defaultWeightCategory
     });
     setOptionsArray([]);
     setEditingQuestion(null);
