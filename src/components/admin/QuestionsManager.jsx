@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Plus, Pencil, Trash2, ChevronRight, GripVertical, Wand2 } from 'lucide-react';
 import { autoScoreOptions } from './AutoScoreUtils';
+import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 
 const FIELD_TYPES = [
   { value: 'text', label: 'Texto Curto' },
@@ -44,6 +46,36 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
   const [moduleDialogOpen, setModuleDialogOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState(null);
   const [editingModule, setEditingModule] = useState(null);
+  const [enabledHealthModules, setEnabledHealthModules] = useState([]);
+
+  // Carregar módulos habilitados para Health Score
+  const { data: healthScoreSettings = [] } = useQuery({
+    queryKey: ['healthScoreSettings'],
+    queryFn: () => base44.entities.AppSettings.filter({
+      key: { $regex: '^health_score_' }
+    }),
+  });
+
+  useEffect(() => {
+    const categoriesListSetting = healthScoreSettings.find(s => s.key === 'health_score_categories');
+    let categoryModuleIds = [];
+    
+    if (categoriesListSetting) {
+      try {
+        categoryModuleIds = JSON.parse(categoriesListSetting.value);
+      } catch {
+        categoryModuleIds = [];
+      }
+    }
+
+    // Filtrar apenas módulos que estão habilitados
+    const enabledModules = categoryModuleIds.filter(moduleId => {
+      const enabledSetting = healthScoreSettings.find(s => s.key === `health_score_module_${moduleId}_enabled`);
+      return enabledSetting ? enabledSetting.value === 'true' : true;
+    });
+
+    setEnabledHealthModules(enabledModules);
+  }, [healthScoreSettings]);
   const [moduleForm, setModuleForm] = useState({
     number: 1,
     order: 1,
@@ -132,6 +164,16 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
     const saveData = { ...form, options: optionsArray };
     if (!saveData.weight_category) {
       saveData.weight_category = null;
+    }
+
+    // Se weight_category não está nos módulos habilitados, limpar scores
+    if (saveData.weight_category && !enabledHealthModules.includes(saveData.weight_category)) {
+      saveData.options = saveData.options.map(opt => {
+        if (typeof opt === 'object' && opt.label !== undefined) {
+          return { label: opt.label, score: 0 };
+        }
+        return opt;
+      });
     }
 
     // Se for uma nova pergunta e a posição foi alterada, reordenar
@@ -725,15 +767,23 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value={null}>Não participa do Health Score</SelectItem>
-                    {modules.filter(m => m.is_active).sort((a, b) => a.order - b.order).map(m => (
-                      <SelectItem key={m.id} value={m.id}>
-                        {m.title}
-                      </SelectItem>
-                    ))}
+                    {modules
+                      .filter(m => m.is_active && enabledHealthModules.includes(m.id))
+                      .sort((a, b) => a.order - b.order)
+                      .map(m => (
+                        <SelectItem key={m.id} value={m.id}>
+                          {m.title}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
+                {enabledHealthModules.length === 0 && (
+                  <p className="text-xs text-amber-600 mt-1">
+                    ⚠️ Nenhum módulo habilitado nas Configurações do Health Score
+                  </p>
+                )}
                 <p className="text-xs text-slate-400 mt-1">
-                  A pontuação vem das opções de resposta, não da pergunta
+                  Apenas módulos habilitados nas configurações aparecem aqui
                 </p>
               </div>
             </div>
