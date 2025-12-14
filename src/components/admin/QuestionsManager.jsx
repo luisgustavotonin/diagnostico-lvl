@@ -589,96 +589,111 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
               </div>
             </div>
 
-            {['radio', 'select', 'checkbox'].includes(form.field_type) && (
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <Label>Opções com Pontuação (0-100)</Label>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setOptionsArray([...optionsArray, { label: '', score: 50 }]);
-                    }}
-                  >
-                    <Plus className="w-4 h-4 mr-1" /> Adicionar Opção
-                  </Button>
-                </div>
+            {['radio', 'select', 'checkbox'].includes(form.field_type) && (() => {
+              const isModuleEnabledForHealthScore = form.module_id && enabledHealthModules.includes(form.module_id);
 
-                {optionsArray.length === 0 && (
-                  <p className="text-sm text-slate-500 italic">Nenhuma opção adicionada ainda</p>
-                )}
+              return (
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <Label>Opções com Pontuação (0-100)</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setOptionsArray([...optionsArray, { label: '', score: 50 }]);
+                      }}
+                    >
+                      <Plus className="w-4 h-4 mr-1" /> Adicionar Opção
+                    </Button>
+                  </div>
 
-                <div className="space-y-2">
-                  {optionsArray.map((option, index) => (
-                    <div key={index} className="flex gap-2 items-center">
-                      <Input
-                        placeholder="Texto da opção"
-                        value={option.label}
-                        onChange={(e) => {
-                          const newOptions = [...optionsArray];
-                          newOptions[index].label = e.target.value;
-                          setOptionsArray(newOptions);
-                        }}
-                        className="flex-1"
-                      />
-                      <Input
-                        type="number"
-                        min="0"
-                        max="100"
-                        placeholder="Score"
-                        value={option.score}
-                        onChange={(e) => {
-                          const newOptions = [...optionsArray];
-                          newOptions[index].score = parseInt(e.target.value) || 0;
-                          setOptionsArray(newOptions);
-                        }}
-                        className="w-20"
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        onClick={() => {
-                          const newOptions = [...optionsArray];
-                          newOptions[index].score = autoScoreOptions([option.label])[0]?.score || 50;
-                          setOptionsArray(newOptions);
-                        }}
-                        title="Auto-preencher pontuação"
-                      >
-                        <Wand2 className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          setOptionsArray(optionsArray.filter((_, i) => i !== index));
-                        }}
-                      >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </Button>
+                  {!isModuleEnabledForHealthScore && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                      <p className="text-xs text-amber-800">
+                        ⚠️ Este módulo não está habilitado nas Configurações do Health Score. As pontuações estão desabilitadas e não serão consideradas no cálculo.
+                      </p>
                     </div>
-                  ))}
-                </div>
+                  )}
 
-                {optionsArray.length > 0 && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      const autoScored = autoScoreOptions(optionsArray);
-                      setOptionsArray(autoScored);
-                    }}
-                    className="w-full"
-                  >
-                    <Wand2 className="w-4 h-4 mr-2" />
-                    Auto-preencher Todas as Pontuações
-                  </Button>
-                )}
-              </div>
-            )}
+                  {optionsArray.length === 0 && (
+                    <p className="text-sm text-slate-500 italic">Nenhuma opção adicionada ainda</p>
+                  )}
+
+                  <div className="space-y-2">
+                    {optionsArray.map((option, index) => (
+                      <div key={index} className="flex gap-2 items-center">
+                        <Input
+                          placeholder="Texto da opção"
+                          value={option.label}
+                          onChange={(e) => {
+                            const newOptions = [...optionsArray];
+                            newOptions[index].label = e.target.value;
+                            setOptionsArray(newOptions);
+                          }}
+                          className="flex-1"
+                        />
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100"
+                          placeholder="Score"
+                          value={option.score}
+                          onChange={(e) => {
+                            const newOptions = [...optionsArray];
+                            newOptions[index].score = parseInt(e.target.value) || 0;
+                            setOptionsArray(newOptions);
+                          }}
+                          className="w-20"
+                          disabled={!isModuleEnabledForHealthScore}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => {
+                            const newOptions = [...optionsArray];
+                            newOptions[index].score = autoScoreOptions([option.label])[0]?.score || 50;
+                            setOptionsArray(newOptions);
+                          }}
+                          title="Auto-preencher pontuação"
+                          disabled={!isModuleEnabledForHealthScore}
+                        >
+                          <Wand2 className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setOptionsArray(optionsArray.filter((_, i) => i !== index));
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+
+                  {optionsArray.length > 0 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const autoScored = autoScoreOptions(optionsArray);
+                        setOptionsArray(autoScored);
+                      }}
+                      className="w-full"
+                      disabled={!isModuleEnabledForHealthScore}
+                    >
+                      <Wand2 className="w-4 h-4 mr-2" />
+                      Auto-preencher Todas as Pontuações
+                    </Button>
+                  )}
+                </div>
+              );
+            })()}
 
             <div className="grid grid-cols-2 gap-4">
               <div>
