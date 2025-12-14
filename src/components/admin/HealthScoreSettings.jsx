@@ -14,6 +14,8 @@ export default function HealthScoreSettings({ settings, modules, onSave }) {
   const [selectedModuleId, setSelectedModuleId] = useState('');
 
   useEffect(() => {
+    if (!modules || modules.length === 0) return;
+    
     // Carregar lista de categorias das configurações
     const categoriesListSetting = settings.find(s => s.key === 'health_score_categories');
     let categoryModuleIds = [];
@@ -26,18 +28,22 @@ export default function HealthScoreSettings({ settings, modules, onSave }) {
       }
     }
 
-    const loadedCategories = categoryModuleIds.map(moduleId => {
-      const module = modules?.find(m => m.id === moduleId);
-      const enabledSetting = settings.find(s => s.key === `health_score_module_${moduleId}_enabled`);
-      const weightSetting = settings.find(s => s.key === `health_score_module_${moduleId}_weight`);
-      
-      return {
-        moduleId,
-        label: module?.title || 'Módulo não encontrado',
-        enabled: enabledSetting ? enabledSetting.value === 'true' : true,
-        weight: weightSetting ? parseFloat(weightSetting.value) : 25
-      };
-    });
+    const loadedCategories = categoryModuleIds
+      .map(moduleId => {
+        const module = modules.find(m => m.id === moduleId);
+        if (!module) return null;
+        
+        const enabledSetting = settings.find(s => s.key === `health_score_module_${moduleId}_enabled`);
+        const weightSetting = settings.find(s => s.key === `health_score_module_${moduleId}_weight`);
+        
+        return {
+          moduleId,
+          label: module.title,
+          enabled: enabledSetting ? enabledSetting.value === 'true' : true,
+          weight: weightSetting ? parseFloat(weightSetting.value) : 25
+        };
+      })
+      .filter(cat => cat !== null);
     
     setCategories(loadedCategories);
   }, [settings, modules]);
