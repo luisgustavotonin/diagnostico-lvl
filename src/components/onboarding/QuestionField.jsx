@@ -128,18 +128,16 @@ export default function QuestionField({ question, value, onChange, error }) {
 
       case 'radio':
         return (
-          <RadioGroup
-            value={value || ''}
-            onValueChange={onChange}
-            className="space-y-2"
-          >
-            {(question.options || []).map((option, idx) => (
-              <div key={idx} className="flex items-center space-x-2">
-                <RadioGroupItem value={option} id={`${question.field_key}-${idx}`} />
-                <Label htmlFor={`${question.field_key}-${idx}`} className="cursor-pointer">{option}</Label>
-              </div>
-            ))}
-          </RadioGroup>
+          <Select value={value || ''} onValueChange={onChange}>
+            <SelectTrigger className={error ? 'border-red-500' : ''}>
+              <SelectValue placeholder={question.placeholder || "Selecione uma opção..."} />
+            </SelectTrigger>
+            <SelectContent>
+              {(question.options || []).map((option, idx) => (
+                <SelectItem key={idx} value={option}>{option}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         );
 
       case 'select':
