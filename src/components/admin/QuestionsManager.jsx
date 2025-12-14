@@ -77,12 +77,21 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
   const [optionsText, setOptionsText] = useState('');
 
   const handleNew = (moduleId, parentId = null) => {
-    const moduleQuestions = questions.filter(q => q.module_id === moduleId);
-    const maxOrder = Math.max(...moduleQuestions.map(q => q.order), 0);
+    let maxOrder = 1;
+    
+    if (parentId) {
+      // Para condicionais, pegar max order das condicionais do mesmo pai
+      const conditionals = getConditionalQuestions(parentId);
+      maxOrder = conditionals.length > 0 ? Math.max(...conditionals.map(q => q.order)) + 1 : 1;
+    } else {
+      // Para principais, pegar max order das principais do módulo
+      const mainQuestions = getMainQuestions(moduleId);
+      maxOrder = mainQuestions.length > 0 ? Math.max(...mainQuestions.map(q => q.order)) + 1 : 1;
+    }
     
     setForm({
       module_id: moduleId,
-      order: maxOrder + 1,
+      order: maxOrder,
       text: '',
       field_key: '',
       field_type: 'text',
@@ -485,33 +494,18 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
               </div>
               <div>
                 <Label>Posição</Label>
-                {form.is_conditional ? (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-slate-600">
-                        {getMainQuestions(form.module_id).findIndex(q => q.id === form.parent_question_id) + 1}.
-                      </span>
-                      <Input
-                        type="number"
-                        min="1"
-                        value={form.order}
-                        onChange={(e) => setForm({ ...form, order: parseInt(e.target.value) || 1 })}
-                        className="flex-1"
-                      />
-                    </div>
-                    <p className="text-xs text-slate-500 mt-1">Define a posição entre as condicionais</p>
-                  </>
-                ) : (
-                  <>
-                    <Input
-                      type="number"
-                      min="1"
-                      value={form.order}
-                      onChange={(e) => setForm({ ...form, order: parseInt(e.target.value) || 1 })}
-                    />
-                    <p className="text-xs text-slate-500 mt-1">Define onde inserir a pergunta</p>
-                  </>
-                )}
+                <Input
+                  type="number"
+                  min="1"
+                  value={form.order}
+                  onChange={(e) => setForm({ ...form, order: parseInt(e.target.value) || 1 })}
+                />
+                <p className="text-xs text-slate-500 mt-1">
+                  {form.is_conditional 
+                    ? `Posição ${getMainQuestions(form.module_id).findIndex(q => q.id === form.parent_question_id) + 1}.${form.order}`
+                    : `Posição ${form.order}`
+                  }
+                </p>
               </div>
             </div>
 
