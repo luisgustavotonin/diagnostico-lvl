@@ -132,10 +132,14 @@ export default function ProjectsTable({
                     }
                   </TableCell>
                   <TableCell>
-                    {project.unit_type === 'consultorio' 
-                      ? formatCPF(project.cpf)
-                      : formatCNPJ(project.cnpj)
-                    }
+                    {(() => {
+                      const value = project.unit_type === 'consultorio' ? project.cpf : project.cnpj;
+                      const formatted = project.unit_type === 'consultorio' 
+                        ? formatCPF(value)
+                        : formatCNPJ(value);
+                      console.log('Project:', project.unit_name, 'Type:', project.unit_type, 'Value:', value, 'Formatted:', formatted);
+                      return formatted;
+                    })()}
                   </TableCell>
                   <TableCell>{project.city || '-'}</TableCell>
                   <TableCell>
