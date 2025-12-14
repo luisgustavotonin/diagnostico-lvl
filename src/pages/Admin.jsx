@@ -3,8 +3,10 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
-import { Loader2, Building2, ListTree, Eye, Settings } from 'lucide-react';
+import { Loader2, Building2, ListTree, Eye, Settings, FileDown } from 'lucide-react';
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import jsPDF from 'jspdf';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 import StatsCards from '../components/admin/StatsCards';
@@ -287,6 +289,120 @@ ESTRUTURA OBRIGATÓRIA DO DIAGNÓSTICO:
     window.open(`/Onboarding?project=${project.id}`, '_blank');
   };
 
+  const handleExportModulesPDF = () => {
+    const doc = new jsPDF();
+    let yPosition = 20;
+    const pageHeight = doc.internal.pageSize.height;
+    const margin = 20;
+    const lineHeight = 7;
+
+    // Título
+    doc.setFontSize(18);
+    doc.setFont(undefined, 'bold');
+    doc.text('Estrutura de Módulos e Perguntas', margin, yPosition);
+    yPosition += 15;
+
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}`, margin, yPosition);
+    yPosition += 10;
+
+    // Ordenar módulos
+    const sortedModules = [...modules].sort((a, b) => a.order - b.order);
+
+    sortedModules.forEach((module, idx) => {
+      // Verificar se precisa de nova página
+      if (yPosition > pageHeight - 40) {
+        doc.addPage();
+        yPosition = margin;
+      }
+
+      // Módulo
+      doc.setFontSize(14);
+      doc.setFont(undefined, 'bold');
+      doc.text(`Módulo ${module.number}: ${module.title}`, margin, yPosition);
+      yPosition += lineHeight;
+
+      doc.setFontSize(9);
+      doc.setFont(undefined, 'normal');
+      doc.text(`Ordem: ${module.order} | Ativo: ${module.is_active ? 'Sim' : 'Não'}`, margin, yPosition);
+      yPosition += lineHeight;
+
+      if (module.description) {
+        const descLines = doc.splitTextToSize(`Descrição: ${module.description}`, 170);
+        descLines.forEach(line => {
+          if (yPosition > pageHeight - 20) {
+            doc.addPage();
+            yPosition = margin;
+          }
+          doc.text(line, margin, yPosition);
+          yPosition += lineHeight;
+        });
+      }
+      yPosition += 3;
+
+      // Perguntas do módulo
+      const moduleQuestions = questions
+        .filter(q => q.module_id === module.id)
+        .sort((a, b) => a.order - b.order);
+
+      moduleQuestions.forEach((q, qIdx) => {
+        if (yPosition > pageHeight - 30) {
+          doc.addPage();
+          yPosition = margin;
+        }
+
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'bold');
+        doc.text(`  Pergunta ${qIdx + 1}:`, margin + 5, yPosition);
+        yPosition += lineHeight;
+
+        doc.setFontSize(9);
+        doc.setFont(undefined, 'normal');
+        
+        const questionLines = doc.splitTextToSize(`  ${q.text}`, 165);
+        questionLines.forEach(line => {
+          if (yPosition > pageHeight - 20) {
+            doc.addPage();
+            yPosition = margin;
+          }
+          doc.text(line, margin + 5, yPosition);
+          yPosition += lineHeight;
+        });
+
+        doc.text(`  Chave: ${q.field_key}`, margin + 5, yPosition);
+        yPosition += lineHeight;
+
+        doc.text(`  Tipo: ${q.field_type} | Ordem: ${q.order} | Obrigatória: ${q.is_required ? 'Sim' : 'Não'} | Ativa: ${q.is_active ? 'Sim' : 'Não'}`, margin + 5, yPosition);
+        yPosition += lineHeight;
+
+        if (q.is_conditional) {
+          doc.setFont(undefined, 'italic');
+          doc.text(`  CONDICIONAL: Campo "${q.condition_field}" ${q.condition_operator || 'equals'} "${q.condition_value}"`, margin + 5, yPosition);
+          doc.setFont(undefined, 'normal');
+          yPosition += lineHeight;
+        }
+
+        if (q.weight_category && q.weight_points) {
+          doc.text(`  Health Score: ${q.weight_category} (${q.weight_points} pontos)`, margin + 5, yPosition);
+          yPosition += lineHeight;
+        }
+
+        if (q.options && q.options.length > 0) {
+          doc.text(`  Opções: ${q.options.join(', ')}`, margin + 5, yPosition);
+          yPosition += lineHeight;
+        }
+
+        yPosition += 2;
+      });
+
+      yPosition += 5;
+    });
+
+    doc.save('estrutura-modulos-perguntas.pdf');
+    toast.success('PDF exportado com sucesso!');
+  };
+
   const confirmDelete = () => {
     const { type, id } = deleteDialog;
     
@@ -355,6 +471,16 @@ ESTRUTURA OBRIGATÓRIA DO DIAGNÓSTICO:
           </TabsContent>
 
           <TabsContent value="modules">
+            <div className="mb-4">
+              <Button 
+                onClick={handleExportModulesPDF}
+                variant="outline"
+                className="gap-2"
+              >
+                <FileDown className="w-4 h-4" />
+                Exportar Estrutura em PDF
+              </Button>
+            </div>
             <Card className="p-6">
               <QuestionsManager
                 modules={modules}
