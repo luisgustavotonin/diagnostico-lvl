@@ -19,6 +19,7 @@ const FIELD_TYPES = [
   { value: 'date', label: 'Data' },
   { value: 'phone', label: 'Telefone' },
   { value: 'cnpj', label: 'CNPJ' },
+  { value: 'cpf', label: 'CPF' },
   { value: 'cep', label: 'CEP' },
   { value: 'currency_cents', label: 'Moeda (R$)' },
   { value: 'yes_no', label: 'Sim/Não' },
