@@ -72,7 +72,7 @@ export default function BusinessHoursField({ value, onChange }) {
         ...prev,
         [dayKey]: {
           aberto: !isCurrentlyOpen,
-          periodos: !isCurrentlyOpen ? [{ inicio: '08:00', fim: '12:00' }, { inicio: '13:00', fim: '18:00' }] : []
+          periodos: !isCurrentlyOpen ? [{ inicio: '08:00', fim: '18:00' }] : []
         }
       };
     });
@@ -131,81 +131,85 @@ export default function BusinessHoursField({ value, onChange }) {
   };
 
   return (
-    <div className="space-y-3">
-      <h3 className="text-xl font-semibold text-slate-900 mb-6">Horário de atendimento</h3>
+    <div className="space-y-2">
       {DAYS.map(day => {
         const dayData = schedule[day.key] || { aberto: false, periodos: [] };
         const isOpen = dayData.aberto;
         
         return (
-          <Card key={day.key} className="p-5 border border-slate-200 bg-white">
-            <div className="flex items-center justify-between">
-              <Label className="text-base font-medium text-slate-800">{day.label}</Label>
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-slate-500">
-                  {isOpen ? 'Aberto' : 'Fechado'}
-                </span>
-                <Switch
-                  checked={isOpen}
-                  onCheckedChange={() => toggleDay(day.key)}
-                />
-              </div>
-            </div>
-
-            {isOpen && (
-              <div className="space-y-2 mt-4">
-                {dayData.periodos.map((periodo, index) => (
-                  <div key={index}>
-                    <div className="flex items-center gap-2">
-                      <div className="relative flex-1">
-                        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                        <Input
-                          type="time"
-                          value={periodo.inicio}
-                          onChange={(e) => updatePeriod(day.key, index, 'inicio', e.target.value)}
-                          className={`pl-10 ${errors[`${day.key}-${index}`] ? 'border-red-500' : ''}`}
-                        />
-                      </div>
-                      <span className="text-slate-500 text-sm">até</span>
-                      <div className="relative flex-1">
-                        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                        <Input
-                          type="time"
-                          value={periodo.fim}
-                          onChange={(e) => updatePeriod(day.key, index, 'fim', e.target.value)}
-                          className={`pl-10 ${errors[`${day.key}-${index}`] ? 'border-red-500' : ''}`}
-                        />
-                      </div>
-                      {dayData.periodos.length > 1 && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removePeriod(day.key, index)}
-                          className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
+          <div key={day.key} className="border border-slate-200 rounded-lg bg-white overflow-hidden hover:border-slate-300 transition-colors">
+            <div className="flex items-center gap-3 p-3 bg-slate-50">
+              <Label className="text-sm font-medium text-slate-700 w-28 flex-shrink-0">{day.label}</Label>
+              
+              {!isOpen ? (
+                <div className="flex items-center justify-between flex-1">
+                  <span className="text-sm text-slate-400">Fechado</span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleDay(day.key)}
+                    className="text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 h-7"
+                  >
+                    Adicionar horário
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex-1 space-y-2">
+                  {dayData.periodos.map((periodo, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <Input
+                        type="time"
+                        value={periodo.inicio}
+                        onChange={(e) => updatePeriod(day.key, index, 'inicio', e.target.value)}
+                        className={`h-8 text-sm w-28 ${errors[`${day.key}-${index}`] ? 'border-red-500' : ''}`}
+                      />
+                      <span className="text-slate-400 text-xs">-</span>
+                      <Input
+                        type="time"
+                        value={periodo.fim}
+                        onChange={(e) => updatePeriod(day.key, index, 'fim', e.target.value)}
+                        className={`h-8 text-sm w-28 ${errors[`${day.key}-${index}`] ? 'border-red-500' : ''}`}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removePeriod(day.key, index)}
+                        className="h-7 w-7 text-slate-400 hover:text-red-600 hover:bg-red-50"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </Button>
+                      {errors[`${day.key}-${index}`] && (
+                        <span className="text-xs text-red-500">{errors[`${day.key}-${index}`]}</span>
                       )}
                     </div>
-                    {errors[`${day.key}-${index}`] && (
-                      <p className="text-xs text-red-500 mt-1">{errors[`${day.key}-${index}`]}</p>
-                    )}
+                  ))}
+                  
+                  <div className="flex gap-2 pt-1">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => addPeriod(day.key)}
+                      className="text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 h-7"
+                    >
+                      <Plus className="w-3 h-3 mr-1" /> Adicionar horário
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleDay(day.key)}
+                      className="text-xs text-red-600 hover:text-red-700 hover:bg-red-50 h-7"
+                    >
+                      Fechar este dia
+                    </Button>
                   </div>
-                ))}
-                
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => addPeriod(day.key)}
-                  className="w-full mt-2"
-                >
-                  <Plus className="w-4 h-4 mr-2" /> Adicionar período
-                </Button>
-              </div>
-            )}
-          </Card>
+                </div>
+              )}
+            </div>
+          </div>
         );
       })}
     </div>
