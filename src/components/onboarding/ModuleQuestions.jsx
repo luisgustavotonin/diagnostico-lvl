@@ -74,14 +74,13 @@ export default function ModuleQuestions({
 
             {conditionals.map(conditional => (
               shouldShowQuestion(conditional) && (
-                <div key={conditional.id} className="ml-6 pl-4 border-l-2 border-slate-200">
-                  <QuestionField
-                    question={conditional}
-                    value={answers[conditional.field_key]}
-                    onChange={(val) => onAnswerChange(conditional.field_key, val)}
-                    error={errors[conditional.field_key]}
-                  />
-                </div>
+                <QuestionField
+                  key={conditional.id}
+                  question={conditional}
+                  value={answers[conditional.field_key]}
+                  onChange={(val) => onAnswerChange(conditional.field_key, val)}
+                  error={errors[conditional.field_key]}
+                />
               )
             ))}
           </div>
