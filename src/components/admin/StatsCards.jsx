@@ -3,9 +3,12 @@ import { Card } from "@/components/ui/card";
 import { Building2, CheckCircle2, Clock } from 'lucide-react';
 
 export default function StatsCards({ projects }) {
-  const total = projects.length;
-  const completed = projects.filter(p => p.status === 'COMPLETED').length;
-  const inProgress = projects.filter(p => p.status === 'IN_PROGRESS').length;
+  // Filtrar apenas projetos salvos (não incluir DRAFT)
+  const savedProjects = projects.filter(p => p.status !== 'DRAFT');
+  
+  const total = savedProjects.length;
+  const completed = savedProjects.filter(p => p.status === 'COMPLETED').length;
+  const inProgress = savedProjects.filter(p => p.status === 'IN_PROGRESS').length;
 
   const stats = [
     {
