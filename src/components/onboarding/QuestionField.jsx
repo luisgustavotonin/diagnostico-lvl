@@ -10,6 +10,7 @@ import CNPJMask from '../masks/CNPJMask';
 import CPFMask from '../masks/CPFMask';
 import CEPMask from '../masks/CEPMask';
 import CurrencyMask from '../masks/CurrencyMask';
+import PercentMask from '../masks/PercentMask';
 import BusinessHoursField from './BusinessHoursField';
 import { HelpCircle } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -123,6 +124,16 @@ export default function QuestionField({ question, value, onChange, error }) {
       case 'currency_cents':
         return (
           <CurrencyMask
+            value={value}
+            onChange={onChange}
+            placeholder={question.placeholder}
+            className={error ? 'border-red-500' : ''}
+          />
+        );
+
+      case 'percent':
+        return (
+          <PercentMask
             value={value}
             onChange={onChange}
             placeholder={question.placeholder}

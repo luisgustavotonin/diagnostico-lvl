@@ -210,8 +210,8 @@ export default function ProjectsTable({
                     )}
                   </TableCell>
                   <TableCell>
-                    {project.status === 'IN_PROGRESS' ? (
-                      <div className="flex gap-2">
+                    <div className="flex gap-2">
+                      {project.status === 'IN_PROGRESS' && (
                         <Button 
                           variant="outline" 
                           size="sm"
@@ -219,16 +219,30 @@ export default function ProjectsTable({
                         >
                           <ExternalLink className="w-4 h-4 mr-1" /> Abrir e finalizar
                         </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => onDelete(project)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ) : null}
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onView(project)}
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onEdit(project)}
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onDelete(project)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

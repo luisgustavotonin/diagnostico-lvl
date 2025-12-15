@@ -25,6 +25,7 @@ const FIELD_TYPES = [
   { value: 'cpf', label: 'CPF' },
   { value: 'cep', label: 'CEP' },
   { value: 'currency_cents', label: 'Moeda (R$)' },
+  { value: 'percent', label: 'Percentual (%)' },
   { value: 'yes_no', label: 'Sim/Não' },
   { value: 'radio', label: 'Escolha Única' },
   { value: 'select', label: 'Lista Suspensa' },
@@ -103,6 +104,17 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
     weight_points: 0
   });
   const [optionsArray, setOptionsArray] = useState([]);
+
+  const generateFieldKey = (text) => {
+    if (!text) return '';
+    return text
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^\w\s]/g, '')
+      .replace(/\s+/g, '_')
+      .substring(0, 50);
+  };
 
   const handleNew = (moduleId, parentId = null) => {
     let maxOrder = 1;
@@ -354,6 +366,12 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
                                     <span className="text-xs bg-slate-100 px-2 py-0.5 rounded">
                                       {FIELD_TYPES.find(t => t.value === question.field_type)?.label}
                                     </span>
+                                    {question.field_type === 'radio' && (
+                                      <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded">Única escolha</span>
+                                    )}
+                                    {(question.field_type === 'checkbox' || question.field_type === 'select') && (
+                                      <span className="text-xs bg-purple-50 text-purple-600 px-2 py-0.5 rounded">Múltipla escolha</span>
+                                    )}
                                     {question.weight_category && enabledHealthModules.includes(question.weight_category) && (
                                       <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-medium">
                                         Health Score
@@ -420,6 +438,12 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
                                                   <span className="text-xs bg-slate-100 px-2 py-0.5 rounded">
                                                     {FIELD_TYPES.find(t => t.value === cond.field_type)?.label}
                                                   </span>
+                                                  {cond.field_type === 'radio' && (
+                                                    <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded">Única escolha</span>
+                                                  )}
+                                                  {(cond.field_type === 'checkbox' || cond.field_type === 'select') && (
+                                                    <span className="text-xs bg-purple-50 text-purple-600 px-2 py-0.5 rounded">Múltipla escolha</span>
+                                                  )}
                                                   {cond.weight_category && enabledHealthModules.includes(cond.weight_category) && (
                                                     <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-medium">
                                                       Health Score
@@ -575,7 +599,15 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
               <Label>Texto da Pergunta</Label>
               <Textarea
                 value={form.text}
-                onChange={(e) => setForm({ ...form, text: e.target.value })}
+                onChange={(e) => {
+                  const newText = e.target.value;
+                  const updates = { text: newText };
+                  // Auto-gerar field_key apenas se estiver criando nova pergunta e field_key estiver vazio
+                  if (!editingQuestion && !form.field_key) {
+                    updates.field_key = generateFieldKey(newText);
+                  }
+                  setForm({ ...form, ...updates });
+                }}
                 placeholder="Digite a pergunta..."
               />
             </div>
