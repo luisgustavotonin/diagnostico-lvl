@@ -345,13 +345,14 @@ ESTRUTURA OBRIGATÓRIA DO DIAGNÓSTICO:
       response_json_schema: null
     });
 
-    const fullReport = `${project.report_basic_text || ''}\n\n---\n\n# DIAGNÓSTICO E PLANO DE AÇÃO\n\n${response}`;
+    // Relatório IA puro, sem incluir o básico
+    const aiReport = `# DIAGNÓSTICO E PLANO DE AÇÃO\n\n${response}`;
 
     await updateProjectMutation.mutateAsync({ 
       id: project.id, 
       data: { 
         ai_report_status: 'READY',
-        ai_report_text: fullReport
+        ai_report_text: aiReport
       } 
     });
 
