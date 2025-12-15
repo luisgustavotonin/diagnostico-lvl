@@ -159,7 +159,8 @@ export default function Onboarding() {
       }
     }
     
-    if (answers.cidade) updateData.city = answers.cidade;
+    if (answers.city) updateData.city = answers.city;
+    else if (answers.cidade) updateData.city = answers.cidade;
     if (answers.telefone) updateData.phone = answers.telefone;
 
     await base44.entities.Project.update(projectId, updateData);
@@ -192,7 +193,8 @@ export default function Onboarding() {
       }
     }
     
-    if (answers.cidade) updateData.city = answers.cidade;
+    if (answers.city) updateData.city = answers.city;
+    else if (answers.cidade) updateData.city = answers.cidade;
     if (answers.telefone) updateData.phone = answers.telefone;
 
     await base44.entities.Project.update(projectId, updateData);
