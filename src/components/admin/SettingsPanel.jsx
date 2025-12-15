@@ -1,10 +1,11 @@
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Sparkles, AlertTriangle } from 'lucide-react';
 
-export default function SettingsPanel({ aiEnabled, onToggleAI }) {
+export default function SettingsPanel({ aiEnabled, onToggleAI, aiReportMode, onToggleAIMode }) {
   return (
     <div className="space-y-6">
       <h3 className="text-lg font-semibold">Configurações</h3>
@@ -35,6 +36,38 @@ export default function SettingsPanel({ aiEnabled, onToggleAI }) {
                   <strong>Atenção:</strong> Com esta opção desativada, não será possível gerar novos diagnósticos por IA. 
                   Diagnósticos já gerados continuarão acessíveis.
                 </div>
+              </div>
+            )}
+
+            {aiEnabled && (
+              <div className="mt-6 pt-6 border-t space-y-3">
+                <Label className="text-sm font-medium text-slate-700">Modo de Exibição do Diagnóstico IA</Label>
+                <p className="text-sm text-slate-500">
+                  Escolha como o diagnóstico IA será apresentado nos relatórios
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    variant={aiReportMode === 'separate' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => onToggleAIMode('separate')}
+                    className="flex-1"
+                  >
+                    Separado
+                  </Button>
+                  <Button
+                    variant={aiReportMode === 'combined' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => onToggleAIMode('combined')}
+                    className="flex-1"
+                  >
+                    Junto com Relatório Padrão
+                  </Button>
+                </div>
+                <p className="text-xs text-slate-400">
+                  {aiReportMode === 'separate' 
+                    ? 'O diagnóstico IA será gerado como um relatório separado' 
+                    : 'O diagnóstico IA será incluído no relatório padrão'}
+                </p>
               </div>
             )}
           </div>

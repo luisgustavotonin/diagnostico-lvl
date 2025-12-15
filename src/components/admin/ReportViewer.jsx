@@ -34,7 +34,7 @@ export default function ReportViewer({ open, onClose, project, type }) {
             }
             body {
               font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-              line-height: 1.7;
+              line-height: 1.5;
               color: #1e293b;
               background: #f8fafc;
             }
@@ -117,8 +117,8 @@ export default function ReportViewer({ open, onClose, project, type }) {
               color: #1e293b;
               font-size: 28px;
               font-weight: 700;
-              margin: 40px 0 20px 0;
-              padding-bottom: 12px;
+              margin: 30px 0 16px 0;
+              padding-bottom: 10px;
               border-bottom: 3px solid #3b82f6;
             }
             h1:first-child {
@@ -128,11 +128,11 @@ export default function ReportViewer({ open, onClose, project, type }) {
               color: #1e40af;
               font-size: 22px;
               font-weight: 600;
-              margin: 35px 0 16px 0;
+              margin: 28px 0 14px 0;
               padding-left: 20px;
               border-left: 5px solid #60a5fa;
               background: linear-gradient(90deg, #eff6ff 0%, #f8fafc 100%);
-              padding: 14px 20px;
+              padding: 12px 20px;
               border-radius: 6px;
               box-shadow: 0 2px 4px rgba(59, 130, 246, 0.08);
             }
@@ -145,12 +145,12 @@ export default function ReportViewer({ open, onClose, project, type }) {
               color: #475569;
               font-size: 18px;
               font-weight: 600;
-              margin: 25px 0 12px 0;
-              padding-bottom: 6px;
+              margin: 20px 0 10px 0;
+              padding-bottom: 5px;
               border-bottom: 1px solid #e2e8f0;
             }
             p {
-              margin: 12px 0;
+              margin: 8px 0;
               color: #334155;
               font-size: 15px;
             }
@@ -159,11 +159,11 @@ export default function ReportViewer({ open, onClose, project, type }) {
               font-weight: 600;
             }
             ul, ol {
-              margin: 16px 0;
+              margin: 12px 0;
               padding-left: 30px;
             }
             li {
-              margin: 10px 0;
+              margin: 6px 0;
               color: #334155;
               padding-left: 8px;
             }
