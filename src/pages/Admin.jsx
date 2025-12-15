@@ -186,6 +186,7 @@ export default function Admin() {
     } else {
       await base44.entities.AppSettings.create({ key: 'ai_report_mode', value: mode });
     }
+    localStorage.setItem('ai_report_mode', mode);
     queryClient.invalidateQueries({ queryKey: ['settings'] });
     toast.success(mode === 'combined' ? 'Diagnóstico IA será incluído no relatório padrão' : 'Diagnóstico IA será gerado separadamente');
   };

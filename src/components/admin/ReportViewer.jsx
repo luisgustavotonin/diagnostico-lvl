@@ -11,7 +11,14 @@ export default function ReportViewer({ open, onClose, project, type }) {
   const title = type === 'ai' ? 'Relatório + Diagnóstico IA' : 'Relatório Básico';
 
   const handlePrint = () => {
-    const reportContent = type === 'ai' ? project.ai_report_text : project.report_basic_text;
+    let reportContent = type === 'ai' ? project.ai_report_text : project.report_basic_text;
+    
+    // Se mode combinado e relatório básico, incluir IA
+    const aiReportMode = localStorage.getItem('ai_report_mode') || 'separate';
+    if (type === 'basic' && aiReportMode === 'combined' && project.ai_report_text) {
+      reportContent += '\n\n---\n\n## DIAGNÓSTICO COM INTELIGÊNCIA ARTIFICIAL\n\n' + project.ai_report_text;
+    }
+    
     const reportTitle = type === 'ai' ? 'Diagnóstico Estratégico Completo' : 'Relatório de Onboarding';
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
@@ -38,22 +45,29 @@ export default function ReportViewer({ open, onClose, project, type }) {
               box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             }
             .header {
-              background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+              background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
               color: white;
-              padding: 50px 60px;
+              padding: 60px 60px 50px;
               position: relative;
               overflow: hidden;
             }
             .header::before {
               content: '';
               position: absolute;
-              top: 0;
-              right: 0;
-              width: 300px;
-              height: 300px;
-              background: rgba(255,255,255,0.05);
+              top: -50%;
+              right: -10%;
+              width: 500px;
+              height: 500px;
+              background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
               border-radius: 50%;
-              transform: translate(30%, -30%);
+            }
+            .header::after {
+              content: '📊';
+              position: absolute;
+              bottom: 20px;
+              right: 40px;
+              font-size: 80px;
+              opacity: 0.2;
             }
             .header h1 {
               font-size: 32px;
@@ -70,9 +84,10 @@ export default function ReportViewer({ open, onClose, project, type }) {
               z-index: 1;
             }
             .meta-info {
-              background: #f1f5f9;
-              padding: 30px 60px;
-              border-left: 4px solid #3b82f6;
+              background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+              padding: 35px 60px;
+              border-left: 6px solid #3b82f6;
+              box-shadow: inset 0 2px 4px rgba(59, 130, 246, 0.05);
             }
             .meta-info .row {
               display: flex;
@@ -110,15 +125,21 @@ export default function ReportViewer({ open, onClose, project, type }) {
               margin-top: 0;
             }
             h2 {
-              color: #334155;
+              color: #1e40af;
               font-size: 22px;
               font-weight: 600;
               margin: 35px 0 16px 0;
-              padding-left: 16px;
-              border-left: 4px solid #3b82f6;
-              background: #f8fafc;
-              padding: 12px 16px;
-              border-radius: 4px;
+              padding-left: 20px;
+              border-left: 5px solid #60a5fa;
+              background: linear-gradient(90deg, #eff6ff 0%, #f8fafc 100%);
+              padding: 14px 20px;
+              border-radius: 6px;
+              box-shadow: 0 2px 4px rgba(59, 130, 246, 0.08);
+            }
+            h2::before {
+              content: '▸ ';
+              color: #3b82f6;
+              font-weight: bold;
             }
             h3 {
               color: #475569;
@@ -148,15 +169,53 @@ export default function ReportViewer({ open, onClose, project, type }) {
             }
             ul li::marker {
               color: #3b82f6;
+              font-weight: bold;
+            }
+            blockquote {
+              border-left: 4px solid #60a5fa;
+              padding-left: 20px;
+              margin: 20px 0;
+              font-style: italic;
+              color: #475569;
+              background: #f8fafc;
+              padding: 16px 20px;
+              border-radius: 4px;
+            }
+            .health-badge {
+              display: inline-block;
+              padding: 10px 18px;
+              background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+              color: white;
+              border-radius: 24px;
+              font-weight: 600;
+              font-size: 16px;
+              box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
             }
             .footer {
-              background: #f8fafc;
-              padding: 30px 60px;
-              margin-top: 50px;
-              border-top: 2px solid #e2e8f0;
+              background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+              padding: 35px 60px;
+              margin-top: 60px;
+              border-top: 3px solid #e2e8f0;
               text-align: center;
               color: #64748b;
               font-size: 13px;
+              position: relative;
+            }
+            .footer::before {
+              content: '◆';
+              display: block;
+              color: #3b82f6;
+              font-size: 24px;
+              margin-bottom: 15px;
+            }
+            .footer::after {
+              content: '';
+              position: absolute;
+              bottom: 0;
+              left: 0;
+              right: 0;
+              height: 4px;
+              background: linear-gradient(90deg, #3b82f6 0%, #1e40af 50%, #3b82f6 100%);
             }
             @media print {
               body { background: white; }
@@ -191,7 +250,9 @@ export default function ReportViewer({ open, onClose, project, type }) {
                 ${project.health_score ? `
                 <div class="item">
                   <div class="label">Health Score</div>
-                  <div class="value">${project.health_score}/100 - ${project.health_level}</div>
+                  <div class="value">
+                    <span class="health-badge">${project.health_score}/100 - ${project.health_level}</span>
+                  </div>
                 </div>
                 ` : ''}
                 <div class="item">
@@ -215,7 +276,8 @@ export default function ReportViewer({ open, onClose, project, type }) {
             </div>
             
             <div class="footer">
-              Relatório gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}
+              <p>Relatório gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}</p>
+              <p style="margin-top: 8px; font-size: 11px; color: #94a3b8;">© ${new Date().getFullYear()} - Todos os direitos reservados</p>
             </div>
           </div>
         </body>
