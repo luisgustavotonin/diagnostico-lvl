@@ -78,6 +78,8 @@ export default function Admin() {
     queryFn: () => base44.entities.AppSettings.list(),
   });
 
+  const aiReportMode = settings.find(s => s.key === 'ai_report_mode')?.value || 'separate';
+
   useEffect(() => {
     const aiSetting = settings.find(s => s.key === 'ai_enabled');
     if (aiSetting) {
@@ -175,6 +177,17 @@ export default function Admin() {
     }
     queryClient.invalidateQueries({ queryKey: ['settings'] });
     toast.success(enabled ? 'IA ativada' : 'IA desativada');
+  };
+
+  const handleToggleAIMode = async (mode) => {
+    const existingSetting = settings.find(s => s.key === 'ai_report_mode');
+    if (existingSetting) {
+      await base44.entities.AppSettings.update(existingSetting.id, { value: mode });
+    } else {
+      await base44.entities.AppSettings.create({ key: 'ai_report_mode', value: mode });
+    }
+    queryClient.invalidateQueries({ queryKey: ['settings'] });
+    toast.success(mode === 'combined' ? 'Diagnóstico IA será incluído no relatório padrão' : 'Diagnóstico IA será gerado separadamente');
   };
 
   const handleToggleHealthScore = async (enabled) => {
@@ -562,7 +575,12 @@ ESTRUTURA OBRIGATÓRIA DO DIAGNÓSTICO:
           <TabsContent value="settings">
             <div className="space-y-6">
               <Card className="p-6">
-                <SettingsPanel aiEnabled={aiEnabled} onToggleAI={handleToggleAI} />
+                <SettingsPanel 
+                  aiEnabled={aiEnabled} 
+                  onToggleAI={handleToggleAI}
+                  aiReportMode={aiReportMode}
+                  onToggleAIMode={handleToggleAIMode}
+                />
               </Card>
               <Card className="p-6">
                 <HealthScoreSettings 
