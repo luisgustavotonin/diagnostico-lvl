@@ -359,8 +359,30 @@ export default function Onboarding() {
               style: 'currency',
               currency: 'BRL'
             }).format(answer / 100);
+          } else if (q.field_type === 'percent' && answer) {
+            answer = `${answer}%`;
+          } else if (q.field_type === 'business_hours' && answer) {
+            // Formatar horários de atendimento
+            const schedule = answer;
+            let formatted = '';
+            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            const dayNames = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+            
+            days.forEach((day, idx) => {
+              if (schedule[day] && schedule[day].isOpen && schedule[day].periods && schedule[day].periods.length > 0) {
+                formatted += `\n- ${dayNames[idx]}: `;
+                const periods = schedule[day].periods
+                  .filter(p => p.start && p.end)
+                  .map(p => `${p.start} às ${p.end}`)
+                  .join(', ');
+                formatted += periods || 'Horários não definidos';
+              }
+            });
+            answer = formatted || 'Não informado';
           } else if (Array.isArray(answer)) {
             answer = answer.join(', ');
+          } else if (typeof answer === 'object' && answer !== null) {
+            answer = JSON.stringify(answer, null, 2);
           }
           
           report += `**${q.text}**\n`;
