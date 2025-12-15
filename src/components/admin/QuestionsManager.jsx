@@ -307,6 +307,11 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
                   <span className="text-xs bg-slate-100 px-2 py-0.5 rounded">
                     {getQuestionsByModule(module.id).length} perguntas
                   </span>
+                  {enabledHealthModules.includes(module.id) && (
+                    <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-medium">
+                      Health Score
+                    </span>
+                  )}
                   {!module.is_active && (
                     <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded">Inativo</span>
                   )}
@@ -349,6 +354,11 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
                                     <span className="text-xs bg-slate-100 px-2 py-0.5 rounded">
                                       {FIELD_TYPES.find(t => t.value === question.field_type)?.label}
                                     </span>
+                                    {question.weight_category && enabledHealthModules.includes(question.weight_category) && (
+                                      <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-medium">
+                                        Health Score
+                                      </span>
+                                    )}
                                     {question.is_required && (
                                       <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded">Obrigatório</span>
                                     )}
@@ -410,6 +420,11 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
                                                   <span className="text-xs bg-slate-100 px-2 py-0.5 rounded">
                                                     {FIELD_TYPES.find(t => t.value === cond.field_type)?.label}
                                                   </span>
+                                                  {cond.weight_category && enabledHealthModules.includes(cond.weight_category) && (
+                                                    <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-medium">
+                                                      Health Score
+                                                    </span>
+                                                  )}
                                                 </div>
                                                 <p className="mt-1 text-sm">{cond.text}</p>
                                                 <p className="text-xs text-slate-400 mt-0.5">
