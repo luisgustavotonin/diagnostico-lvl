@@ -337,6 +337,46 @@ export default function Onboarding() {
     return Math.round(finalScore);
   };
 
+  // Funções de formatação
+  const formatCNPJ = (cnpj) => {
+    if (!cnpj) return '';
+    const clean = cnpj.replace(/\D/g, '');
+    if (clean.length === 14) {
+      return `${clean.slice(0, 2)}.${clean.slice(2, 5)}.${clean.slice(5, 8)}/${clean.slice(8, 12)}-${clean.slice(12)}`;
+    }
+    return cnpj;
+  };
+
+  const formatCPF = (cpf) => {
+    if (!cpf) return '';
+    const clean = cpf.replace(/\D/g, '');
+    if (clean.length === 11) {
+      return `${clean.slice(0, 3)}.${clean.slice(3, 6)}.${clean.slice(6, 9)}-${clean.slice(9)}`;
+    }
+    return cpf;
+  };
+
+  const formatCEP = (cep) => {
+    if (!cep) return '';
+    const clean = cep.replace(/\D/g, '');
+    if (clean.length === 8) {
+      return `${clean.slice(0, 5)}-${clean.slice(5)}`;
+    }
+    return cep;
+  };
+
+  const formatPhone = (phone) => {
+    if (!phone) return '';
+    const clean = phone.replace(/\D/g, '');
+    if (clean.length === 11) {
+      return `(${clean.slice(0, 2)}) ${clean.slice(2, 7)}-${clean.slice(7)}`;
+    }
+    if (clean.length === 10) {
+      return `(${clean.slice(0, 2)}) ${clean.slice(2, 6)}-${clean.slice(6)}`;
+    }
+    return phone;
+  };
+
   // Gerar relatório básico
   const generateBasicReport = () => {
     let report = '# RELATÓRIO DE ONBOARDING\n\n';
@@ -346,7 +386,7 @@ export default function Onboarding() {
       report += `## ${module.title}\n\n`;
       
       const moduleQuestions = questions
-        .filter(q => q.module_id === module.id && q.is_active)
+        .filter(q => q.module_id === module.id && q.is_active && q.field_key !== 'horario_atendimento')
         .sort((a, b) => a.order - b.order);
       
       moduleQuestions.forEach(q => {
@@ -361,24 +401,14 @@ export default function Onboarding() {
             }).format(answer / 100);
           } else if (q.field_type === 'percent' && answer) {
             answer = `${answer}%`;
-          } else if (q.field_type === 'business_hours' && answer) {
-            // Formatar horários de atendimento
-            const schedule = answer;
-            let formatted = '';
-            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-            const dayNames = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
-            
-            days.forEach((day, idx) => {
-              if (schedule[day] && schedule[day].isOpen && schedule[day].periods && schedule[day].periods.length > 0) {
-                formatted += `\n- ${dayNames[idx]}: `;
-                const periods = schedule[day].periods
-                  .filter(p => p.start && p.end)
-                  .map(p => `${p.start} às ${p.end}`)
-                  .join(', ');
-                formatted += periods || 'Horários não definidos';
-              }
-            });
-            answer = formatted || 'Não informado';
+          } else if (q.field_type === 'cnpj' && answer) {
+            answer = formatCNPJ(answer);
+          } else if (q.field_type === 'cpf' && answer) {
+            answer = formatCPF(answer);
+          } else if (q.field_type === 'cep' && answer) {
+            answer = formatCEP(answer);
+          } else if (q.field_type === 'phone' && answer) {
+            answer = formatPhone(answer);
           } else if (Array.isArray(answer)) {
             answer = answer.join(', ');
           } else if (typeof answer === 'object' && answer !== null) {
@@ -389,6 +419,30 @@ export default function Onboarding() {
           report += `${answer || 'Não informado'}\n\n`;
         }
       });
+
+      // Adicionar horário de atendimento no final do módulo 1
+      if (module.number === 1 && answers.horario_atendimento) {
+        const schedule = answers.horario_atendimento;
+        let formatted = '';
+        const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+        const dayNames = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+        
+        days.forEach((day, idx) => {
+          if (schedule[day] && schedule[day].isOpen && schedule[day].periods && schedule[day].periods.length > 0) {
+            formatted += `\n- ${dayNames[idx]}: `;
+            const periods = schedule[day].periods
+              .filter(p => p.start && p.end)
+              .map(p => `${p.start} às ${p.end}`)
+              .join(', ');
+            formatted += periods || 'Horários não definidos';
+          }
+        });
+        
+        if (formatted) {
+          report += `**Horário de Atendimento**\n`;
+          report += `${formatted}\n\n`;
+        }
+      }
     });
 
     return report;
@@ -419,7 +473,7 @@ export default function Onboarding() {
       report_basic_text: basicReport,
       unit_name: answers.nome_consultorio || answers.nome_fantasia || answers.nome_unidade || '',
       unit_type: unitType,
-      city: answers.cidade || '',
+      city: answers.city || answers.cidade || '',
       cpf: unitType === 'consultorio' ? (answers.cpf || '') : '',
       cnpj: unitType === 'clinica' ? (answers.cnpj || '') : '',
       phone: answers.telefone || ''

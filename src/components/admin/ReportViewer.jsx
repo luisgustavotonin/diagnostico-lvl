@@ -115,10 +115,10 @@ export default function ReportViewer({ open, onClose, project, type }) {
             }
             h1 {
               color: #1e293b;
-              font-size: 28px;
+              font-size: 26px;
               font-weight: 700;
-              margin: 30px 0 16px 0;
-              padding-bottom: 10px;
+              margin: 24px 0 12px 0;
+              padding-bottom: 8px;
               border-bottom: 3px solid #3b82f6;
             }
             h1:first-child {
@@ -126,13 +126,13 @@ export default function ReportViewer({ open, onClose, project, type }) {
             }
             h2 {
               color: #1e40af;
-              font-size: 22px;
+              font-size: 20px;
               font-weight: 600;
-              margin: 28px 0 14px 0;
+              margin: 20px 0 10px 0;
               padding-left: 20px;
               border-left: 5px solid #60a5fa;
               background: linear-gradient(90deg, #eff6ff 0%, #f8fafc 100%);
-              padding: 12px 20px;
+              padding: 10px 20px;
               border-radius: 6px;
               box-shadow: 0 2px 4px rgba(59, 130, 246, 0.08);
             }
@@ -143,29 +143,31 @@ export default function ReportViewer({ open, onClose, project, type }) {
             }
             h3 {
               color: #475569;
-              font-size: 18px;
+              font-size: 17px;
               font-weight: 600;
-              margin: 20px 0 10px 0;
-              padding-bottom: 5px;
+              margin: 16px 0 8px 0;
+              padding-bottom: 4px;
               border-bottom: 1px solid #e2e8f0;
             }
             p {
-              margin: 8px 0;
+              margin: 4px 0;
               color: #334155;
-              font-size: 15px;
+              font-size: 14px;
+              line-height: 1.4;
             }
             strong, b {
               color: #1e293b;
               font-weight: 600;
             }
             ul, ol {
-              margin: 12px 0;
+              margin: 8px 0;
               padding-left: 30px;
             }
             li {
-              margin: 6px 0;
+              margin: 4px 0;
               color: #334155;
               padding-left: 8px;
+              line-height: 1.3;
             }
             ul li::marker {
               color: #3b82f6;
