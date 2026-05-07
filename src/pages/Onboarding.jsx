@@ -554,7 +554,7 @@ export default function Onboarding() {
             {saving ? (
               <Loader2 className="w-5 h-5 animate-spin mr-2" />
             ) : null}
-            Iniciar Onboarding
+            Iniciar Diagnóstico
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
 
