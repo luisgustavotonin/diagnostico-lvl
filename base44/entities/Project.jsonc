@@ -1,0 +1,80 @@
+{
+  "name": "Project",
+  "type": "object",
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "IN_PROGRESS",
+        "COMPLETED"
+      ],
+      "default": "DRAFT"
+    },
+    "current_module": {
+      "type": "number",
+      "default": 1
+    },
+    "unit_name": {
+      "type": "string"
+    },
+    "unit_type": {
+      "type": "string",
+      "enum": [
+        "consultorio",
+        "clinica"
+      ]
+    },
+    "city": {
+      "type": "string"
+    },
+    "cnpj": {
+      "type": "string"
+    },
+    "cpf": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "answers_json": {
+      "type": "object",
+      "description": "Respostas do question\u00e1rio"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "health_score": {
+      "type": "number",
+      "description": "Nota final 0-100"
+    },
+    "health_level": {
+      "type": "string",
+      "enum": [
+        "Baixa",
+        "M\u00e9dia",
+        "Alta"
+      ]
+    },
+    "report_basic_text": {
+      "type": "string",
+      "description": "Relat\u00f3rio b\u00e1sico gerado"
+    },
+    "ai_report_status": {
+      "type": "string",
+      "enum": [
+        "NOT_REQUESTED",
+        "GENERATING",
+        "READY",
+        "ERROR"
+      ],
+      "default": "NOT_REQUESTED"
+    },
+    "ai_report_text": {
+      "type": "string",
+      "description": "Relat\u00f3rio com diagn\u00f3stico IA"
+    }
+  },
+  "required": []
+}

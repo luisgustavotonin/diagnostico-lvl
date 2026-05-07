@@ -23,7 +23,7 @@ export default function Onboarding() {
     const loadProject = async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const projectIdFromUrl = urlParams.get('project');
-      
+
       if (projectIdFromUrl) {
         try {
           const projects = await base44.entities.Project.filter({ id: projectIdFromUrl });
@@ -40,36 +40,36 @@ export default function Onboarding() {
       }
       setLoadingProject(false);
     };
-    
+
     loadProject();
   }, []);
 
   // Carregar módulos
   const { data: modules = [], isLoading: loadingModules } = useQuery({
     queryKey: ['modules'],
-    queryFn: () => base44.entities.Module.filter({ is_active: true }, 'order'),
+    queryFn: () => base44.entities.Module.filter({ is_active: true }, 'order')
   });
 
   // Carregar perguntas
   const { data: questions = [], isLoading: loadingQuestions } = useQuery({
     queryKey: ['questions'],
-    queryFn: () => base44.entities.Question.filter({ is_active: true }, 'order'),
+    queryFn: () => base44.entities.Question.filter({ is_active: true }, 'order')
   });
 
-  const activeModules = useMemo(() => 
-    modules.filter(m => m.is_active).sort((a, b) => a.order - b.order),
-    [modules]
+  const activeModules = useMemo(() =>
+  modules.filter((m) => m.is_active).sort((a, b) => a.order - b.order),
+  [modules]
   );
 
-  const currentModule = useMemo(() => 
-    activeModules.find(m => m.number === currentModuleNum),
-    [activeModules, currentModuleNum]
+  const currentModule = useMemo(() =>
+  activeModules.find((m) => m.number === currentModuleNum),
+  [activeModules, currentModuleNum]
   );
 
   // Verifica se pergunta condicional está visível
   const isQuestionVisible = (question) => {
     if (!question.is_conditional) return true;
-    
+
     const conditionField = question.condition_field;
     const conditionValue = question.condition_value;
     const conditionOperator = question.condition_operator || 'equals';
@@ -94,20 +94,20 @@ export default function Onboarding() {
   // Validar módulo atual
   const validateCurrentModule = () => {
     if (!currentModule) return true;
-    
-    const moduleQuestions = questions.filter(q => 
-      q.module_id === currentModule.id && q.is_active
+
+    const moduleQuestions = questions.filter((q) =>
+    q.module_id === currentModule.id && q.is_active
     );
-    
+
     const newErrors = {};
     let isValid = true;
 
-    moduleQuestions.forEach(q => {
+    moduleQuestions.forEach((q) => {
       if (q.is_required && isQuestionVisible(q)) {
         const value = answers[q.field_key];
-        const isEmpty = value === undefined || value === null || value === '' || 
-          (Array.isArray(value) && value.length === 0);
-        
+        const isEmpty = value === undefined || value === null || value === '' ||
+        Array.isArray(value) && value.length === 0;
+
         if (isEmpty) {
           newErrors[q.field_key] = true;
           isValid = false;
@@ -136,7 +136,7 @@ export default function Onboarding() {
   // Salvar progresso (apenas dados, sem mudar status)
   const saveProgress = async () => {
     if (!projectId) return;
-    
+
     const updateData = {
       answers_json: answers,
       current_module: currentModuleNum
@@ -146,11 +146,11 @@ export default function Onboarding() {
     if (answers.nome_consultorio) updateData.unit_name = answers.nome_consultorio;
     if (answers.nome_fantasia) updateData.unit_name = answers.nome_fantasia;
     if (answers.nome_unidade) updateData.unit_name = answers.nome_unidade;
-    
+
     if (answers.tipo_unidade) {
       const tipo = String(answers.tipo_unidade).toLowerCase();
       updateData.unit_type = tipo === 'consultório' || tipo === 'consultorio' ? 'consultorio' : 'clinica';
-      
+
       // Se for consultório, salvar CPF; se for clínica, salvar CNPJ
       if (updateData.unit_type === 'consultorio' && answers.cpf) {
         updateData.cpf = answers.cpf;
@@ -158,9 +158,9 @@ export default function Onboarding() {
         updateData.cnpj = answers.cnpj;
       }
     }
-    
-    if (answers.city) updateData.city = answers.city;
-    else if (answers.cidade) updateData.city = answers.cidade;
+
+    if (answers.city) updateData.city = answers.city;else
+    if (answers.cidade) updateData.city = answers.cidade;
     if (answers.telefone) updateData.phone = answers.telefone;
 
     await base44.entities.Project.update(projectId, updateData);
@@ -169,9 +169,9 @@ export default function Onboarding() {
   // Salvar e marcar como "Em Andamento"
   const handleSaveProgress = async () => {
     if (!projectId) return;
-    
+
     setSaving(true);
-    
+
     const updateData = {
       answers_json: answers,
       current_module: currentModuleNum,
@@ -181,20 +181,20 @@ export default function Onboarding() {
     if (answers.nome_consultorio) updateData.unit_name = answers.nome_consultorio;
     if (answers.nome_fantasia) updateData.unit_name = answers.nome_fantasia;
     if (answers.nome_unidade) updateData.unit_name = answers.nome_unidade;
-    
+
     if (answers.tipo_unidade) {
       const tipo = String(answers.tipo_unidade).toLowerCase();
       updateData.unit_type = tipo === 'consultório' || tipo === 'consultorio' ? 'consultorio' : 'clinica';
-      
+
       if (updateData.unit_type === 'consultorio' && answers.cpf) {
         updateData.cpf = answers.cpf;
       } else if (updateData.unit_type === 'clinica' && answers.cnpj) {
         updateData.cnpj = answers.cnpj;
       }
     }
-    
-    if (answers.city) updateData.city = answers.city;
-    else if (answers.cidade) updateData.city = answers.cidade;
+
+    if (answers.city) updateData.city = answers.city;else
+    if (answers.cidade) updateData.city = answers.cidade;
     if (answers.telefone) updateData.phone = answers.telefone;
 
     await base44.entities.Project.update(projectId, updateData);
@@ -203,21 +203,21 @@ export default function Onboarding() {
 
   // Atualizar resposta
   const handleAnswerChange = (fieldKey, value) => {
-    setAnswers(prev => ({ ...prev, [fieldKey]: value }));
+    setAnswers((prev) => ({ ...prev, [fieldKey]: value }));
     if (errors[fieldKey]) {
-      setErrors(prev => ({ ...prev, [fieldKey]: false }));
+      setErrors((prev) => ({ ...prev, [fieldKey]: false }));
     }
   };
 
   // Próximo módulo
   const handleNext = async () => {
     if (!validateCurrentModule()) return;
-    
+
     setSaving(true);
     await saveProgress();
-    
+
     if (currentModuleNum < activeModules.length) {
-      setCurrentModuleNum(prev => prev + 1);
+      setCurrentModuleNum((prev) => prev + 1);
     } else {
       setStep('conclusion');
     }
@@ -229,7 +229,7 @@ export default function Onboarding() {
   // Módulo anterior
   const handlePrevious = () => {
     if (currentModuleNum > 1) {
-      setCurrentModuleNum(prev => prev - 1);
+      setCurrentModuleNum((prev) => prev - 1);
       setErrors({});
       window.scrollTo(0, 0);
     }
@@ -240,15 +240,15 @@ export default function Onboarding() {
     queryKey: ['healthScoreSettings'],
     queryFn: () => base44.entities.AppSettings.filter({
       key: { $regex: '^health_score_' }
-    }),
+    })
   });
 
   // Calcular Health Score (NOVO - baseado em pontuação por resposta)
   const calculateHealthScore = () => {
     // Carregar lista de módulos configurados
-    const categoriesListSetting = healthScoreSettings.find(s => s.key === 'health_score_categories');
+    const categoriesListSetting = healthScoreSettings.find((s) => s.key === 'health_score_categories');
     let categoryModuleIds = [];
-    
+
     if (categoriesListSetting) {
       try {
         categoryModuleIds = JSON.parse(categoriesListSetting.value);
@@ -263,17 +263,17 @@ export default function Onboarding() {
 
     // Montar estrutura de pesos por módulo
     const weights = {};
-    
-    categoryModuleIds.forEach(moduleId => {
-      const enabledSetting = healthScoreSettings.find(s => s.key === `health_score_module_${moduleId}_enabled`);
-      const weightSetting = healthScoreSettings.find(s => s.key === `health_score_module_${moduleId}_weight`);
-      
+
+    categoryModuleIds.forEach((moduleId) => {
+      const enabledSetting = healthScoreSettings.find((s) => s.key === `health_score_module_${moduleId}_enabled`);
+      const weightSetting = healthScoreSettings.find((s) => s.key === `health_score_module_${moduleId}_weight`);
+
       const isEnabled = enabledSetting ? enabledSetting.value === 'true' : true;
       const weightValue = weightSetting ? parseFloat(weightSetting.value) / 100 : 0.25;
-      
+
       if (isEnabled) {
-        weights[moduleId] = { 
-          weight: weightValue, 
+        weights[moduleId] = {
+          weight: weightValue,
           totalScore: 0,
           count: 0
         };
@@ -281,26 +281,26 @@ export default function Onboarding() {
     });
 
     // Calcular pontuação por pergunta (baseado na resposta selecionada)
-    questions.forEach(q => {
+    questions.forEach((q) => {
       // Verificar se a pergunta participa do Health Score
       if (!q.weight_category || !weights[q.weight_category]) return;
-      
+
       // Verificar se a pergunta está visível (para condicionais)
       if (!isQuestionVisible(q)) return;
-      
+
       const userAnswer = answers[q.field_key];
       if (!userAnswer) return;
-      
+
       // Encontrar a pontuação da opção selecionada
       let score = 0;
-      
+
       if (q.options && Array.isArray(q.options) && q.options.length > 0) {
         // Verificar se as opções estão no novo formato ({ label, score })
         const firstOption = q.options[0];
-        
+
         if (typeof firstOption === 'object' && firstOption.label !== undefined) {
           // Novo formato: buscar a opção selecionada
-          const selectedOption = q.options.find(opt => opt.label === userAnswer);
+          const selectedOption = q.options.find((opt) => opt.label === userAnswer);
           if (selectedOption && selectedOption.score !== undefined) {
             score = selectedOption.score;
           }
@@ -316,9 +316,9 @@ export default function Onboarding() {
         }
       } else if (q.field_type === 'yes_no') {
         // Perguntas sim/não sem opções configuradas
-        score = (userAnswer === 'Sim' || userAnswer === true) ? 100 : 0;
+        score = userAnswer === 'Sim' || userAnswer === true ? 100 : 0;
       }
-      
+
       // Adicionar à pontuação do módulo
       weights[q.weight_category].totalScore += score;
       weights[q.weight_category].count += 1;
@@ -326,8 +326,8 @@ export default function Onboarding() {
 
     // Calcular score final ponderado
     let finalScore = 0;
-    
-    Object.values(weights).forEach(moduleData => {
+
+    Object.values(weights).forEach((moduleData) => {
       if (moduleData.count > 0) {
         // Média do módulo (0-100)
         const moduleAverage = moduleData.totalScore / moduleData.count;
@@ -383,18 +383,18 @@ export default function Onboarding() {
   const generateBasicReport = () => {
     let report = '# RELATÓRIO DE ONBOARDING\n\n';
     report += `Data: ${new Date().toLocaleDateString('pt-BR')}\n\n`;
-    
-    activeModules.forEach(module => {
+
+    activeModules.forEach((module) => {
       report += `## ${module.title}\n\n`;
-      
-      const moduleQuestions = questions
-        .filter(q => q.module_id === module.id && q.is_active && q.field_key !== 'horario_atendimento')
-        .sort((a, b) => a.order - b.order);
-      
-      moduleQuestions.forEach(q => {
+
+      const moduleQuestions = questions.
+      filter((q) => q.module_id === module.id && q.is_active && q.field_key !== 'horario_atendimento').
+      sort((a, b) => a.order - b.order);
+
+      moduleQuestions.forEach((q) => {
         if (isQuestionVisible(q)) {
           let answer = answers[q.field_key];
-          
+
           // Formatar resposta baseado no tipo
           if (q.field_type === 'currency_cents' && answer) {
             answer = new Intl.NumberFormat('pt-BR', {
@@ -416,7 +416,7 @@ export default function Onboarding() {
           } else if (typeof answer === 'object' && answer !== null) {
             answer = JSON.stringify(answer, null, 2);
           }
-          
+
           report += `**${q.text}**\n`;
           report += `${answer || 'Não informado'}\n\n`;
         }
@@ -428,18 +428,18 @@ export default function Onboarding() {
         let formatted = '';
         const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
         const dayNames = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
-        
+
         days.forEach((day, idx) => {
           if (schedule[day] && schedule[day].isOpen && schedule[day].periods && schedule[day].periods.length > 0) {
             formatted += `\n- ${dayNames[idx]}: `;
-            const periods = schedule[day].periods
-              .filter(p => p.start && p.end)
-              .map(p => `${p.start} às ${p.end}`)
-              .join(', ');
+            const periods = schedule[day].periods.
+            filter((p) => p.start && p.end).
+            map((p) => `${p.start} às ${p.end}`).
+            join(', ');
             formatted += periods || 'Horários não definidos';
           }
         });
-        
+
         if (formatted) {
           report += `**Horário de Atendimento**\n`;
           report += `${formatted}\n\n`;
@@ -453,19 +453,19 @@ export default function Onboarding() {
   // Concluir onboarding
   const handleComplete = async () => {
     if (!validateCurrentModule()) return;
-    
+
     setSaving(true);
-    
+
     const healthScore = calculateHealthScore();
     let healthLevel = 'Crítico';
-    if (healthScore >= 80) healthLevel = 'Maduro / Escalável';
-    else if (healthScore >= 60) healthLevel = 'Estruturado';
-    else if (healthScore >= 40) healthLevel = 'Instável';
+    if (healthScore >= 80) healthLevel = 'Maduro / Escalável';else
+    if (healthScore >= 60) healthLevel = 'Estruturado';else
+    if (healthScore >= 40) healthLevel = 'Instável';
     const basicReport = generateBasicReport();
 
     const tipo = String(answers.tipo_unidade || '').toLowerCase();
     const unitType = tipo === 'consultório' || tipo === 'consultorio' ? 'consultorio' : tipo === 'clínica' || tipo === 'clinica' ? 'clinica' : '';
-    
+
     await base44.entities.Project.update(projectId, {
       status: 'COMPLETED',
       answers_json: answers,
@@ -476,8 +476,8 @@ export default function Onboarding() {
       unit_name: answers.nome_consultorio || answers.nome_fantasia || answers.nome_unidade || '',
       unit_type: unitType,
       city: answers.city || answers.cidade || '',
-      cpf: unitType === 'consultorio' ? (answers.cpf || '') : '',
-      cnpj: unitType === 'clinica' ? (answers.cnpj || '') : '',
+      cpf: unitType === 'consultorio' ? answers.cpf || '' : '',
+      cnpj: unitType === 'clinica' ? answers.cnpj || '' : '',
       phone: answers.telefone || ''
     });
 
@@ -489,8 +489,8 @@ export default function Onboarding() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
         <Loader2 className="w-8 h-8 animate-spin text-slate-600" />
-      </div>
-    );
+      </div>);
+
   }
 
   // Tela de boas-vindas
@@ -501,8 +501,8 @@ export default function Onboarding() {
           <div className="w-20 h-20 bg-slate-800 rounded-3xl mx-auto mb-6 flex items-center justify-center">
             <CheckCircle2 className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-4">
-            Bem-vindo ao Onboarding
+          <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-4">Bem-vindo ao seu Diag
+
           </h1>
           <p className="text-lg text-slate-600 mb-6 leading-relaxed">
             Este processo nos ajuda a conhecer sua clínica e montar a{' '}
@@ -545,15 +545,15 @@ export default function Onboarding() {
             </div>
           </div>
 
-          <Button 
-            size="lg" 
+          <Button
+            size="lg"
             onClick={handleStart}
             disabled={saving}
-            className="bg-slate-800 hover:bg-slate-700 text-white px-8 py-6 text-lg rounded-xl w-full mb-4"
-          >
-            {saving ? (
-              <Loader2 className="w-5 h-5 animate-spin mr-2" />
-            ) : null}
+            className="bg-slate-800 hover:bg-slate-700 text-white px-8 py-6 text-lg rounded-xl w-full mb-4">
+            
+            {saving ?
+            <Loader2 className="w-5 h-5 animate-spin mr-2" /> :
+            null}
             Iniciar Onboarding
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
@@ -562,8 +562,8 @@ export default function Onboarding() {
             Suas informações são confidenciais e usadas apenas para sua estratégia.
           </p>
         </Card>
-      </div>
-    );
+      </div>);
+
   }
 
   // Tela de conclusão
@@ -585,56 +585,56 @@ export default function Onboarding() {
             <br /><br />
             Em breve, um consultor dará continuidade ao atendimento.
           </p>
-          {!completed && (
-            <div className="flex justify-center mt-8">
-              <Button 
-                size="lg" 
-                onClick={handleComplete}
-                disabled={saving}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-6 text-lg rounded-xl"
-              >
-                {saving ? (
-                  <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                ) : null}
+          {!completed &&
+          <div className="flex justify-center mt-8">
+              <Button
+              size="lg"
+              onClick={handleComplete}
+              disabled={saving}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-6 text-lg rounded-xl">
+              
+                {saving ?
+              <Loader2 className="w-5 h-5 animate-spin mr-2" /> :
+              null}
                 Confirmar Conclusão
                 <CheckCircle2 className="w-5 h-5 ml-2" />
               </Button>
             </div>
-          )}
+          }
         </Card>
-      </div>
-    );
+      </div>);
+
   }
 
   // Tela de módulo
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 px-4">
       <div className="max-w-3xl mx-auto">
-        <ProgressBar 
-          currentModule={currentModuleNum} 
-          totalModules={activeModules.length} 
-        />
+        <ProgressBar
+          currentModule={currentModuleNum}
+          totalModules={activeModules.length} />
+        
 
         <Card className="p-6 md:p-10 shadow-xl border-0 mt-6">
           <ValidationErrors errors={errors} questions={questions} />
           
-          {currentModule && (
-            <ModuleQuestions
-              module={currentModule}
-              questions={questions}
-              answers={answers}
-              onAnswerChange={handleAnswerChange}
-              errors={errors}
-            />
-          )}
+          {currentModule &&
+          <ModuleQuestions
+            module={currentModule}
+            questions={questions}
+            answers={answers}
+            onAnswerChange={handleAnswerChange}
+            errors={errors} />
+
+          }
 
           <div className="flex justify-between items-center mt-10 pt-6 border-t border-slate-100">
             <Button
               variant="outline"
               onClick={handlePrevious}
               disabled={currentModuleNum === 1 || saving}
-              className="px-6"
-            >
+              className="px-6">
+              
               <ArrowLeft className="w-4 h-4 mr-2" />
               Anterior
             </Button>
@@ -644,22 +644,22 @@ export default function Onboarding() {
                 variant="outline"
                 onClick={handleSaveProgress}
                 disabled={saving}
-                className="px-6"
-              >
-                {saving ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                ) : null}
+                className="px-6">
+                
+                {saving ?
+                <Loader2 className="w-4 h-4 animate-spin mr-2" /> :
+                null}
                 Salvar Progresso
               </Button>
 
               <Button
                 onClick={handleNext}
                 disabled={saving}
-                className="bg-slate-800 hover:bg-slate-700 text-white px-6"
-              >
-                {saving ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                ) : null}
+                className="bg-slate-800 hover:bg-slate-700 text-white px-6">
+                
+                {saving ?
+                <Loader2 className="w-4 h-4 animate-spin mr-2" /> :
+                null}
                 {currentModuleNum === activeModules.length ? 'Concluir' : 'Próximo'}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
@@ -667,6 +667,6 @@ export default function Onboarding() {
           </div>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
+
 }

@@ -1,0 +1,114 @@
+{
+  "name": "Question",
+  "type": "object",
+  "properties": {
+    "module_id": {
+      "type": "string",
+      "description": "ID do m\u00f3dulo pai"
+    },
+    "order": {
+      "type": "number",
+      "description": "Ordem dentro do m\u00f3dulo"
+    },
+    "text": {
+      "type": "string",
+      "description": "Texto da pergunta"
+    },
+    "field_key": {
+      "type": "string",
+      "description": "Chave \u00fanica para salvar resposta"
+    },
+    "field_type": {
+      "type": "string",
+      "enum": [
+        "text",
+        "textarea",
+        "number",
+        "select",
+        "radio",
+        "checkbox",
+        "phone",
+        "cnpj",
+        "cpf",
+        "cep",
+        "currency_cents",
+        "email",
+        "date",
+        "yes_no",
+        "business_hours"
+      ],
+      "description": "Tipo do campo"
+    },
+    "options": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "Texto da op\u00e7\u00e3o"
+          },
+          "score": {
+            "type": "number",
+            "description": "Pontua\u00e7\u00e3o desta resposta (0-100)"
+          }
+        }
+      },
+      "description": "Op\u00e7\u00f5es para select/radio/checkbox com pontua\u00e7\u00e3o"
+    },
+    "placeholder": {
+      "type": "string"
+    },
+    "help_text": {
+      "type": "string",
+      "description": "Texto de ajuda"
+    },
+    "is_required": {
+      "type": "boolean",
+      "default": false
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "is_conditional": {
+      "type": "boolean",
+      "default": false,
+      "description": "Se \u00e9 uma pergunta condicional"
+    },
+    "parent_question_id": {
+      "type": "string",
+      "description": "ID da pergunta pai (se condicional)"
+    },
+    "condition_field": {
+      "type": "string",
+      "description": "Campo que controla a exibi\u00e7\u00e3o"
+    },
+    "condition_operator": {
+      "type": "string",
+      "enum": [
+        "equals",
+        "not_equals",
+        "contains",
+        "greater_than",
+        "less_than"
+      ],
+      "description": "Operador da condi\u00e7\u00e3o"
+    },
+    "condition_value": {
+      "type": "string",
+      "description": "Valor para compara\u00e7\u00e3o"
+    },
+    "weight_category": {
+      "type": "string",
+      "description": "ID do m\u00f3dulo para c\u00e1lculo do Health Score"
+    }
+  },
+  "required": [
+    "module_id",
+    "order",
+    "text",
+    "field_key",
+    "field_type"
+  ]
+}

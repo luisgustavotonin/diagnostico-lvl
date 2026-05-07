@@ -1,0 +1,31 @@
+{
+  "name": "Module",
+  "type": "object",
+  "properties": {
+    "number": {
+      "type": "number",
+      "description": "N\u00famero do m\u00f3dulo (1-7)"
+    },
+    "order": {
+      "type": "number",
+      "description": "Ordem de exibi\u00e7\u00e3o"
+    },
+    "title": {
+      "type": "string",
+      "description": "T\u00edtulo do m\u00f3dulo"
+    },
+    "description": {
+      "type": "string",
+      "description": "Descri\u00e7\u00e3o do m\u00f3dulo"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "number",
+    "order",
+    "title"
+  ]
+}
