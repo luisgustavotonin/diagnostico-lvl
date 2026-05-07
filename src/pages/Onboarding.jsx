@@ -502,7 +502,7 @@ export default function Onboarding() {
             <CheckCircle2 className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-4">
-            Bem-vindo ao Onboarding
+            Bem-vindo ao seu Diagnóstico
           </h1>
           <p className="text-lg text-slate-600 mb-6 leading-relaxed">
             Este processo nos ajuda a conhecer sua clínica e montar a{' '}
