@@ -501,7 +501,7 @@ export default function Onboarding() {
           <div className="w-20 h-20 bg-slate-800 rounded-3xl mx-auto mb-6 flex items-center justify-center">
             <CheckCircle2 className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-4">Bem-vindo ao seu Diag
+          <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-4">Bem-vindo ao seu Diagnóstico
 
           </h1>
           <p className="text-lg text-slate-600 mb-6 leading-relaxed">
