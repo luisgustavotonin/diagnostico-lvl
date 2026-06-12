@@ -3,7 +3,6 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Search, MoreVertical, Eye, Pencil, Trash2, Printer, Sparkles, ExternalLink, Loader2 } from 'lucide-react';
@@ -66,21 +65,7 @@ export default function ProjectsTable({
     return true;
   });
 
-  const getHealthBadge = (score, level) => {
-    if (!score && score !== 0) return <span className="text-slate-400">-</span>;
-    
-    const colors = {
-      'Alta': 'bg-emerald-100 text-emerald-700',
-      'Média': 'bg-amber-100 text-amber-700',
-      'Baixa': 'bg-red-100 text-red-700'
-    };
 
-    return (
-      <Badge className={colors[level] || 'bg-slate-100 text-slate-700'}>
-        {score} - {level}
-      </Badge>
-    );
-  };
 
   return (
     <div className="space-y-4">
@@ -102,7 +87,6 @@ export default function ProjectsTable({
               <TableHead className="min-w-[250px]">Nome</TableHead>
               <TableHead className="min-w-[180px]">CPF/CNPJ</TableHead>
               <TableHead className="min-w-[150px]">Cidade</TableHead>
-              <TableHead className="min-w-[140px]">Health Query</TableHead>
               <TableHead className="min-w-[140px]">Relatório Básico</TableHead>
               <TableHead className="min-w-[140px]">Relatório + IA</TableHead>
               <TableHead className="min-w-[200px]">Ações</TableHead>
@@ -111,7 +95,7 @@ export default function ProjectsTable({
           <TableBody>
             {filteredProjects.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8 text-slate-500">
+                <TableCell colSpan={7} className="text-center py-8 text-slate-500">
                   Nenhum projeto encontrado
                 </TableCell>
               </TableRow>
@@ -138,9 +122,6 @@ export default function ProjectsTable({
                     }
                   </TableCell>
                   <TableCell>{project.city || '-'}</TableCell>
-                  <TableCell>
-                    {getHealthBadge(project.health_score, project.health_level)}
-                  </TableCell>
                   <TableCell>
                     {project.report_basic_text ? (
                       <DropdownMenu>

@@ -235,109 +235,6 @@ export default function Onboarding() {
     }
   };
 
-  // Carregar configurações do Health Score
-  const { data: healthScoreSettings = [] } = useQuery({
-    queryKey: ['healthScoreSettings'],
-    queryFn: () => base44.entities.AppSettings.filter({
-      key: { $regex: '^health_score_' }
-    }),
-  });
-
-  // Calcular Health Score (NOVO - baseado em pontuação por resposta)
-  const calculateHealthScore = () => {
-    // Carregar lista de módulos configurados
-    const categoriesListSetting = healthScoreSettings.find(s => s.key === 'health_score_categories');
-    let categoryModuleIds = [];
-    
-    if (categoriesListSetting) {
-      try {
-        categoryModuleIds = JSON.parse(categoriesListSetting.value);
-      } catch {
-        categoryModuleIds = [];
-      }
-    }
-
-    if (categoryModuleIds.length === 0) {
-      return 0; // Sem módulos configurados
-    }
-
-    // Montar estrutura de pesos por módulo
-    const weights = {};
-    
-    categoryModuleIds.forEach(moduleId => {
-      const enabledSetting = healthScoreSettings.find(s => s.key === `health_score_module_${moduleId}_enabled`);
-      const weightSetting = healthScoreSettings.find(s => s.key === `health_score_module_${moduleId}_weight`);
-      
-      const isEnabled = enabledSetting ? enabledSetting.value === 'true' : true;
-      const weightValue = weightSetting ? parseFloat(weightSetting.value) / 100 : 0.25;
-      
-      if (isEnabled) {
-        weights[moduleId] = { 
-          weight: weightValue, 
-          totalScore: 0,
-          count: 0
-        };
-      }
-    });
-
-    // Calcular pontuação por pergunta (baseado na resposta selecionada)
-    questions.forEach(q => {
-      // Verificar se a pergunta participa do Health Score
-      if (!q.weight_category || !weights[q.weight_category]) return;
-      
-      // Verificar se a pergunta está visível (para condicionais)
-      if (!isQuestionVisible(q)) return;
-      
-      const userAnswer = answers[q.field_key];
-      if (!userAnswer) return;
-      
-      // Encontrar a pontuação da opção selecionada
-      let score = 0;
-      
-      if (q.options && Array.isArray(q.options) && q.options.length > 0) {
-        // Verificar se as opções estão no novo formato ({ label, score })
-        const firstOption = q.options[0];
-        
-        if (typeof firstOption === 'object' && firstOption.label !== undefined) {
-          // Novo formato: buscar a opção selecionada
-          const selectedOption = q.options.find(opt => opt.label === userAnswer);
-          if (selectedOption && selectedOption.score !== undefined) {
-            score = selectedOption.score;
-          }
-        } else {
-          // Formato antigo (string[]): atribuir pontuação padrão
-          if (userAnswer === 'Sim' || userAnswer === true) {
-            score = 100;
-          } else if (userAnswer === 'Não' || userAnswer === false) {
-            score = 0;
-          } else {
-            score = 50; // Resposta parcial
-          }
-        }
-      } else if (q.field_type === 'yes_no') {
-        // Perguntas sim/não sem opções configuradas
-        score = (userAnswer === 'Sim' || userAnswer === true) ? 100 : 0;
-      }
-      
-      // Adicionar à pontuação do módulo
-      weights[q.weight_category].totalScore += score;
-      weights[q.weight_category].count += 1;
-    });
-
-    // Calcular score final ponderado
-    let finalScore = 0;
-    
-    Object.values(weights).forEach(moduleData => {
-      if (moduleData.count > 0) {
-        // Média do módulo (0-100)
-        const moduleAverage = moduleData.totalScore / moduleData.count;
-        // Aplicar peso do módulo
-        finalScore += moduleAverage * moduleData.weight;
-      }
-    });
-
-    return Math.round(finalScore);
-  };
 
   // Funções de formatação
   const formatCNPJ = (cnpj) => {
@@ -456,11 +353,6 @@ export default function Onboarding() {
     
     setSaving(true);
     
-    const healthScore = calculateHealthScore();
-    let healthLevel = 'Crítico';
-    if (healthScore >= 80) healthLevel = 'Maduro / Escalável';
-    else if (healthScore >= 60) healthLevel = 'Estruturado';
-    else if (healthScore >= 40) healthLevel = 'Instável';
     const basicReport = generateBasicReport();
 
     const tipo = String(answers.tipo_unidade || '').toLowerCase();
@@ -470,8 +362,6 @@ export default function Onboarding() {
       status: 'COMPLETED',
       answers_json: answers,
       completed_at: new Date().toISOString(),
-      health_score: healthScore,
-      health_level: healthLevel,
       report_basic_text: basicReport,
       unit_name: answers.nome_consultorio || answers.nome_fantasia || answers.nome_unidade || '',
       unit_type: unitType,

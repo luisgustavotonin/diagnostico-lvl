@@ -15,14 +15,12 @@ import ModulesManager from '../components/admin/ModulesManager';
 import QuestionsManager from '../components/admin/QuestionsManager';
 import PreviewSimulator from '../components/admin/PreviewSimulator';
 import SettingsPanel from '../components/admin/SettingsPanel';
-import HealthScoreSettings from '../components/admin/HealthScoreSettings';
 import ReportViewer from '../components/admin/ReportViewer';
 import ReportEditor from '../components/admin/ReportEditor';
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState('units');
   const [aiEnabled, setAiEnabled] = useState(true);
-  const [healthScoreEnabled, setHealthScoreEnabled] = useState(true);
   const [generatingAI, setGeneratingAI] = useState(null);
   const [viewerOpen, setViewerOpen] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
@@ -86,10 +84,6 @@ export default function Admin() {
       setAiEnabled(aiSetting.value === 'true');
     }
     
-    const healthScoreSetting = settings.find(s => s.key === 'health_score_enabled');
-    if (healthScoreSetting) {
-      setHealthScoreEnabled(healthScoreSetting.value === 'true');
-    }
   }, [settings]);
 
   // Mutations
@@ -191,58 +185,6 @@ export default function Admin() {
     toast.success(mode === 'combined' ? 'Diagnóstico IA será incluído no relatório padrão' : 'Diagnóstico IA será gerado separadamente');
   };
 
-  const handleToggleHealthScore = async (enabled) => {
-    setHealthScoreEnabled(enabled);
-    const existingSetting = settings.find(s => s.key === 'health_score_enabled');
-    if (existingSetting) {
-      await base44.entities.AppSettings.update(existingSetting.id, { value: String(enabled) });
-    } else {
-      await base44.entities.AppSettings.create({ key: 'health_score_enabled', value: String(enabled) });
-    }
-    queryClient.invalidateQueries({ queryKey: ['settings'] });
-    toast.success(enabled ? 'Health Score ativado' : 'Health Score desativado');
-  };
-
-  const handleSaveHealthScore = async (categories) => {
-    // Salvar lista de IDs dos módulos
-    const categoryModuleIds = categories.map(c => c.moduleId);
-    const categoriesListSetting = settings.find(s => s.key === 'health_score_categories');
-    
-    if (categoriesListSetting) {
-      await base44.entities.AppSettings.update(categoriesListSetting.id, { 
-        value: JSON.stringify(categoryModuleIds) 
-      });
-    } else {
-      await base44.entities.AppSettings.create({ 
-        key: 'health_score_categories', 
-        value: JSON.stringify(categoryModuleIds) 
-      });
-    }
-    
-    // Salvar configurações de cada módulo
-    for (const cat of categories) {
-      const enabledKey = `health_score_module_${cat.moduleId}_enabled`;
-      const weightKey = `health_score_module_${cat.moduleId}_weight`;
-      
-      const enabledSetting = settings.find(s => s.key === enabledKey);
-      const weightSetting = settings.find(s => s.key === weightKey);
-      
-      if (enabledSetting) {
-        await base44.entities.AppSettings.update(enabledSetting.id, { value: String(cat.enabled) });
-      } else {
-        await base44.entities.AppSettings.create({ key: enabledKey, value: String(cat.enabled) });
-      }
-      
-      if (weightSetting) {
-        await base44.entities.AppSettings.update(weightSetting.id, { value: String(cat.weight) });
-      } else {
-        await base44.entities.AppSettings.create({ key: weightKey, value: String(cat.weight) });
-      }
-    }
-    
-    queryClient.invalidateQueries({ queryKey: ['settings'] });
-    toast.success('Configurações do Health Score salvas');
-  };
 
   const handleViewReport = (project) => {
     setSelectedProject(project);
@@ -584,15 +526,7 @@ ESTRUTURA OBRIGATÓRIA DO DIAGNÓSTICO:
                   onToggleAIMode={handleToggleAIMode}
                 />
               </Card>
-              <Card className="p-6">
-                <HealthScoreSettings 
-                  settings={settings} 
-                  modules={modules} 
-                  onSave={handleSaveHealthScore}
-                  healthScoreEnabled={healthScoreEnabled}
-                  onToggleHealthScore={handleToggleHealthScore}
-                />
-              </Card>
+
             </div>
           </TabsContent>
         </Tabs>
