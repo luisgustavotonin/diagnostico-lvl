@@ -59,6 +59,19 @@ export default function ProjectsTable({
     return cpf;
   };
 
+  const getDocumento = (project) => {
+    const tipoRaw = project.unit_type || project.answers_json?.tipo_unidade || project.answers_json?.unit_name || '';
+    const isClinica = /cl[ií]nica/i.test(tipoRaw) || tipoRaw === 'clinica';
+    
+    if (isClinica) {
+      const cnpj = project.cnpj || project.answers_json?.cnpj || '';
+      return formatCNPJ(cnpj);
+    } else {
+      const cpf = project.cpf || project.answers_json?.cpf || '';
+      return formatCPF(cpf);
+    }
+  };
+
   const filteredProjects = projects.filter(p => {
     // Filtrar apenas projetos salvos (IN_PROGRESS ou COMPLETED)
     if (p.status === 'DRAFT') return false;
@@ -115,12 +128,7 @@ export default function ProjectsTable({
                       : (project.answers_json?.nome_fantasia || project.unit_name || '-')
                     }
                   </TableCell>
-                  <TableCell>
-                    {project.unit_type === 'consultorio' 
-                      ? formatCPF(project.cpf)
-                      : formatCNPJ(project.cnpj)
-                    }
-                  </TableCell>
+                  <TableCell>{getDocumento(project)}</TableCell>
                   <TableCell>{project.city || '-'}</TableCell>
                   <TableCell>
                     {project.report_basic_text ? (
