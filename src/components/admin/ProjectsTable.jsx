@@ -43,11 +43,11 @@ export default function ProjectsTable({
 
   const formatCNPJ = (cnpj) => {
     if (!cnpj) return '-';
-    const clean = cnpj.replace(/\D/g, '');
-    if (clean.length === 14) {
-      return `${clean.slice(0, 2)}.${clean.slice(2, 5)}.${clean.slice(5, 8)}/${clean.slice(8, 12)}-${clean.slice(12)}`;
+    const clean = cnpj.replace(/\D/g, '').slice(0, 14);
+    if (clean.length >= 14) {
+      return `${clean.slice(0, 2)}.${clean.slice(2, 5)}.${clean.slice(5, 8)}/${clean.slice(8, 12)}-${clean.slice(12, 14)}`;
     }
-    return cnpj;
+    return clean || '-';
   };
 
   const formatCPF = (cpf) => {
