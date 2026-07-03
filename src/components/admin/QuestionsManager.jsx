@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,10 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Plus, Pencil, Trash2, ChevronRight, GripVertical, Wand2 } from 'lucide-react';
-import { autoScoreOptions } from './AutoScoreUtils';
-import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { Plus, Pencil, Trash2, ChevronRight, GripVertical } from 'lucide-react';
 
 const FIELD_TYPES = [
   { value: 'text', label: 'Texto Curto' },
@@ -47,36 +44,6 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
   const [moduleDialogOpen, setModuleDialogOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState(null);
   const [editingModule, setEditingModule] = useState(null);
-  const [enabledHealthModules, setEnabledHealthModules] = useState([]);
-
-  // Carregar módulos habilitados para Health Score
-  const { data: healthScoreSettings = [] } = useQuery({
-    queryKey: ['healthScoreSettings'],
-    queryFn: () => base44.entities.AppSettings.filter({
-      key: { $regex: '^health_score_' }
-    }),
-  });
-
-  useEffect(() => {
-    const categoriesListSetting = healthScoreSettings.find(s => s.key === 'health_score_categories');
-    let categoryModuleIds = [];
-    
-    if (categoriesListSetting) {
-      try {
-        categoryModuleIds = JSON.parse(categoriesListSetting.value);
-      } catch {
-        categoryModuleIds = [];
-      }
-    }
-
-    // Filtrar apenas módulos que estão habilitados
-    const enabledModules = categoryModuleIds.filter(moduleId => {
-      const enabledSetting = healthScoreSettings.find(s => s.key === `health_score_module_${moduleId}_enabled`);
-      return enabledSetting ? enabledSetting.value === 'true' : true;
-    });
-
-    setEnabledHealthModules(enabledModules);
-  }, [healthScoreSettings]);
   const [moduleForm, setModuleForm] = useState({
     number: 1,
     order: 1,
@@ -99,9 +66,7 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
     parent_question_id: '',
     condition_field: '',
     condition_operator: 'equals',
-    condition_value: '',
-    weight_category: '',
-    weight_points: 0
+    condition_value: ''
   });
   const [optionsArray, setOptionsArray] = useState([]);
 
@@ -129,9 +94,6 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
       maxOrder = mainQuestions.length > 0 ? Math.max(...mainQuestions.map(q => q.order)) + 1 : 1;
     }
     
-    // Pré-selecionar o módulo se estiver habilitado para Health Score
-    const defaultWeightCategory = enabledHealthModules.includes(moduleId) ? moduleId : '';
-    
     setForm({
       module_id: moduleId,
       order: maxOrder,
@@ -147,8 +109,7 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
       parent_question_id: parentId || '',
       condition_field: parentId ? questions.find(q => q.id === parentId)?.field_key : '',
       condition_operator: 'equals',
-      condition_value: '',
-      weight_category: defaultWeightCategory
+      condition_value: ''
     });
     setOptionsArray([]);
     setEditingQuestion(null);
@@ -157,18 +118,14 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
 
   const handleEdit = (question) => {
     const opts = question.options || [];
-    // Converter formato antigo (string[]) para novo ({ label, score }[])
-    const formattedOptions = opts.map(opt => {
-      if (typeof opt === 'string') {
-        return { label: opt, score: 50 };
-      }
-      return opt;
-    });
+    // Normalizar opções para strings
+    const formattedOptions = opts.map(opt =>
+      typeof opt === 'string' ? opt : opt.label
+    );
     
     setForm({
       ...question,
-      options: formattedOptions,
-      weight_category: question.weight_category || ''
+      options: formattedOptions
     });
     setOptionsArray(formattedOptions);
     setEditingQuestion(question);
@@ -177,19 +134,8 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
 
   const handleSave = async () => {
     const saveData = { ...form, options: optionsArray };
-    if (!saveData.weight_category) {
-      saveData.weight_category = null;
-    }
-
-    // Se weight_category não está nos módulos habilitados, limpar scores
-    if (saveData.weight_category && !enabledHealthModules.includes(saveData.weight_category)) {
-      saveData.options = saveData.options.map(opt => {
-        if (typeof opt === 'object' && opt.label !== undefined) {
-          return { label: opt.label, score: 0 };
-        }
-        return opt;
-      });
-    }
+    delete saveData.weight_category;
+    delete saveData.weight_points;
 
     // Se for uma nova pergunta e a posição foi alterada, reordenar
     if (!editingQuestion) {
@@ -319,11 +265,6 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
                   <span className="text-xs bg-slate-100 px-2 py-0.5 rounded">
                     {getQuestionsByModule(module.id).length} perguntas
                   </span>
-                  {enabledHealthModules.includes(module.id) && (
-                    <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-medium">
-                      Health Score
-                    </span>
-                  )}
                   {!module.is_active && (
                     <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded">Inativo</span>
                   )}
@@ -371,11 +312,6 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
                                     )}
                                     {(question.field_type === 'checkbox' || question.field_type === 'select') && (
                                       <span className="text-xs bg-purple-50 text-purple-600 px-2 py-0.5 rounded">Múltipla escolha</span>
-                                    )}
-                                    {question.weight_category && enabledHealthModules.includes(question.weight_category) && (
-                                      <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-medium">
-                                        Health Score
-                                      </span>
                                     )}
                                     {question.is_required && (
                                       <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded">Obrigatório</span>
@@ -443,11 +379,6 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
                                                   )}
                                                   {(cond.field_type === 'checkbox' || cond.field_type === 'select') && (
                                                     <span className="text-xs bg-purple-50 text-purple-600 px-2 py-0.5 rounded">Múltipla escolha</span>
-                                                  )}
-                                                  {cond.weight_category && enabledHealthModules.includes(cond.weight_category) && (
-                                                    <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-medium">
-                                                      Health Score
-                                                    </span>
                                                   )}
                                                 </div>
                                                 <p className="mt-1 text-sm">{cond.text}</p>
@@ -639,111 +570,54 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
               </div>
             </div>
 
-            {['radio', 'select', 'checkbox'].includes(form.field_type) && (() => {
-              const isModuleEnabledForHealthScore = form.module_id && enabledHealthModules.includes(form.module_id);
-
-              return (
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <Label>Opções com Pontuação (0-100)</Label>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setOptionsArray([...optionsArray, { label: '', score: 50 }]);
-                      }}
-                    >
-                      <Plus className="w-4 h-4 mr-1" /> Adicionar Opção
-                    </Button>
-                  </div>
-
-                  {!isModuleEnabledForHealthScore && (
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                      <p className="text-xs text-amber-800">
-                        ⚠️ Este módulo não está habilitado nas Configurações do Health Score. As pontuações estão desabilitadas e não serão consideradas no cálculo.
-                      </p>
-                    </div>
-                  )}
-
-                  {optionsArray.length === 0 && (
-                    <p className="text-sm text-slate-500 italic">Nenhuma opção adicionada ainda</p>
-                  )}
-
-                  <div className="space-y-2">
-                    {optionsArray.map((option, index) => (
-                      <div key={index} className="flex gap-2 items-center">
-                        <Input
-                          placeholder="Texto da opção"
-                          value={option.label}
-                          onChange={(e) => {
-                            const newOptions = [...optionsArray];
-                            newOptions[index].label = e.target.value;
-                            setOptionsArray(newOptions);
-                          }}
-                          className="flex-1"
-                        />
-                        <Input
-                          type="number"
-                          min="0"
-                          max="100"
-                          placeholder="Score"
-                          value={option.score}
-                          onChange={(e) => {
-                            const newOptions = [...optionsArray];
-                            newOptions[index].score = parseInt(e.target.value) || 0;
-                            setOptionsArray(newOptions);
-                          }}
-                          className="w-20"
-                          disabled={!isModuleEnabledForHealthScore}
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          onClick={() => {
-                            const newOptions = [...optionsArray];
-                            newOptions[index].score = autoScoreOptions([option.label])[0]?.score || 50;
-                            setOptionsArray(newOptions);
-                          }}
-                          title="Auto-preencher pontuação"
-                          disabled={!isModuleEnabledForHealthScore}
-                        >
-                          <Wand2 className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => {
-                            setOptionsArray(optionsArray.filter((_, i) => i !== index));
-                          }}
-                        >
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-
-                  {optionsArray.length > 0 && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        const autoScored = autoScoreOptions(optionsArray);
-                        setOptionsArray(autoScored);
-                      }}
-                      className="w-full"
-                      disabled={!isModuleEnabledForHealthScore}
-                    >
-                      <Wand2 className="w-4 h-4 mr-2" />
-                      Auto-preencher Todas as Pontuações
-                    </Button>
-                  )}
+            {['radio', 'select', 'checkbox'].includes(form.field_type) && (
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <Label>Opções</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setOptionsArray([...optionsArray, '']);
+                    }}
+                  >
+                    <Plus className="w-4 h-4 mr-1" /> Adicionar Opção
+                  </Button>
                 </div>
-              );
-            })()}
+
+                {optionsArray.length === 0 && (
+                  <p className="text-sm text-slate-500 italic">Nenhuma opção adicionada ainda</p>
+                )}
+
+                <div className="space-y-2">
+                  {optionsArray.map((option, index) => (
+                    <div key={index} className="flex gap-2 items-center">
+                      <Input
+                        placeholder="Texto da opção"
+                        value={option}
+                        onChange={(e) => {
+                          const newOptions = [...optionsArray];
+                          newOptions[index] = e.target.value;
+                          setOptionsArray(newOptions);
+                        }}
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          setOptionsArray(optionsArray.filter((_, i) => i !== index));
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -818,49 +692,6 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
               </div>
             )}
 
-            {(() => {
-              const isModuleEnabledForHealthScore = form.module_id && enabledHealthModules.includes(form.module_id);
-              const currentModule = modules.find(m => m.id === form.module_id);
-              
-              return (
-                <div className={`p-4 rounded-lg space-y-3 ${isModuleEnabledForHealthScore ? 'bg-slate-50' : 'bg-slate-100 opacity-60'}`}>
-                  <Label className="font-medium">Participa do Health Score?</Label>
-                  {!isModuleEnabledForHealthScore ? (
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                      <p className="text-xs text-amber-800">
-                        ⚠️ Este módulo não está habilitado nas Configurações do Health Score. Para habilitar a pontuação desta pergunta, primeiro ative o módulo nas configurações.
-                      </p>
-                    </div>
-                  ) : (
-                    <>
-                      <p className="text-xs text-slate-500">Defina se esta pergunta deve contribuir para o cálculo do Health Score</p>
-                      <div>
-                        <Select 
-                          value={form.weight_category || '_none'} 
-                          onValueChange={(v) => setForm({ ...form, weight_category: v === '_none' ? '' : v })}
-                          disabled={!isModuleEnabledForHealthScore}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="_none">Não participa do Health Score</SelectItem>
-                            {currentModule && (
-                              <SelectItem value={currentModule.id}>
-                                Sim, participa - {currentModule.title}
-                              </SelectItem>
-                            )}
-                          </SelectContent>
-                        </Select>
-                        <p className="text-xs text-slate-400 mt-1">
-                          A pergunta só pode contribuir para o módulo ao qual pertence
-                        </p>
-                      </div>
-                    </>
-                  )}
-                </div>
-              );
-            })()}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancelar</Button>

@@ -241,7 +241,6 @@ DADOS DA UNIDADE:
 - Nome: ${project.unit_name || 'Não informado'}
 - Tipo: ${project.unit_type === 'consultorio' ? 'Consultório' : 'Clínica'}
 - Cidade: ${project.city || 'Não informada'}
-- Health Score: ${project.health_score}/100 (${project.health_level})
 
 RESPOSTAS DO QUESTIONÁRIO:
 ${JSON.stringify(project.answers_json || {}, null, 2)}
@@ -397,11 +396,6 @@ ESTRUTURA OBRIGATÓRIA DO DIAGNÓSTICO:
           doc.setFont(undefined, 'italic');
           doc.text(`  CONDICIONAL: Campo "${q.condition_field}" ${q.condition_operator || 'equals'} "${q.condition_value}"`, margin + 5, yPosition);
           doc.setFont(undefined, 'normal');
-          yPosition += lineHeight;
-        }
-
-        if (q.weight_category && q.weight_points) {
-          doc.text(`  Health Score: ${q.weight_category} (${q.weight_points} pontos)`, margin + 5, yPosition);
           yPosition += lineHeight;
         }
 

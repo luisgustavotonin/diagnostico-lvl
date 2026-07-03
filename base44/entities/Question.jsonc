@@ -42,19 +42,9 @@
     "options": {
       "type": "array",
       "items": {
-        "type": "object",
-        "properties": {
-          "label": {
-            "type": "string",
-            "description": "Texto da op\u00e7\u00e3o"
-          },
-          "score": {
-            "type": "number",
-            "description": "Pontua\u00e7\u00e3o desta resposta (0-100)"
-          }
-        }
+        "type": "string"
       },
-      "description": "Op\u00e7\u00f5es para select/radio/checkbox com pontua\u00e7\u00e3o"
+      "description": "Op\u00e7\u00f5es para select/radio/checkbox"
     },
     "placeholder": {
       "type": "string"
@@ -98,10 +88,6 @@
     "condition_value": {
       "type": "string",
       "description": "Valor para compara\u00e7\u00e3o"
-    },
-    "weight_category": {
-      "type": "string",
-      "description": "ID do m\u00f3dulo para c\u00e1lculo do Health Score"
     }
   },
   "required": [

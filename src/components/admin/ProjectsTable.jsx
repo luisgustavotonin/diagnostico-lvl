@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Search, MoreVertical, Eye, Pencil, Trash2, Printer, Sparkles, ExternalLink, Loader2 } from 'lucide-react';
+import { Search, MoreVertical, Eye, Pencil, Trash2, Printer, Sparkles, ExternalLink, Loader2, RefreshCw } from 'lucide-react';
 
 export default function ProjectsTable({ 
   projects, 
@@ -179,6 +179,9 @@ export default function ProjectsTable({
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => onPrint(project, 'ai')}>
                             <Printer className="w-4 h-4 mr-2" /> Imprimir PDF
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onGenerateAI(project)}>
+                            <RefreshCw className="w-4 h-4 mr-2" /> Refazer
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

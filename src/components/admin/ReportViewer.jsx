@@ -183,16 +183,6 @@ export default function ReportViewer({ open, onClose, project, type }) {
               padding: 16px 20px;
               border-radius: 4px;
             }
-            .health-badge {
-              display: inline-block;
-              padding: 10px 18px;
-              background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-              color: white;
-              border-radius: 24px;
-              font-weight: 600;
-              font-size: 16px;
-              box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
-            }
             .footer {
               background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
               padding: 35px 60px;
@@ -249,14 +239,6 @@ export default function ReportViewer({ open, onClose, project, type }) {
                   <div class="label">Cidade</div>
                   <div class="value">${project.city || 'Não informada'}</div>
                 </div>
-                ${project.health_score ? `
-                <div class="item">
-                  <div class="label">Health Score</div>
-                  <div class="value">
-                    <span class="health-badge">${project.health_score}/100 - ${project.health_level}</span>
-                  </div>
-                </div>
-                ` : ''}
                 <div class="item">
                   <div class="label">Data</div>
                   <div class="value">${new Date(project.completed_at || project.created_date).toLocaleDateString('pt-BR')}</div>

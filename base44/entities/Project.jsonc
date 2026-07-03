@@ -45,18 +45,6 @@
       "type": "string",
       "format": "date-time"
     },
-    "health_score": {
-      "type": "number",
-      "description": "Nota final 0-100"
-    },
-    "health_level": {
-      "type": "string",
-      "enum": [
-        "Baixa",
-        "M\u00e9dia",
-        "Alta"
-      ]
-    },
     "report_basic_text": {
       "type": "string",
       "description": "Relat\u00f3rio b\u00e1sico gerado"
