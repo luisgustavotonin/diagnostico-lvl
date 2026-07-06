@@ -4,6 +4,13 @@ module.exports = {
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
   theme: {
   	extend: {
+  		fontFamily: {
+  			heading: 'var(--font-heading)',
+  			body: 'var(--font-body)',
+  			display: 'var(--font-display)',
+  			sans: 'var(--font-body)',
+  			mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace']
+  		},
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
@@ -49,6 +56,15 @@ module.exports = {
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
+  			},
+  			tag: {
+  				ok: 'hsl(var(--tag-ok))',
+  				nok: 'hsl(var(--tag-nok))',
+  				fechamento: 'hsl(var(--tag-fechamento))',
+  				objecoes: 'hsl(var(--tag-objecoes))',
+  				abertura: 'hsl(var(--tag-abertura))',
+  				reativacao: 'hsl(var(--tag-reativacao))',
+  				qualificacao: 'hsl(var(--tag-qualificacao))'
   			},
   			sidebar: {
   				DEFAULT: 'hsl(var(--sidebar-background))',
