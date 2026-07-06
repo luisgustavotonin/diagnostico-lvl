@@ -29,7 +29,7 @@ export default function ReportEditor({ open, onClose, project, type, onSave }) {
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           {project?.unit_name && (
-            <p className="text-sm text-slate-500">{project.unit_name}</p>
+            <p className="text-sm text-muted-foreground">{project.unit_name}</p>
           )}
         </DialogHeader>
         

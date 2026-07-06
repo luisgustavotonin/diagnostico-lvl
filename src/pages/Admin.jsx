@@ -430,18 +430,18 @@ ESTRUTURA OBRIGATÓRIA DO DIAGNÓSTICO:
 
   if (loadingProjects || loadingModules || loadingQuestions) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <Loader2 className="w-8 h-8 animate-spin text-slate-600" />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-background">
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-2xl font-bold text-slate-800">Painel Administrativo</h1>
-          <p className="text-slate-500 mt-1">Gerencie unidades, módulos e configurações</p>
+          <h1 className="text-2xl font-bold text-foreground">Painel Administrativo</h1>
+          <p className="text-muted-foreground mt-1">Gerencie unidades, módulos e configurações</p>
         </div>
       </div>
 

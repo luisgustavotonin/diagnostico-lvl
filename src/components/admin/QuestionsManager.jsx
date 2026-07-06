@@ -260,9 +260,9 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
             <AccordionTrigger className="px-4 hover:no-underline">
               <div className="flex items-center justify-between w-full pr-4">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-slate-500">#{module.number}</span>
+                  <span className="text-sm text-muted-foreground">#{module.number}</span>
                   <span className="font-medium">{module.title}</span>
-                  <span className="text-xs bg-slate-100 px-2 py-0.5 rounded">
+                  <span className="text-xs bg-muted px-2 py-0.5 rounded">
                     {getQuestionsByModule(module.id).length} perguntas
                   </span>
                   {!module.is_active && (
@@ -297,31 +297,31 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
                             >
                               <Card className={`p-3 flex items-center gap-3 ${snapshot.isDragging ? 'shadow-lg' : ''}`}>
                                 <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing">
-                                  <GripVertical className="w-4 h-4 text-slate-400" />
+                                  <GripVertical className="w-4 h-4 text-muted-foreground" />
                                 </div>
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2 flex-wrap">
-                                    <span className="text-xs font-semibold bg-slate-200 text-slate-700 px-2 py-0.5 rounded">
+                                    <span className="text-xs font-semibold bg-muted text-foreground px-2 py-0.5 rounded">
                                       #{index + 1}
                                     </span>
-                                    <span className="text-xs bg-slate-100 px-2 py-0.5 rounded">
+                                    <span className="text-xs bg-muted px-2 py-0.5 rounded">
                                       {FIELD_TYPES.find(t => t.value === question.field_type)?.label}
                                     </span>
                                     {question.field_type === 'radio' && (
-                                      <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded">Única escolha</span>
+                                      <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">Única escolha</span>
                                     )}
                                     {(question.field_type === 'checkbox' || question.field_type === 'select') && (
-                                      <span className="text-xs bg-purple-50 text-purple-600 px-2 py-0.5 rounded">Múltipla escolha</span>
+                                      <span className="text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded">Múltipla escolha</span>
                                     )}
                                     {question.is_required && (
                                       <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded">Obrigatório</span>
                                     )}
                                     {!question.is_active && (
-                                      <span className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded">Inativo</span>
+                                      <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded">Inativo</span>
                                     )}
                                   </div>
                                   <p className="mt-1 text-sm">{question.text}</p>
-                                  <p className="text-xs text-slate-400 mt-0.5">{question.field_key}</p>
+                                  <p className="text-xs text-muted-foreground mt-0.5">{question.field_key}</p>
                                 </div>
                                 <div className="flex gap-1">
                                   <Button variant="ghost" size="icon" onClick={() => handleEdit(question)}>
@@ -355,34 +355,34 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
                                             <Card
                                               ref={provided.innerRef}
                                               {...provided.draggableProps}
-                                              className={`p-3 flex items-center gap-3 border-l-4 border-blue-200 ${
+                                              className={`p-3 flex items-center gap-3 border-l-4 border-primary/40 ${
                                                 snapshot.isDragging ? 'shadow-lg' : ''
                                               }`}
                                             >
                                               <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing">
-                                                <GripVertical className="w-4 h-4 text-blue-400" />
+                                                <GripVertical className="w-4 h-4 text-primary" />
                                               </div>
-                                              <ChevronRight className="w-4 h-4 text-blue-400" />
+                                              <ChevronRight className="w-4 h-4 text-primary" />
                                               <div className="flex-1">
                                                 <div className="flex items-center gap-2 flex-wrap">
-                                                  <span className="text-xs font-semibold bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
+                                                  <span className="text-xs font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded">
                                                     #{index + 1}.{condIndex + 1}
                                                   </span>
-                                                  <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded">
+                                                  <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">
                                                     Condicional
                                                   </span>
-                                                  <span className="text-xs bg-slate-100 px-2 py-0.5 rounded">
+                                                  <span className="text-xs bg-muted px-2 py-0.5 rounded">
                                                     {FIELD_TYPES.find(t => t.value === cond.field_type)?.label}
                                                   </span>
                                                   {cond.field_type === 'radio' && (
-                                                    <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded">Única escolha</span>
+                                                    <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">Única escolha</span>
                                                   )}
                                                   {(cond.field_type === 'checkbox' || cond.field_type === 'select') && (
-                                                    <span className="text-xs bg-purple-50 text-purple-600 px-2 py-0.5 rounded">Múltipla escolha</span>
+                                                    <span className="text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded">Múltipla escolha</span>
                                                   )}
                                                 </div>
                                                 <p className="mt-1 text-sm">{cond.text}</p>
-                                                <p className="text-xs text-slate-400 mt-0.5">
+                                                <p className="text-xs text-muted-foreground mt-0.5">
                                                   Se {cond.condition_field} {cond.condition_operator} "{cond.condition_value}"
                                                 </p>
                                               </div>
@@ -517,7 +517,7 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
                   value={form.order}
                   onChange={(e) => setForm({ ...form, order: parseInt(e.target.value) || 1 })}
                 />
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   {form.is_conditional 
                     ? `Posição ${getMainQuestions(form.module_id).findIndex(q => q.id === form.parent_question_id) + 1}.${form.order}`
                     : `Posição ${form.order}`
@@ -587,7 +587,7 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
                 </div>
 
                 {optionsArray.length === 0 && (
-                  <p className="text-sm text-slate-500 italic">Nenhuma opção adicionada ainda</p>
+                  <p className="text-sm text-muted-foreground italic">Nenhuma opção adicionada ainda</p>
                 )}
 
                 <div className="space-y-2">
@@ -654,8 +654,8 @@ export default function QuestionsManager({ modules, questions, onSave, onDelete,
             </div>
 
             {form.is_conditional && (
-              <div className="p-4 bg-blue-50 rounded-lg space-y-3">
-                <Label className="text-blue-800 font-medium">Condição para Exibir</Label>
+              <div className="p-4 bg-muted rounded-lg space-y-3">
+                <Label className="text-foreground font-medium">Condição para Exibir</Label>
                 <div className="grid grid-cols-3 gap-3">
                   <div>
                     <Label className="text-xs">Campo (field_key)</Label>

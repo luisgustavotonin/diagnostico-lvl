@@ -101,18 +101,18 @@ export default function ModulesManager({ modules, onSave, onDelete }) {
                       }`}
                     >
                       <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing">
-                        <GripVertical className="w-5 h-5 text-slate-400" />
+                        <GripVertical className="w-5 h-5 text-muted-foreground" />
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-slate-500">#{module.number}</span>
+                          <span className="text-sm font-medium text-muted-foreground">#{module.number}</span>
                           <h4 className="font-medium">{module.title}</h4>
                           {!module.is_active && (
-                            <span className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded">Inativo</span>
+                            <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded">Inativo</span>
                           )}
                         </div>
                         {module.description && (
-                          <p className="text-sm text-slate-500 mt-1">{module.description}</p>
+                          <p className="text-sm text-muted-foreground mt-1">{module.description}</p>
                         )}
                       </div>
                       <div className="flex gap-2">

@@ -33,10 +33,10 @@ export default function ReportViewer({ open, onClose, project, type }) {
               box-sizing: border-box;
             }
             body {
-              font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+              font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
               line-height: 1.5;
-              color: #1e293b;
-              background: #f8fafc;
+              color: #312B1D;
+              background: #F7F4EE;
             }
             .container {
               max-width: 900px;
@@ -45,7 +45,7 @@ export default function ReportViewer({ open, onClose, project, type }) {
               box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             }
             .header {
-              background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+              background: linear-gradient(135deg, #F85D07 0%, #D94E00 100%);
               color: white;
               padding: 60px 60px 50px;
               position: relative;
@@ -84,10 +84,10 @@ export default function ReportViewer({ open, onClose, project, type }) {
               z-index: 1;
             }
             .meta-info {
-              background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+              background: linear-gradient(135deg, #F9F7F3 0%, #F5F1EA 100%);
               padding: 35px 60px;
-              border-left: 6px solid #3b82f6;
-              box-shadow: inset 0 2px 4px rgba(59, 130, 246, 0.05);
+              border-left: 6px solid #F85D07;
+              box-shadow: inset 0 2px 4px rgba(248, 93, 7, 0.05);
             }
             .meta-info .row {
               display: flex;
@@ -100,63 +100,63 @@ export default function ReportViewer({ open, onClose, project, type }) {
             .meta-info .label {
               font-size: 12px;
               text-transform: uppercase;
-              color: #64748b;
+              color: #7E6951;
               font-weight: 600;
               letter-spacing: 0.5px;
               margin-bottom: 4px;
             }
             .meta-info .value {
               font-size: 16px;
-              color: #1e293b;
+              color: #312B1D;
               font-weight: 600;
             }
             .content {
               padding: 50px 60px;
             }
             h1 {
-              color: #1e293b;
+              color: #1A1610;
               font-size: 26px;
               font-weight: 700;
               margin: 24px 0 12px 0;
               padding-bottom: 8px;
-              border-bottom: 3px solid #3b82f6;
+              border-bottom: 3px solid #F85D07;
             }
             h1:first-child {
               margin-top: 0;
             }
             h2 {
-              color: #1e40af;
+              color: #D94E00;
               font-size: 20px;
               font-weight: 600;
               margin: 20px 0 10px 0;
               padding-left: 20px;
-              border-left: 5px solid #60a5fa;
-              background: linear-gradient(90deg, #eff6ff 0%, #f8fafc 100%);
+              border-left: 5px solid #F85D07;
+              background: linear-gradient(90deg, #F9F7F3 0%, #F7F4EE 100%);
               padding: 10px 20px;
               border-radius: 6px;
-              box-shadow: 0 2px 4px rgba(59, 130, 246, 0.08);
+              box-shadow: 0 2px 4px rgba(248, 93, 7, 0.08);
             }
             h2::before {
               content: '▸ ';
-              color: #3b82f6;
+              color: #F85D07;
               font-weight: bold;
             }
             h3 {
-              color: #475569;
+              color: #7E6951;
               font-size: 17px;
               font-weight: 600;
               margin: 16px 0 8px 0;
               padding-bottom: 4px;
-              border-bottom: 1px solid #e2e8f0;
+              border-bottom: 1px solid #EBE5DA;
             }
             p {
               margin: 4px 0;
-              color: #334155;
+              color: #312B1D;
               font-size: 14px;
               line-height: 1.4;
             }
             strong, b {
-              color: #1e293b;
+              color: #1A1610;
               font-weight: 600;
             }
             ul, ol {
@@ -165,38 +165,38 @@ export default function ReportViewer({ open, onClose, project, type }) {
             }
             li {
               margin: 4px 0;
-              color: #334155;
+              color: #312B1D;
               padding-left: 8px;
               line-height: 1.3;
             }
             ul li::marker {
-              color: #3b82f6;
+              color: #F85D07;
               font-weight: bold;
             }
             blockquote {
-              border-left: 4px solid #60a5fa;
+              border-left: 4px solid #F85D07;
               padding-left: 20px;
               margin: 20px 0;
               font-style: italic;
-              color: #475569;
-              background: #f8fafc;
+              color: #7E6951;
+              background: #F9F7F3;
               padding: 16px 20px;
               border-radius: 4px;
             }
             .footer {
-              background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+              background: linear-gradient(135deg, #F7F4EE 0%, #F5F1EA 100%);
               padding: 35px 60px;
               margin-top: 60px;
-              border-top: 3px solid #e2e8f0;
+              border-top: 3px solid #EBE5DA;
               text-align: center;
-              color: #64748b;
+              color: #7E6951;
               font-size: 13px;
               position: relative;
             }
             .footer::before {
               content: '◆';
               display: block;
-              color: #3b82f6;
+              color: #F85D07;
               font-size: 24px;
               margin-bottom: 15px;
             }
@@ -207,7 +207,7 @@ export default function ReportViewer({ open, onClose, project, type }) {
               left: 0;
               right: 0;
               height: 4px;
-              background: linear-gradient(90deg, #3b82f6 0%, #1e40af 50%, #3b82f6 100%);
+              background: linear-gradient(90deg, #F85D07 0%, #D94E00 50%, #F85D07 100%);
             }
             @media print {
               body { background: white; }
@@ -254,14 +254,14 @@ export default function ReportViewer({ open, onClose, project, type }) {
                 if (line.startsWith('### ')) return '<h3>' + line.slice(4) + '</h3>';
                 if (line.startsWith('**') && line.endsWith('**')) return '<p><strong>' + line.slice(2, -2) + '</strong></p>';
                 if (line.startsWith('- ')) return '<li>' + line.slice(2) + '</li>';
-                if (line === '---') return '<hr style="border: none; border-top: 2px solid #e2e8f0; margin: 40px 0;">';
+                if (line === '---') return '<hr style="border: none; border-top: 2px solid #EBE5DA; margin: 40px 0;">';
                 return line ? '<p>' + line + '</p>' : '<br>';
               }).join('') : '<p>Sem conteúdo</p>'}
             </div>
             
             <div class="footer">
               <p>Relatório gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}</p>
-              <p style="margin-top: 8px; font-size: 11px; color: #94a3b8;">© ${new Date().getFullYear()} - Todos os direitos reservados</p>
+              <p style="margin-top: 8px; font-size: 11px; color: #9A8770;">© ${new Date().getFullYear()} - Todos os direitos reservados</p>
             </div>
           </div>
         </body>
@@ -282,22 +282,22 @@ export default function ReportViewer({ open, onClose, project, type }) {
             </Button>
           </div>
           {project?.unit_name && (
-            <p className="text-sm text-slate-500">{project.unit_name}</p>
+            <p className="text-sm text-muted-foreground">{project.unit_name}</p>
           )}
         </DialogHeader>
         
         <div className="flex-1 overflow-y-auto pr-2" ref={printRef}>
-          <div className="prose prose-slate max-w-none">
+          <div className="prose max-w-none">
             <ReactMarkdown
               components={{
                 h1: ({ children }) => <h1 className="text-2xl font-bold mt-6 mb-4">{children}</h1>,
-                h2: ({ children }) => <h2 className="text-xl font-semibold mt-6 mb-3 pb-2 border-b">{children}</h2>,
+                h2: ({ children }) => <h2 className="text-xl font-semibold mt-6 mb-3 pb-2 border-b border-border">{children}</h2>,
                 h3: ({ children }) => <h3 className="text-lg font-medium mt-4 mb-2">{children}</h3>,
-                p: ({ children }) => <p className="mb-3 text-slate-700">{children}</p>,
-                strong: ({ children }) => <strong className="text-slate-800">{children}</strong>,
+                p: ({ children }) => <p className="mb-3 text-foreground">{children}</p>,
+                strong: ({ children }) => <strong className="text-foreground">{children}</strong>,
                 ul: ({ children }) => <ul className="list-disc pl-6 mb-4 space-y-1">{children}</ul>,
                 ol: ({ children }) => <ol className="list-decimal pl-6 mb-4 space-y-1">{children}</ol>,
-                li: ({ children }) => <li className="text-slate-700">{children}</li>,
+                li: ({ children }) => <li className="text-foreground">{children}</li>,
               }}
             >
               {content || 'Nenhum conteúdo disponível'}

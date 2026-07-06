@@ -12,14 +12,14 @@ export default function SettingsPanel({ aiEnabled, onToggleAI, aiReportMode, onT
 
       <Card className="p-6">
         <div className="flex items-start gap-4">
-          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${aiEnabled ? 'bg-purple-100' : 'bg-slate-100'}`}>
-            <Sparkles className={`w-6 h-6 ${aiEnabled ? 'text-purple-600' : 'text-slate-400'}`} />
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${aiEnabled ? 'bg-primary/10' : 'bg-muted'}`}>
+            <Sparkles className={`w-6 h-6 ${aiEnabled ? 'text-primary' : 'text-muted-foreground'}`} />
           </div>
           <div className="flex-1">
             <div className="flex items-center justify-between">
               <div>
                 <h4 className="font-medium">Diagnóstico por IA</h4>
-                <p className="text-sm text-slate-500 mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   Permite gerar relatórios com análise estratégica e plano de ação usando inteligência artificial.
                 </p>
               </div>
@@ -41,8 +41,8 @@ export default function SettingsPanel({ aiEnabled, onToggleAI, aiReportMode, onT
 
             {aiEnabled && (
               <div className="mt-6 pt-6 border-t space-y-3">
-                <Label className="text-sm font-medium text-slate-700">Modo de Exibição do Diagnóstico IA</Label>
-                <p className="text-sm text-slate-500">
+                <Label className="text-sm font-medium text-foreground">Modo de Exibição do Diagnóstico IA</Label>
+                <p className="text-sm text-muted-foreground">
                   Escolha como o diagnóstico IA será apresentado nos relatórios
                 </p>
                 <div className="flex gap-2">
@@ -63,7 +63,7 @@ export default function SettingsPanel({ aiEnabled, onToggleAI, aiReportMode, onT
                     Junto com Relatório Padrão
                   </Button>
                 </div>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-muted-foreground">
                   {aiReportMode === 'separate' 
                     ? 'O diagnóstico IA será gerado como um relatório separado' 
                     : 'O diagnóstico IA será incluído no relatório padrão'}

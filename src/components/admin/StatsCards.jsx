@@ -15,7 +15,7 @@ export default function StatsCards({ projects }) {
       label: 'Total de Unidades',
       value: total,
       icon: Building2,
-      color: 'bg-slate-100 text-slate-600'
+      color: 'bg-muted text-muted-foreground'
     },
     {
       label: 'Concluídos',
@@ -40,8 +40,8 @@ export default function StatsCards({ projects }) {
               <stat.icon className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-sm text-slate-500">{stat.label}</p>
-              <p className="text-3xl font-bold text-slate-800">{stat.value}</p>
+              <p className="text-sm text-muted-foreground">{stat.label}</p>
+              <p className="text-3xl font-bold text-foreground">{stat.value}</p>
             </div>
           </div>
         </Card>

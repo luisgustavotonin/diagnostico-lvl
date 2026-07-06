@@ -234,7 +234,7 @@ export default function QuestionField({ question, value, onChange, error }) {
   return (
     <div className="space-y-2">
       <div className="flex items-start gap-2">
-        <Label className={`text-base font-medium ${error ? 'text-red-600' : 'text-slate-700'}`}>
+        <Label className={`text-base font-medium ${error ? 'text-red-600' : 'text-foreground'}`}>
           {question.text}
           {question.is_required && <span className="text-red-500 ml-1">*</span>}
         </Label>
@@ -242,7 +242,7 @@ export default function QuestionField({ question, value, onChange, error }) {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger>
-                <HelpCircle className="w-4 h-4 text-slate-400" />
+                <HelpCircle className="w-4 h-4 text-muted-foreground" />
               </TooltipTrigger>
               <TooltipContent>
                 <p className="max-w-xs">{question.help_text}</p>

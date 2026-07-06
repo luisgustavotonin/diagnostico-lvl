@@ -15,8 +15,8 @@ export default function ProgressBar({ currentModule, totalModules }) {
                   ${step < currentModule 
                     ? 'bg-emerald-500 text-white' 
                     : step === currentModule 
-                      ? 'bg-slate-800 text-white ring-4 ring-slate-200' 
-                      : 'bg-slate-100 text-slate-400'
+                      ? 'bg-primary text-white ring-4 ring-accent' 
+                      : 'bg-muted text-muted-foreground'
                   }
                 `}
               >
@@ -26,7 +26,7 @@ export default function ProgressBar({ currentModule, totalModules }) {
                   step
                 )}
               </div>
-              <span className={`mt-2 text-xs ${step === currentModule ? 'text-slate-800 font-medium' : 'text-slate-400'}`}>
+              <span className={`mt-2 text-xs ${step === currentModule ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
                 Módulo {step}
               </span>
             </div>
@@ -34,7 +34,7 @@ export default function ProgressBar({ currentModule, totalModules }) {
               <div 
                 className={`
                   flex-1 h-0.5 mx-2
-                  ${step < currentModule ? 'bg-emerald-500' : 'bg-slate-200'}
+                  ${step < currentModule ? 'bg-emerald-500' : 'bg-border'}
                 `}
               />
             )}

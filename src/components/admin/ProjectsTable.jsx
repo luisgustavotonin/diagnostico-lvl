@@ -83,7 +83,7 @@ export default function ProjectsTable({
   return (
     <div className="space-y-4">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
           placeholder="Buscar por nome, cidade, CNPJ ou telefone..."
           value={search}
@@ -95,7 +95,7 @@ export default function ProjectsTable({
       <div className="rounded-xl border bg-white overflow-x-auto">
         <Table className="w-full table-auto">
           <TableHeader>
-            <TableRow className="bg-slate-50">
+            <TableRow className="bg-muted">
               <TableHead className="min-w-[100px]">Data</TableHead>
               <TableHead className="min-w-[250px]">Nome</TableHead>
               <TableHead className="min-w-[180px]">CPF/CNPJ</TableHead>
@@ -108,13 +108,13 @@ export default function ProjectsTable({
           <TableBody>
             {filteredProjects.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-slate-500">
+                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                   Nenhum projeto encontrado
                 </TableCell>
               </TableRow>
             ) : (
               filteredProjects.map((project) => (
-                <TableRow key={project.id} className="hover:bg-slate-50">
+                <TableRow key={project.id} className="hover:bg-muted">
                   <TableCell className="text-sm">
                     {format(
                       new Date(project.completed_at || project.created_date),
@@ -157,12 +157,12 @@ export default function ProjectsTable({
                         </DropdownMenuContent>
                       </DropdownMenu>
                     ) : (
-                      <span className="text-slate-400 text-sm">-</span>
+                      <span className="text-muted-foreground text-sm">-</span>
                     )}
                   </TableCell>
                   <TableCell>
                     {!aiEnabled ? (
-                      <span className="text-slate-400 text-xs">Geração desativada</span>
+                      <span className="text-muted-foreground text-xs">Geração desativada</span>
                     ) : project.ai_report_status === 'READY' ? (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -198,7 +198,7 @@ export default function ProjectsTable({
                         <Sparkles className="w-4 h-4 mr-1" /> Gerar
                       </Button>
                     ) : (
-                      <span className="text-slate-400 text-xs">-</span>
+                      <span className="text-muted-foreground text-xs">-</span>
                     )}
                   </TableCell>
                   <TableCell>

@@ -101,7 +101,7 @@ export default function PreviewSimulator({ modules, questions }) {
 
   if (activeModules.length === 0) {
     return (
-      <div className="text-center py-12 text-slate-500">
+      <div className="text-center py-12 text-muted-foreground">
         Nenhum módulo ativo para pré-visualizar
       </div>
     );
@@ -116,7 +116,7 @@ export default function PreviewSimulator({ modules, questions }) {
         </Button>
       </div>
 
-      <div className="bg-slate-100 rounded-xl p-6">
+      <div className="bg-muted rounded-xl p-6">
         <ProgressBar 
           currentModule={currentModuleNum} 
           totalModules={activeModules.length} 
@@ -135,7 +135,7 @@ export default function PreviewSimulator({ modules, questions }) {
             />
           )}
 
-          <div className="flex justify-between mt-8 pt-6 border-t border-slate-100">
+          <div className="flex justify-between mt-8 pt-6 border-t border-border">
             <Button
               variant="outline"
               onClick={handlePrevious}
@@ -148,7 +148,7 @@ export default function PreviewSimulator({ modules, questions }) {
             <Button
               onClick={handleNext}
               disabled={currentModuleNum === activeModules.length}
-              className="bg-slate-800 hover:bg-slate-700 text-white"
+              className="bg-primary hover:bg-primary/90 text-white"
             >
               {currentModuleNum === activeModules.length ? 'Fim' : 'Próximo'}
               <ArrowRight className="w-4 h-4 ml-2" />

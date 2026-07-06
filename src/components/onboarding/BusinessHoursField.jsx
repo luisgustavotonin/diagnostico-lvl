@@ -100,11 +100,11 @@ export default function BusinessHoursField({ value, onChange }) {
         const isOpen = dayData.aberto;
         
         return (
-          <div key={day.key} className="border border-slate-200 rounded-lg bg-white p-5">
+          <div key={day.key} className="border border-border rounded-lg bg-white p-5">
             <div className="flex items-center justify-between mb-4">
-              <Label className="text-base font-medium text-slate-700">{day.label}</Label>
+              <Label className="text-base font-medium text-foreground">{day.label}</Label>
               <div className="flex items-center gap-3">
-                <span className="text-sm text-slate-500">
+                <span className="text-sm text-muted-foreground">
                   {isOpen ? 'Aberto' : 'Fechado'}
                 </span>
                 <Switch
@@ -120,7 +120,7 @@ export default function BusinessHoursField({ value, onChange }) {
                   <div key={index}>
                     <div className="flex items-center gap-3">
                       <div className="relative flex-1">
-                        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                         <Input
                           type="time"
                           value={periodo.inicio}
@@ -129,10 +129,10 @@ export default function BusinessHoursField({ value, onChange }) {
                         />
                       </div>
                       
-                      <span className="text-slate-500 text-sm font-medium">até</span>
+                      <span className="text-muted-foreground text-sm font-medium">até</span>
                       
                       <div className="relative flex-1">
-                        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                         <Input
                           type="time"
                           value={periodo.fim}
@@ -152,7 +152,7 @@ export default function BusinessHoursField({ value, onChange }) {
                   variant="outline"
                   size="sm"
                   onClick={() => addPeriod(day.key)}
-                  className="w-full mt-2 text-slate-600 hover:text-slate-900 border-dashed"
+                  className="w-full mt-2 text-muted-foreground hover:text-foreground border-dashed"
                 >
                   <Plus className="w-4 h-4 mr-2" /> Adicionar período
                 </Button>

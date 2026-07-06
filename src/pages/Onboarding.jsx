@@ -377,8 +377,8 @@ export default function Onboarding() {
 
   if (loadingModules || loadingQuestions || loadingProject) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
-        <Loader2 className="w-8 h-8 animate-spin text-slate-600" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted">
+        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -386,52 +386,52 @@ export default function Onboarding() {
   // Tela de boas-vindas
   if (step === 'welcome') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
         <Card className="max-w-2xl w-full p-8 md:p-12 text-center shadow-xl border-0">
-          <div className="w-20 h-20 bg-slate-800 rounded-3xl mx-auto mb-6 flex items-center justify-center">
+          <div className="w-20 h-20 bg-primary rounded-3xl mx-auto mb-6 flex items-center justify-center">
             <CheckCircle2 className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-4">
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             Bem-vindo ao seu Diagnóstico
           </h1>
-          <p className="text-lg text-slate-600 mb-6 leading-relaxed">
+          <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
             Este processo nos ajuda a conhecer sua clínica e montar a{' '}
-            <span className="text-slate-800 font-semibold">estratégia de tráfego perfeita</span> para você.
+            <span className="text-foreground font-semibold">estratégia de tráfego perfeita</span> para você.
           </p>
 
-          <div className="flex items-center justify-center gap-2 mb-8 text-slate-600">
-            <svg className="w-5 h-5 text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="flex items-center justify-center gap-2 mb-8 text-muted-foreground">
+            <svg className="w-5 h-5 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span className="font-medium">Tempo estimado: <span className="font-bold text-slate-800">30 a 60 minutos</span></span>
+            <span className="font-medium">Tempo estimado: <span className="font-bold text-foreground">30 a 60 minutos</span></span>
           </div>
 
           <div className="space-y-3 mb-8">
-            <div className="bg-slate-50 p-4 rounded-lg flex items-center gap-3 text-left">
-              <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-muted p-4 rounded-lg flex items-center gap-3 text-left">
+              <div className="w-10 h-10 bg-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <span className="text-slate-700 font-medium">Estratégia personalizada para sua clínica</span>
+              <span className="text-foreground font-medium">Estratégia personalizada para sua clínica</span>
             </div>
 
-            <div className="bg-slate-50 p-4 rounded-lg flex items-center gap-3 text-left">
-              <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-muted p-4 rounded-lg flex items-center gap-3 text-left">
+              <div className="w-10 h-10 bg-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>
-              <span className="text-slate-700 font-medium">Diagnóstico completo do seu marketing</span>
+              <span className="text-foreground font-medium">Diagnóstico completo do seu marketing</span>
             </div>
 
-            <div className="bg-slate-50 p-4 rounded-lg flex items-center gap-3 text-left">
-              <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-muted p-4 rounded-lg flex items-center gap-3 text-left">
+              <div className="w-10 h-10 bg-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
               </div>
-              <span className="text-slate-700 font-medium">Identificação de oportunidades de crescimento</span>
+              <span className="text-foreground font-medium">Identificação de oportunidades de crescimento</span>
             </div>
           </div>
 
@@ -439,7 +439,7 @@ export default function Onboarding() {
             size="lg" 
             onClick={handleStart}
             disabled={saving}
-            className="bg-slate-800 hover:bg-slate-700 text-white px-8 py-6 text-lg rounded-xl w-full mb-4"
+            className="bg-primary hover:bg-primary/90 text-white px-8 py-6 text-lg rounded-xl w-full mb-4"
           >
             {saving ? (
               <Loader2 className="w-5 h-5 animate-spin mr-2" />
@@ -448,7 +448,7 @@ export default function Onboarding() {
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
 
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-muted-foreground">
             Suas informações são confidenciais e usadas apenas para sua estratégia.
           </p>
         </Card>
@@ -459,15 +459,15 @@ export default function Onboarding() {
   // Tela de conclusão
   if (step === 'conclusion' || completed) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
         <Card className="max-w-2xl w-full p-8 md:p-12 text-center shadow-xl border-0">
           <div className="w-20 h-20 bg-emerald-500 rounded-full mx-auto mb-8 flex items-center justify-center">
             <CheckCircle2 className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-6">
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
             Obrigado!
           </h1>
-          <p className="text-lg text-slate-600 leading-relaxed">
+          <p className="text-lg text-muted-foreground leading-relaxed">
             Obrigado por compartilhar as informações da sua unidade.
             <br /><br />
             Com base nas respostas, nossa equipe já consegue ter uma visão clara do cenário atual 
@@ -498,7 +498,7 @@ export default function Onboarding() {
 
   // Tela de módulo
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted py-8 px-4">
       <div className="max-w-3xl mx-auto">
         <ProgressBar 
           currentModule={currentModuleNum} 
@@ -518,7 +518,7 @@ export default function Onboarding() {
             />
           )}
 
-          <div className="flex justify-between items-center mt-10 pt-6 border-t border-slate-100">
+          <div className="flex justify-between items-center mt-10 pt-6 border-t border-border">
             <Button
               variant="outline"
               onClick={handlePrevious}
@@ -545,7 +545,7 @@ export default function Onboarding() {
               <Button
                 onClick={handleNext}
                 disabled={saving}
-                className="bg-slate-800 hover:bg-slate-700 text-white px-6"
+                className="bg-primary hover:bg-primary/90 text-white px-6"
               >
                 {saving ? (
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />

@@ -54,10 +54,10 @@ export default function ModuleQuestions({
 
   return (
     <div className="space-y-8">
-      <div className="border-b border-slate-200 pb-4">
-        <h2 className="text-2xl font-semibold text-slate-800">{module.title}</h2>
+      <div className="border-b border-border pb-4">
+        <h2 className="text-2xl font-semibold text-foreground">{module.title}</h2>
         {module.description && (
-          <p className="mt-2 text-slate-600">{module.description}</p>
+          <p className="mt-2 text-muted-foreground">{module.description}</p>
         )}
       </div>
 
@@ -89,7 +89,7 @@ export default function ModuleQuestions({
 
         {module.number === 1 && (
           <div className="space-y-2 pt-4">
-            <label className="text-base font-medium text-slate-700">
+            <label className="text-base font-medium text-foreground">
               Horário de Atendimento <span className="text-red-500">*</span>
             </label>
             <BusinessHoursField

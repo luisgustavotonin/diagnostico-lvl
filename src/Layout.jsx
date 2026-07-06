@@ -10,9 +10,9 @@ export default function Layout({ children, currentPageName }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-background">
       {currentPageName === 'Admin' && (
-        <nav className="bg-slate-900 text-white px-4 py-3">
+        <nav className="bg-foreground text-white px-4 py-3">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <Link 
               to={createPageUrl('Admin')}
@@ -24,7 +24,7 @@ export default function Layout({ children, currentPageName }) {
             <Link 
               to={createPageUrl('Onboarding')}
               target="_blank"
-              className="text-sm text-slate-300 hover:text-white transition-colors"
+              className="text-sm text-white/70 hover:text-white transition-colors"
             >
               Ver formulário público →
             </Link>
