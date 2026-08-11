@@ -43,11 +43,29 @@ export default function BusinessHoursField({ value, onChange }) {
     setSchedule(prev => {
       const isCurrentlyOpen = prev[dayKey]?.aberto;
       
+      if (isCurrentlyOpen) {
+        return {
+          ...prev,
+          [dayKey]: { aberto: false, periodos: [] }
+        };
+      }
+      
+      // Copiar períodos do último dia configurado acima; se não houver, padrão 08:00-19:00
+      const currentIdx = DAYS.findIndex(d => d.key === dayKey);
+      let copiedPeriodos = null;
+      for (let i = currentIdx - 1; i >= 0; i--) {
+        const prevDay = prev[DAYS[i].key];
+        if (prevDay && prevDay.aberto && prevDay.periodos && prevDay.periodos.length > 0) {
+          copiedPeriodos = prevDay.periodos.map(p => ({ ...p }));
+          break;
+        }
+      }
+      
       return {
         ...prev,
         [dayKey]: {
-          aberto: !isCurrentlyOpen,
-          periodos: !isCurrentlyOpen ? [{ inicio: '08:00', fim: '18:00' }] : []
+          aberto: true,
+          periodos: copiedPeriodos || [{ inicio: '08:00', fim: '19:00' }]
         }
       };
     });
