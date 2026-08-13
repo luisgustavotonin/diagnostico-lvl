@@ -813,9 +813,7 @@ export function generateIDKReport(project, reportData) {
   d.rect(ML, d.y, CW, blH, C.black, null, 3);
   d.txt(ML+8, d.y+10, 'Vamos destravar esse funil juntos.', 11, 'bold', C.green);
   d.txt(ML+8, d.y+17, 'IDK Performance — Diagnóstico, mídia e processo comercial para clínicas odontológicas.', 8.5, 'normal', C.white);
-  const onbDate = project?.completed_at
-    ? new Date(project.completed_at).toLocaleDateString('pt-BR') : dateShort;
-  d.txt(ML+8, d.y+23, `Este relatório foi gerado a partir do onboarding respondido em ${onbDate}.`, 7.5, 'normal', C.grayLight);
+  d.txt(ML+8, d.y+23, `Este relatório foi gerado a partir do onboarding respondido em ${dateShort}.`, 7.5, 'normal', C.grayLight);
 
   // ── Salvar ──
   const safeUnit = unitName.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'');
