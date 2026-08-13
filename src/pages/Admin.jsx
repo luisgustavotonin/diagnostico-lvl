@@ -3,13 +3,15 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
-import { Loader2, Building2, ListTree, Eye, Settings, FileDown } from 'lucide-react';
+import { Loader2, Building2, ListTree, Eye, Settings, FileDown, Gauge } from 'lucide-react';
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import jsPDF from 'jspdf';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 import StatsCards from '../components/admin/StatsCards';
+import BenchmarksManager from '../components/admin/BenchmarksManager';
+import { buildAiReportPrompt, aiReportResponseSchema, benchmarksToPromptObject } from '../lib/aiReportPrompt';
 import ProjectsTable from '../components/admin/ProjectsTable';
 import ModulesManager from '../components/admin/ModulesManager';
 import QuestionsManager from '../components/admin/QuestionsManager';
@@ -74,6 +76,12 @@ export default function Admin() {
   const { data: settings = [] } = useQuery({
     queryKey: ['settings'],
     queryFn: () => base44.entities.AppSettings.list(),
+  });
+
+  // Carregar benchmarks
+  const { data: benchmarks = [], isLoading: loadingBenchmarks } = useQuery({
+    queryKey: ['benchmarks'],
+    queryFn: () => base44.entities.Benchmark.list('category'),
   });
 
   const aiReportMode = settings.find(s => s.key === 'ai_report_mode')?.value || 'separate';
@@ -144,6 +152,27 @@ export default function Admin() {
     }
   });
 
+  const saveBenchmarkMutation = useMutation({
+    mutationFn: async ({ id, data }) => {
+      if (id) {
+        return base44.entities.Benchmark.update(id, data);
+      }
+      return base44.entities.Benchmark.create(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['benchmarks'] });
+      toast.success('Benchmark salvo com sucesso');
+    }
+  });
+
+  const deleteBenchmarkMutation = useMutation({
+    mutationFn: (id) => base44.entities.Benchmark.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['benchmarks'] });
+      toast.success('Benchmark excluído');
+    }
+  });
+
   // Handlers
   const handleSaveModule = (id, data) => {
     saveModuleMutation.mutate({ id, data });
@@ -171,6 +200,18 @@ export default function Admin() {
     }
     queryClient.invalidateQueries({ queryKey: ['settings'] });
     toast.success(enabled ? 'IA ativada' : 'IA desativada');
+  };
+
+  const handleSaveBenchmark = (id, data) => {
+    saveBenchmarkMutation.mutate({ id, data });
+  };
+
+  const handleAddBenchmark = (data) => {
+    saveBenchmarkMutation.mutate({ id: null, data });
+  };
+
+  const handleDeleteBenchmark = (id) => {
+    setDeleteDialog({ open: true, type: 'benchmark', id });
   };
 
   const handleToggleAIMode = async (mode) => {
@@ -233,68 +274,24 @@ export default function Admin() {
       data: { ai_report_status: 'GENERATING' } 
     });
 
-    const prompt = `Você é um consultor estratégico sênior especializado em clínicas e consultórios odontológicos.
-
-Analise o seguinte relatório de onboarding e forneça um diagnóstico completo com plano de ação.
-
-DADOS DA UNIDADE:
-- Nome: ${project.unit_name || 'Não informado'}
-- Tipo: ${project.unit_type === 'consultorio' ? 'Consultório' : 'Clínica'}
-- Cidade: ${project.city || 'Não informada'}
-
-RESPOSTAS DO QUESTIONÁRIO:
-${JSON.stringify(project.answers_json || {}, null, 2)}
-
-RELATÓRIO BÁSICO:
-${project.report_basic_text || 'Não disponível'}
-
----
-
-INSTRUÇÕES:
-- Use linguagem profissional e direta
-- NÃO mencione que você é uma IA
-- Foque em ações práticas e mensuráveis
-- Seja específico para o contexto odontológico
-
-ESTRUTURA OBRIGATÓRIA DO DIAGNÓSTICO:
-
-## Resumo Executivo
-(1 parágrafo sintetizando o cenário)
-
-## Pontos Positivos
-(3 a 6 pontos fortes identificados)
-
-## Pontos de Atenção e Gargalos
-(3 a 6 pontos que precisam de melhoria)
-
-## Riscos Estratégicos
-(2 a 4 riscos que podem impactar o negócio)
-
-## Plano de Ação
-
-### Próximos 7 dias
-(ações imediatas e prioritárias)
-
-### 7 a 30 dias
-(ações de curto prazo)
-
-### 30 a 90 dias
-(ações de médio prazo para consolidação)`;
+    const benchmarksObject = benchmarksToPromptObject(benchmarks);
+    const prompt = buildAiReportPrompt(project, benchmarksObject);
 
     const response = await base44.integrations.Core.InvokeLLM({
       prompt,
-      response_json_schema: null
+      response_json_schema: aiReportResponseSchema
     });
 
-    // Relatório IA puro, sem incluir o básico
-    const aiReport = `# DIAGNÓSTICO E PLANO DE AÇÃO\n\n${response}`;
+    // O novo prompt exige saída em JSON estruturado — armazenamos como string
+    // para que o renderizador de relatório (próxima etapa) possa consumi-la.
+    const aiReport = typeof response === 'string' ? response : JSON.stringify(response, null, 2);
 
-    await updateProjectMutation.mutateAsync({ 
-      id: project.id, 
-      data: { 
+    await updateProjectMutation.mutateAsync({
+      id: project.id,
+      data: {
         ai_report_status: 'READY',
         ai_report_text: aiReport
-      } 
+      }
     });
 
     setGeneratingAI(null);
@@ -423,6 +420,8 @@ ESTRUTURA OBRIGATÓRIA DO DIAGNÓSTICO:
       deleteQuestionMutation.mutate(id);
     } else if (type === 'project') {
       deleteProjectMutation.mutate(id);
+    } else if (type === 'benchmark') {
+      deleteBenchmarkMutation.mutate(id);
     }
     
     setDeleteDialog({ open: false, type: null, id: null });
@@ -447,7 +446,7 @@ ESTRUTURA OBRIGATÓRIA DO DIAGNÓSTICO:
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-4 w-full max-w-xl mb-8">
+          <TabsList className="grid grid-cols-5 w-full max-w-2xl mb-8">
             <TabsTrigger value="units" className="flex items-center gap-2">
               <Building2 className="w-4 h-4" /> Unidades
             </TabsTrigger>
@@ -459,6 +458,9 @@ ESTRUTURA OBRIGATÓRIA DO DIAGNÓSTICO:
             </TabsTrigger>
             <TabsTrigger value="settings" className="flex items-center gap-2">
               <Settings className="w-4 h-4" /> Configurações
+            </TabsTrigger>
+            <TabsTrigger value="benchmarks" className="flex items-center gap-2">
+              <Gauge className="w-4 h-4" /> Benchmarks
             </TabsTrigger>
           </TabsList>
 
@@ -513,8 +515,8 @@ ESTRUTURA OBRIGATÓRIA DO DIAGNÓSTICO:
           <TabsContent value="settings">
             <div className="space-y-6">
               <Card className="p-6">
-                <SettingsPanel 
-                  aiEnabled={aiEnabled} 
+                <SettingsPanel
+                  aiEnabled={aiEnabled}
                   onToggleAI={handleToggleAI}
                   aiReportMode={aiReportMode}
                   onToggleAIMode={handleToggleAIMode}
@@ -522,6 +524,23 @@ ESTRUTURA OBRIGATÓRIA DO DIAGNÓSTICO:
               </Card>
 
             </div>
+          </TabsContent>
+
+          <TabsContent value="benchmarks">
+            <Card className="p-6">
+              {loadingBenchmarks ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                </div>
+              ) : (
+                <BenchmarksManager
+                  benchmarks={benchmarks}
+                  onSave={handleSaveBenchmark}
+                  onDelete={handleDeleteBenchmark}
+                  onAdd={handleAddBenchmark}
+                />
+              )}
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
