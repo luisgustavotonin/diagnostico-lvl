@@ -2,9 +2,9 @@ import React, { useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Printer, X } from 'lucide-react';
+import { Printer, Download, X } from 'lucide-react';
 import AiReportView from './AiReportView';
-import { generateIDKReport } from '@/lib/idkPdfRenderer';
+import { generateAiReportPdf } from '@/lib/idkPdfRenderer';
 
 export default function ReportViewer({ open, onClose, project, type }) {
   const printRef = useRef(null);
@@ -12,14 +12,26 @@ export default function ReportViewer({ open, onClose, project, type }) {
   const content = type === 'ai' ? project?.ai_report_text : project?.report_basic_text;
   const title = type === 'ai' ? 'Relatório + Diagnóstico IA' : 'Relatório Básico';
 
+  const handleDownloadPdf = () => {
+    if (type !== 'ai') return;
+    try {
+      const reportData = project.ai_report_text
+        ? (typeof project.ai_report_text === 'string' ? JSON.parse(project.ai_report_text) : project.ai_report_text)
+        : {};
+      generateAiReportPdf(project, reportData);
+    } catch (e) {
+      console.error('Falha ao baixar PDF IA', e);
+    }
+  };
+
   const handlePrint = () => {
-    // IA: gera o PDF IDK estruturado a partir do JSON do diagnóstico.
+    // IA: gera o PDF (design idêntico ao da tela) e abre a janela de impressão.
     if (type === 'ai') {
       try {
         const reportData = project.ai_report_text
           ? (typeof project.ai_report_text === 'string' ? JSON.parse(project.ai_report_text) : project.ai_report_text)
           : {};
-        generateIDKReport(project, reportData);
+        generateAiReportPdf(project, reportData, { autoPrint: true });
       } catch (e) {
         console.error('Falha ao gerar PDF IA', e);
       }
@@ -292,9 +304,16 @@ export default function ReportViewer({ open, onClose, project, type }) {
         <DialogHeader className="flex-shrink-0">
           <div className="flex items-center justify-between pr-8">
             <DialogTitle>{title}</DialogTitle>
-            <Button variant="outline" size="sm" onClick={handlePrint}>
-              <Printer className="w-4 h-4 mr-2" /> Imprimir
-            </Button>
+            <div className="flex items-center gap-2">
+              {type === 'ai' && (
+                <Button variant="outline" size="sm" onClick={handleDownloadPdf}>
+                  <Download className="w-4 h-4 mr-2" /> Baixar PDF
+                </Button>
+              )}
+              <Button variant="outline" size="sm" onClick={handlePrint}>
+                <Printer className="w-4 h-4 mr-2" /> Imprimir
+              </Button>
+            </div>
           </div>
           {project?.unit_name && (
             <p className="text-sm text-muted-foreground">{project.unit_name}</p>
