@@ -44,6 +44,12 @@ ${JSON.stringify(project.answers_json || {}, null, 2)}
 
 # ETAPA 1 — CÁLCULOS OBRIGATÓRIOS (faça antes de escrever qualquer texto)
 
+ATENÇÃO — VALORES MONETÁRIOS EM CENTAVOS: os campos do formulário
+\`investimento_mensal\`, \`faturamento_bruto\`, \`desejado\` e \`valor_investir\` estão em
+CENTAVOS. Divida por 100 antes de qualquer cálculo (ex.: 460000 = R$ 4.600,00;
+10000000 = R$ 100.000,00; 30000000 = R$ 300.000,00). Os demais valores (ticket,
+faixas de conversão, leads, agendamentos) já vêm em reais ou em números absolutos.
+
 Extraia dos dados e calcule. Se um dado não existir ou for ambíguo, registre a premissa
 adotada no campo \`premissas\` do JSON — NUNCA invente números sem declarar a premissa.
 
@@ -55,14 +61,8 @@ adotada no campo \`premissas\` do JSON — NUNCA invente números sem declarar a
    - Comparecimentos → Fechamentos (use o ponto médio da faixa de conversão informada)
    - Fechamentos × ticket médio (ponto médio da faixa) = receita atribuível ao funil
 
-2. UNIT ECONOMICS:
-   - CPL = investimento mensal ÷ leads
-   - Custo por agendamento, custo por comparecimento, CAC (custo por paciente fechado)
-   - ROAS = receita atribuível ao funil ÷ investimento
-   - % do faturamento que vem do funil pago vs. outros canais (indicação, base)
-
-3. FUNIL REVERSO DA META:
-   - Gap = faturamento desejado − faturamento atual
+2. FUNIL REVERSO DA META:
+   - Gap = faturamento desejado − faturamento atual (ambos convertidos de centavos)
    - Pacientes novos/mês necessários = gap ÷ ticket médio atual
    - Leads necessários com as TAXAS ATUAIS do funil
    - Leads necessários com taxas CORRIGIDAS para benchmark (tabela abaixo)
@@ -70,10 +70,14 @@ adotada no campo \`premissas\` do JSON — NUNCA invente números sem declarar a
    - Veredito de viabilidade: a meta é atingível no prazo com a verba declarada?
      Se não, diga o que precisa mudar (taxas, ticket, verba ou prazo).
 
-4. CAPACIDADE INSTALADA:
-   - Cadeiras × ~160h/mês por cadeira = horas clínicas disponíveis
-   - Estime a taxa de ocupação implícita no faturamento atual e o teto de faturamento
-     da estrutura atual (declare premissas de duração média de consulta e ticket/hora)
+3. INDICADORES DAS CATEGORIAS DE BENCHMARK:
+   Para CADA categoria de benchmark listada na ETAPA 2, calcule os indicadores
+   correspondentes a partir dos dados do formulário e posicione cada um na régua
+   (crítico / aceitável / alta performance). Por exemplo, se existir uma categoria
+   de KPIs financeiros, calcule CPL, CAC, ROAS etc. a partir dos dados e compare-os
+   às faixas configuradas. Se um indicador não puder ser calculado por falta de dado,
+   declare a premissa adotada ou marque "Não informado no onboarding". Não invente
+   faixas de referência — use EXCLUSIVAMENTE os benchmarks da ETAPA 2.
 
 # ETAPA 2 — BENCHMARKS DE REFERÊNCIA (use como régua em todo o relatório)
 
@@ -187,7 +191,7 @@ o schema abaixo. Strings de texto corrido podem ter até 120 palavras; nada de c
   },
   "funil_atual": {
     "linhas": [ { "etapa": "", "valor": "", "taxa": "", "benchmark": "", "status": "critico|atencao|ok" } ],
-    "unit_economics": [ { "indicador": "", "valor": "", "benchmark": "", "status": "critico|atencao|ok" } ],
+    "categorias": [ { "categoria": "", "indicadores": [ { "indicador": "", "valor": "", "benchmark": "", "status": "critico|atencao|ok" } ] } ],
     "leitura": ""
   },
   "funil_reverso_meta": {
@@ -298,15 +302,24 @@ export const aiReportResponseSchema = {
             }
           }
         },
-        unit_economics: {
+        categorias: {
           type: 'array',
           items: {
             type: 'object',
             properties: {
-              indicador: { type: 'string' },
-              valor: { type: 'string' },
-              benchmark: { type: 'string' },
-              status: { type: 'string', enum: ['critico', 'atencao', 'ok'] }
+              categoria: { type: 'string' },
+              indicadores: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    indicador: { type: 'string' },
+                    valor: { type: 'string' },
+                    benchmark: { type: 'string' },
+                    status: { type: 'string', enum: ['critico', 'atencao', 'ok'] }
+                  }
+                }
+              }
             }
           }
         },
