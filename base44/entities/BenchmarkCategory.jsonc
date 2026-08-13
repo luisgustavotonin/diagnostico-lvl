@@ -1,0 +1,27 @@
+{
+  "name": "BenchmarkCategory",
+  "type": "object",
+  "properties": {
+    "key": {
+      "type": "string",
+      "description": "Chave \u00fanica da categoria (slug) usada para vincular m\u00e9tricas"
+    },
+    "label": {
+      "type": "string",
+      "description": "Nome exibido da categoria"
+    },
+    "order": {
+      "type": "number",
+      "default": 0,
+      "description": "Ordem de exibi\u00e7\u00e3o"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "key",
+    "label"
+  ]
+}

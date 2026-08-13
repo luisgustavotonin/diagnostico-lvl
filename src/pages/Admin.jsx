@@ -84,6 +84,12 @@ export default function Admin() {
     queryFn: () => base44.entities.Benchmark.list('category'),
   });
 
+  // Carregar categorias de benchmark
+  const { data: benchmarkCategories = [] } = useQuery({
+    queryKey: ['benchmarkCategories'],
+    queryFn: () => base44.entities.BenchmarkCategory.list('order'),
+  });
+
   const aiReportMode = settings.find(s => s.key === 'ai_report_mode')?.value || 'separate';
 
   useEffect(() => {
@@ -173,6 +179,29 @@ export default function Admin() {
     }
   });
 
+  const saveBenchmarkCategoryMutation = useMutation({
+    mutationFn: async ({ id, data }) => {
+      if (id) return base44.entities.BenchmarkCategory.update(id, data);
+      return base44.entities.BenchmarkCategory.create(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['benchmarkCategories'] });
+      toast.success('Categoria salva');
+    }
+  });
+
+  const deleteBenchmarkCategoryMutation = useMutation({
+    mutationFn: async ({ id, key }) => {
+      await base44.entities.Benchmark.deleteMany({ category: key });
+      return base44.entities.BenchmarkCategory.delete(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['benchmarks'] });
+      queryClient.invalidateQueries({ queryKey: ['benchmarkCategories'] });
+      toast.success('Categoria e métricas excluídas');
+    }
+  });
+
   // Handlers
   const handleSaveModule = (id, data) => {
     saveModuleMutation.mutate({ id, data });
@@ -212,6 +241,18 @@ export default function Admin() {
 
   const handleDeleteBenchmark = (id) => {
     setDeleteDialog({ open: true, type: 'benchmark', id });
+  };
+
+  const handleSaveCategory = (id, data) => {
+    saveBenchmarkCategoryMutation.mutate({ id, data });
+  };
+
+  const handleAddCategory = (data) => {
+    saveBenchmarkCategoryMutation.mutate({ id: null, data });
+  };
+
+  const handleDeleteCategory = (category) => {
+    setDeleteDialog({ open: true, type: 'category', id: category.id, extra: category.key });
   };
 
   const handleToggleAIMode = async (mode) => {
@@ -422,9 +463,11 @@ export default function Admin() {
       deleteProjectMutation.mutate(id);
     } else if (type === 'benchmark') {
       deleteBenchmarkMutation.mutate(id);
+    } else if (type === 'category') {
+      deleteBenchmarkCategoryMutation.mutate({ id, key: deleteDialog.extra });
     }
     
-    setDeleteDialog({ open: false, type: null, id: null });
+    setDeleteDialog({ open: false, type: null, id: null, extra: null });
   };
 
   if (loadingProjects || loadingModules || loadingQuestions) {
@@ -535,9 +578,13 @@ export default function Admin() {
               ) : (
                 <BenchmarksManager
                   benchmarks={benchmarks}
+                  categories={benchmarkCategories}
                   onSave={handleSaveBenchmark}
                   onDelete={handleDeleteBenchmark}
                   onAdd={handleAddBenchmark}
+                  onSaveCategory={handleSaveCategory}
+                  onDeleteCategory={handleDeleteCategory}
+                  onAddCategory={handleAddCategory}
                 />
               )}
             </Card>
@@ -560,12 +607,14 @@ export default function Admin() {
         onSave={handleSaveReport}
       />
 
-      <AlertDialog open={deleteDialog.open} onOpenChange={(open) => !open && setDeleteDialog({ open: false, type: null, id: null })}>
+      <AlertDialog open={deleteDialog.open} onOpenChange={(open) => !open && setDeleteDialog({ open: false, type: null, id: null, extra: null })}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. Deseja realmente excluir este item?
+              {deleteDialog.type === 'category'
+                ? 'Esta ação excluirá a categoria e TODAS as métricas dentro dela. Não pode ser desfeita. Deseja realmente continuar?'
+                : 'Esta ação não pode ser desfeita. Deseja realmente excluir este item?'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
