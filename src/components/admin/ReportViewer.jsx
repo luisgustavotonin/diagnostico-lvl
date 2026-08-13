@@ -3,6 +3,8 @@ import ReactMarkdown from 'react-markdown';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Printer, X } from 'lucide-react';
+import AiReportView from './AiReportView';
+import { generateIDKReport } from '@/lib/idkPdfRenderer';
 
 export default function ReportViewer({ open, onClose, project, type }) {
   const printRef = useRef(null);
@@ -11,7 +13,20 @@ export default function ReportViewer({ open, onClose, project, type }) {
   const title = type === 'ai' ? 'Relatório + Diagnóstico IA' : 'Relatório Básico';
 
   const handlePrint = () => {
-    let reportContent = type === 'ai' ? project.ai_report_text : project.report_basic_text;
+    // IA: gera o PDF IDK estruturado a partir do JSON do diagnóstico.
+    if (type === 'ai') {
+      try {
+        const reportData = project.ai_report_text
+          ? (typeof project.ai_report_text === 'string' ? JSON.parse(project.ai_report_text) : project.ai_report_text)
+          : {};
+        generateIDKReport(project, reportData);
+      } catch (e) {
+        console.error('Falha ao gerar PDF IA', e);
+      }
+      return;
+    }
+
+    let reportContent = project.report_basic_text;
     
     // Se mode combinado e relatório básico, incluir IA
     const aiReportMode = localStorage.getItem('ai_report_mode') || 'separate';
@@ -287,22 +302,26 @@ export default function ReportViewer({ open, onClose, project, type }) {
         </DialogHeader>
         
         <div className="flex-1 overflow-y-auto pr-2" ref={printRef}>
-          <div className="prose max-w-none">
-            <ReactMarkdown
-              components={{
-                h1: ({ children }) => <h1 className="text-2xl font-bold mt-6 mb-4">{children}</h1>,
-                h2: ({ children }) => <h2 className="text-xl font-semibold mt-6 mb-3 pb-2 border-b border-border">{children}</h2>,
-                h3: ({ children }) => <h3 className="text-lg font-medium mt-4 mb-2">{children}</h3>,
-                p: ({ children }) => <p className="mb-3 text-foreground">{children}</p>,
-                strong: ({ children }) => <strong className="text-foreground">{children}</strong>,
-                ul: ({ children }) => <ul className="list-disc pl-6 mb-4 space-y-1">{children}</ul>,
-                ol: ({ children }) => <ol className="list-decimal pl-6 mb-4 space-y-1">{children}</ol>,
-                li: ({ children }) => <li className="text-foreground">{children}</li>,
-              }}
-            >
-              {content || 'Nenhum conteúdo disponível'}
-            </ReactMarkdown>
-          </div>
+          {type === 'ai' ? (
+            <AiReportView project={project} />
+          ) : (
+            <div className="prose max-w-none">
+              <ReactMarkdown
+                components={{
+                  h1: ({ children }) => <h1 className="text-2xl font-bold mt-6 mb-4">{children}</h1>,
+                  h2: ({ children }) => <h2 className="text-xl font-semibold mt-6 mb-3 pb-2 border-b border-border">{children}</h2>,
+                  h3: ({ children }) => <h3 className="text-lg font-medium mt-4 mb-2">{children}</h3>,
+                  p: ({ children }) => <p className="mb-3 text-foreground">{children}</p>,
+                  strong: ({ children }) => <strong className="text-foreground">{children}</strong>,
+                  ul: ({ children }) => <ul className="list-disc pl-6 mb-4 space-y-1">{children}</ul>,
+                  ol: ({ children }) => <ol className="list-decimal pl-6 mb-4 space-y-1">{children}</ol>,
+                  li: ({ children }) => <li className="text-foreground">{children}</li>,
+                }}
+              >
+                {content || 'Nenhum conteúdo disponível'}
+              </ReactMarkdown>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

@@ -7,6 +7,7 @@ import { Loader2, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import ProgressBar from '../components/onboarding/ProgressBar';
 import ModuleQuestions from '../components/onboarding/ModuleQuestions';
 import ValidationErrors from '../components/onboarding/ValidationErrors';
+import { buildBasicReport } from '@/lib/basicReport';
 
 export default function Onboarding() {
   const [step, setStep] = useState('welcome'); // welcome, module-1 to module-7, conclusion
@@ -276,84 +277,13 @@ export default function Onboarding() {
     return phone;
   };
 
-  // Gerar relatório básico
-  const generateBasicReport = () => {
-    let report = '# RELATÓRIO DE ONBOARDING\n\n';
-    report += `Data: ${new Date().toLocaleDateString('pt-BR')}\n\n`;
-    
-    activeModules.forEach(module => {
-      report += `## ${module.title}\n\n`;
-      
-      const moduleQuestions = questions
-        .filter(q => q.module_id === module.id && q.is_active && q.field_key !== 'horario_atendimento')
-        .sort((a, b) => a.order - b.order);
-      
-      moduleQuestions.forEach(q => {
-        if (isQuestionVisible(q)) {
-          let answer = answers[q.field_key];
-          
-          // Formatar resposta baseado no tipo
-          if (q.field_type === 'currency_cents' && answer) {
-            answer = new Intl.NumberFormat('pt-BR', {
-              style: 'currency',
-              currency: 'BRL'
-            }).format(answer / 100);
-          } else if (q.field_type === 'percent' && answer) {
-            answer = `${answer}%`;
-          } else if (q.field_type === 'cnpj' && answer) {
-            answer = formatCNPJ(answer);
-          } else if (q.field_type === 'cpf' && answer) {
-            answer = formatCPF(answer);
-          } else if (q.field_type === 'cep' && answer) {
-            answer = formatCEP(answer);
-          } else if (q.field_type === 'phone' && answer) {
-            answer = formatPhone(answer);
-          } else if (Array.isArray(answer)) {
-            answer = answer.join(', ');
-          } else if (typeof answer === 'object' && answer !== null) {
-            answer = JSON.stringify(answer, null, 2);
-          }
-          
-          report += `**${q.text}**\n`;
-          report += `${answer || 'Não informado'}\n\n`;
-        }
-      });
-
-      // Adicionar horário de atendimento no final do módulo 1
-      if (module.number === 1 && answers.horario_atendimento) {
-        const schedule = answers.horario_atendimento;
-        let formatted = '';
-        const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-        const dayNames = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
-        
-        days.forEach((day, idx) => {
-          if (schedule[day] && schedule[day].isOpen && schedule[day].periods && schedule[day].periods.length > 0) {
-            formatted += `\n- ${dayNames[idx]}: `;
-            const periods = schedule[day].periods
-              .filter(p => p.start && p.end)
-              .map(p => `${p.start} às ${p.end}`)
-              .join(', ');
-            formatted += periods || 'Horários não definidos';
-          }
-        });
-        
-        if (formatted) {
-          report += `**Horário de Atendimento**\n`;
-          report += `${formatted}\n\n`;
-        }
-      }
-    });
-
-    return report;
-  };
-
   // Concluir onboarding
   const handleComplete = async () => {
     if (!validateCurrentModule()) return;
     
     setSaving(true);
     
-    const basicReport = generateBasicReport();
+    const basicReport = buildBasicReport(answers, modules, questions);
 
     const tipo = String(answers.tipo_unidade || '').toLowerCase();
     const unitType = tipo === 'consultório' || tipo === 'consultorio' ? 'consultorio' : tipo === 'clínica' || tipo === 'clinica' ? 'clinica' : '';

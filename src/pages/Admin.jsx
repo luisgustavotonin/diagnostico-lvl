@@ -12,6 +12,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import StatsCards from '../components/admin/StatsCards';
 import BenchmarksManager from '../components/admin/BenchmarksManager';
 import { buildAiReportPrompt, aiReportResponseSchema, benchmarksToPromptObject } from '../lib/aiReportPrompt';
+import { buildBasicReport } from '@/lib/basicReport';
 import ProjectsTable from '../components/admin/ProjectsTable';
 import ModulesManager from '../components/admin/ModulesManager';
 import QuestionsManager from '../components/admin/QuestionsManager';
@@ -305,6 +306,12 @@ export default function Admin() {
     setViewerOpen(true);
   };
 
+  const handleRegenerateBasic = async (project) => {
+    const text = buildBasicReport(project.answers_json || {}, modules, questions);
+    await updateProjectMutation.mutateAsync({ id: project.id, data: { report_basic_text: text } });
+    toast.success('Relatório básico regenerado na ordem correta');
+  };
+
   const handleGenerateAI = async (project) => {
     if (!aiEnabled) return;
     
@@ -516,6 +523,7 @@ export default function Admin() {
                 onEdit={handleEditReport}
                 onDelete={handleDeleteProject}
                 onPrint={handlePrintReport}
+                onRegenerateBasic={handleRegenerateBasic}
                 onGenerateAI={handleGenerateAI}
                 onViewAI={handleViewAIReport}
                 onOpenProject={handleOpenProject}

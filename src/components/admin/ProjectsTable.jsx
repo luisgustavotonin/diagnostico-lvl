@@ -8,18 +8,19 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Search, MoreVertical, Eye, Pencil, Trash2, Printer, Sparkles, ExternalLink, Loader2, RefreshCw } from 'lucide-react';
 import { generateIDKReport } from '@/lib/idkPdfRenderer';
 
-export default function ProjectsTable({ 
-  projects, 
-  onView, 
-  onEdit, 
-  onDelete, 
-  onPrint, 
-  onGenerateAI, 
+export default function ProjectsTable({
+  projects,
+  onView,
+  onEdit,
+  onDelete,
+  onPrint,
+  onGenerateAI,
   onViewAI,
   onOpenProject,
   aiEnabled,
   generatingAI,
-  onSearchChange
+  onSearchChange,
+  onRegenerateBasic
 }) {
   const [search, setSearch] = useState('');
 
@@ -149,6 +150,11 @@ export default function ProjectsTable({
                           <DropdownMenuItem onClick={() => onPrint(project, 'basic')}>
                             <Printer className="w-4 h-4 mr-2" /> Imprimir PDF
                           </DropdownMenuItem>
+                          {onRegenerateBasic && (
+                            <DropdownMenuItem onClick={() => onRegenerateBasic(project)}>
+                              <RefreshCw className="w-4 h-4 mr-2" /> Regenerar (ordem do questionário)
+                            </DropdownMenuItem>
+                          )}
                           <DropdownMenuItem 
                             onClick={() => onDelete(project)}
                             className="text-red-600"
