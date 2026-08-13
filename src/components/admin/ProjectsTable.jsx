@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Search, MoreVertical, Eye, Pencil, Trash2, Printer, Sparkles, ExternalLink, Loader2, RefreshCw } from 'lucide-react';
+import { generateIDKReport } from '@/lib/idkPdfRenderer';
 
 export default function ProjectsTable({ 
   projects, 
@@ -177,8 +178,17 @@ export default function ProjectsTable({
                           <DropdownMenuItem onClick={() => onEdit(project, 'ai')}>
                             <Pencil className="w-4 h-4 mr-2" /> Editar
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => onPrint(project, 'ai')}>
-                            <Printer className="w-4 h-4 mr-2" /> Imprimir PDF
+                          <DropdownMenuItem onClick={() => {
+                            try {
+                              const reportData = project.ai_report_text
+                                ? (typeof project.ai_report_text === 'string' ? JSON.parse(project.ai_report_text) : project.ai_report_text)
+                                : {};
+                              generateIDKReport(project, reportData);
+                            } catch(e) {
+                              onPrint(project, 'ai');
+                            }
+                          }}>
+                            <Printer className="w-4 h-4 mr-2" /> Imprimir PDF IDK
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => onGenerateAI(project)}>
                             <RefreshCw className="w-4 h-4 mr-2" /> Refazer
