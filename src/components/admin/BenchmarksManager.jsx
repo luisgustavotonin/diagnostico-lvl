@@ -149,12 +149,12 @@ export default function BenchmarksManager({ benchmarks, onSave, onDelete, onAdd 
         <Card key={cat.key} className="p-4">
           <h3 className="font-medium mb-3">{cat.label}</h3>
           <div className="grid grid-cols-12 gap-2 text-[11px] uppercase tracking-wide text-muted-foreground mb-1 px-1">
-            <div className="col-span-3">Métrica</div>
+            <div className="col-span-4">Métrica</div>
             <div className="col-span-2">Crítica</div>
             <div className="col-span-2">Aceitável</div>
             <div className="col-span-2">Ideal</div>
             <div className="col-span-1">Un.</div>
-            <div className="col-span-2" />
+            <div className="col-span-1" />
           </div>
           <div>
             {cat.rows.length === 0 && (
