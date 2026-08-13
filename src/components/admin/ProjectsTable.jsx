@@ -19,8 +19,7 @@ export default function ProjectsTable({
   onOpenProject,
   aiEnabled,
   generatingAI,
-  onSearchChange,
-  onRegenerateBasic
+  onSearchChange
 }) {
   const [search, setSearch] = useState('');
 
@@ -150,11 +149,6 @@ export default function ProjectsTable({
                           <DropdownMenuItem onClick={() => onPrint(project, 'basic')}>
                             <Printer className="w-4 h-4 mr-2" /> Imprimir PDF
                           </DropdownMenuItem>
-                          {onRegenerateBasic && (
-                            <DropdownMenuItem onClick={() => onRegenerateBasic(project)}>
-                              <RefreshCw className="w-4 h-4 mr-2" /> Regenerar (ordem do questionário)
-                            </DropdownMenuItem>
-                          )}
                           <DropdownMenuItem 
                             onClick={() => onDelete(project)}
                             className="text-red-600"

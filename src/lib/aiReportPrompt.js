@@ -42,50 +42,78 @@ cliente é inviável com os recursos atuais.
 
 ${JSON.stringify(project.answers_json || {}, null, 2)}
 
-# ETAPA 1 — CÁLCULOS OBRIGATÓRIOS (faça antes de escrever qualquer texto)
+# DICIONÁRIO DE DADOS — COMO INTERPRETAR OS CAMPOS (leia antes de calcular)
 
-ATENÇÃO — VALORES MONETÁRIOS EM CENTAVOS: os campos do formulário
-\`investimento_mensal\`, \`faturamento_bruto\`, \`desejado\` e \`valor_investir\` estão em
-CENTAVOS. Divida por 100 antes de qualquer cálculo (ex.: 460000 = R$ 4.600,00;
-10000000 = R$ 100.000,00; 30000000 = R$ 300.000,00). Os demais valores (ticket,
-faixas de conversão, leads, agendamentos) já vêm em reais ou em números absolutos.
+1. VALORES MONETÁRIOS EM CENTAVOS: os campos \`investimento_mensal\`, \`valor_investir\`,
+   \`faturamento_bruto\` e \`desejado\` são inteiros em CENTAVOS. Divida por 100 antes de
+   qualquer cálculo ou citação. Exemplos: 460000 = R$ 4.600,00; 10000000 = R$ 100.000,00;
+   30000000 = R$ 300.000,00. NUNCA cite esses valores sem a conversão.
+
+2. FUNIL: \`leads_mes\` = leads recebidos por mês. \`agendamento\` = taxa de conversão
+   lead → agendamento, em % (ex.: "13" = 13%). \`comparecimento\` = taxa de comparecimento
+   em %; se o valor for incoerente como percentual (ex.: implicaria menos comparecimentos
+   do que o plausível), teste interpretá-lo como número absoluto de comparecimentos/mês e
+   declare a interpretação adotada em \`premissas\`. \`conversao\` e \`ticket\` vêm como faixas
+   de texto — use o ponto médio da faixa e declare a premissa.
+
+3. EQUIPE: campos "Sim/Não" indicam existência e os campos \`*_qtd\` a quantidade
+   (\`recepcionista\`, \`thd_qtd\`, \`gerente_qtd\`, \`sdr_qtd\`, \`num_dentists\`). Se houver
+   contradição (ex.: \`sdr\` = "Sim" com \`sdr_qtd\` = "0"), aponte a inconsistência no
+   relatório, adote a leitura mais conservadora e registre em \`premissas\`.
+
+4. HORÁRIO: \`horario_atendimento\` define a janela comercial real da clínica. Use-a ao
+   dimensionar SLA de resposta, cobertura do time comercial e janelas de veiculação de
+   anúncios (ex.: sábado só de manhã).
+
+5. HIGIENE DOS DADOS: strings podem vir com espaços extras ou variações ("Não ");
+   normalize antes de interpretar. Campos vazios, truncados ou sem sentido (ex.: bairro
+   abreviado) tratam-se como "Não informado no onboarding" e viram pendência.
+
+# ETAPA 1 — CÁLCULOS OBRIGATÓRIOS (faça antes de escrever qualquer texto)
 
 Extraia dos dados e calcule. Se um dado não existir ou for ambíguo, registre a premissa
 adotada no campo \`premissas\` do JSON — NUNCA invente números sem declarar a premissa.
 
 1. FUNIL ATUAL (mensal):
-   - Leads → Agendamentos (leads × taxa de agendamento)
-   - Agendamentos → Comparecimentos (interprete a taxa de comparecimento: se o valor
-     for incoerente como percentual, teste interpretá-lo como número absoluto e declare
-     a interpretação adotada)
-   - Comparecimentos → Fechamentos (use o ponto médio da faixa de conversão informada)
-   - Fechamentos × ticket médio (ponto médio da faixa) = receita atribuível ao funil
+   - Leads → Agendamentos (leads_mes × taxa de agendamento)
+   - Agendamentos → Comparecimentos (conforme interpretação do item 2 do dicionário)
+   - Comparecimentos → Fechamentos (ponto médio da faixa de \`conversao\`)
+   - Fechamentos × ticket médio (ponto médio da faixa de \`ticket\`) = receita atribuível
+     ao funil
 
-2. FUNIL REVERSO DA META:
-   - Gap = faturamento desejado − faturamento atual (ambos convertidos de centavos)
+2. UNIT ECONOMICS:
+   - CPL = investimento mensal ÷ leads
+   - Custo por agendamento, custo por comparecimento, CAC (custo por paciente fechado)
+   - ROAS = receita atribuível ao funil ÷ investimento
+   - % do faturamento que vem do funil pago vs. outros canais (indicação, base)
+
+3. FUNIL REVERSO DA META:
+   - Gap = faturamento desejado − faturamento atual
    - Pacientes novos/mês necessários = gap ÷ ticket médio atual
    - Leads necessários com as TAXAS ATUAIS do funil
-   - Leads necessários com taxas CORRIGIDAS para benchmark (tabela abaixo)
+   - Leads necessários com taxas CORRIGIDAS para benchmark (Etapa 2)
    - Investimento necessário nos dois cenários (leads × CPL atual)
    - Veredito de viabilidade: a meta é atingível no prazo com a verba declarada?
      Se não, diga o que precisa mudar (taxas, ticket, verba ou prazo).
-
-3. INDICADORES DAS CATEGORIAS DE BENCHMARK:
-   Para CADA categoria de benchmark listada na ETAPA 2, calcule os indicadores
-   correspondentes a partir dos dados do formulário e posicione cada um na régua
-   (crítico / aceitável / alta performance). Por exemplo, se existir uma categoria
-   de KPIs financeiros, calcule CPL, CAC, ROAS etc. a partir dos dados e compare-os
-   às faixas configuradas. Se um indicador não puder ser calculado por falta de dado,
-   declare a premissa adotada ou marque "Não informado no onboarding". Não invente
-   faixas de referência — use EXCLUSIVAMENTE os benchmarks da ETAPA 2.
 
 # ETAPA 2 — BENCHMARKS DE REFERÊNCIA (use como régua em todo o relatório)
 
 ${JSON.stringify(benchmarks, null, 2)}
 
-Sempre que citar um indicador do cliente, posicione-o nessa régua ("13% de agendamento —
-faixa crítica; benchmark de alta performance: acima de 35%"). Use EXCLUSIVAMENTE os
-benchmarks acima — nunca invente faixas de referência próprias.
+Como ler a estrutura: os benchmarks vêm em grupos (ex.: funil de conversão, KPIs) e os
+nomes dos grupos podem variar — trate todo grupo da mesma forma. Cada métrica tem três
+faixas — \`critico\`, \`aceitavel\` e \`alta_performance\` (a faixa "ideal") — na unidade
+indicada em \`unidade\`. Ao classificar um indicador do cliente em
+"critico | atencao | ok" no JSON de saída, mapeie: faixa crítica → "critico",
+faixa aceitável → "atencao", faixa ideal/alta performance → "ok". Se uma métrica do
+cliente não tiver benchmark correspondente, apresente o valor sem classificação de faixa.
+
+Sempre que citar um indicador do cliente, posicione-o nessa régua, citando as faixas
+EXATAS do benchmark injetado (ex.: se a régua de agendamento for crítico <35% e alta
+performance >50%, escreva "13% de agendamento — faixa crítica; aceitável: 35–50%; alta
+performance: acima de 50%"). Use EXCLUSIVAMENTE os benchmarks acima — nunca invente
+faixas de referência próprias. Os alvos de metas (Etapas 6 e 8) também derivam dessas
+faixas: "piso aceitável" e "alta performance" referem-se sempre a esta tabela.
 
 # ETAPA 3 — SCORECARD POR PILAR
 
@@ -110,7 +138,7 @@ estágio: 0–4 "Sobrevivência", 4,1–6 "Estruturação", 6,1–8 "Aceleraçã
 # ETAPA 4 — DIAGNÓSTICO POR PILAR
 
 Para CADA pilar, produza:
-- situacao: o que os dados mostram (cite os números do formulário)
+- situacao: o que os dados mostram (cite os números do formulário, já convertidos)
 - gargalo_central: o problema nº 1 do pilar em uma frase
 - impacto_financeiro: estimativa em R$/mês do custo desse problema (com premissa declarada)
 - quick_win: a ação de maior retorno com menor esforço nesse pilar
@@ -122,19 +150,21 @@ Liste 6 a 8 iniciativas e classifique cada uma em impacto (alto/médio/baixo) ×
 
 # ETAPA 6 — ESTRATÉGIA DE MÍDIA
 
-Monte o plano de mídia com a verba declarada pelo cliente:
+Monte o plano de mídia com a verba declarada pelo cliente (\`valor_investir\`, convertido
+de centavos):
 - Distribuição da verba por canal e por objetivo (aquisição / remarketing / marca),
   em R$ e %
 - Campanhas por tratamento prioritário declarado — respeite RIGOROSAMENTE a lista de
-  tratamentos que o cliente NÃO quer anunciar
-- Públicos: alinhe idade, classe social, região e dores declaradas na seção de persona
-  (se a faixa etária atual divergir da persona-alvo, trate isso como correção de rota
-  explícita)
+  tratamentos que o cliente NÃO quer anunciar (\`naoquer_anunciar\`)
+- Públicos: alinhe idade (\`faixa_alvo\`), classe social (\`renda_ideal\`), região
+  (\`regiao_ideal\`) e dores (\`dores\`); se a faixa etária atual (\`faixa_etaria\`) divergir
+  da persona-alvo, trate isso como correção de rota explícita
 - Ângulos de comunicação por tratamento (dor → solução → prova → oferta de entrada)
 - Sugestão de oferta de entrada ética (ex.: avaliação com radiografia) — em conformidade
   com o Código de Ética Odontológica e resoluções do CFO: sem promessa de resultado,
   sem "antes e depois" sem os requisitos legais, sem leilão de preço de procedimento
-- Metas de mídia para 30/60/90 dias: leads, CPL, agendamentos, CAC, ROAS
+- Metas de mídia para 30/60/90 dias (leads, CPL, agendamentos, CAC, ROAS), com alvos
+  coerentes com as faixas dos benchmarks da Etapa 2
 
 # ETAPA 7 — PLANO DE AÇÃO 7 / 15 / 30 / 90 DIAS
 
@@ -143,13 +173,14 @@ Cada ação DEVE ter: titulo, descricao (como executar, em 2–4 frases prática
 responsavel (papel: gestor, SDR, recepção, dentistas, agência/IDK), metrica_sucesso
 (número verificável) e prioridade (alta/média/baixa). De 3 a 6 ações por bloco.
 As ações devem se conectar: o que se estrutura nos dias 8–15 usa o que foi destravado
-nos dias 1–7.
+nos dias 1–7. Considere o \`horario_atendimento\` ao definir SLAs e rotinas.
 
 # ETAPA 8 — PROJEÇÃO DE CENÁRIOS (90 dias)
 
-Três cenários com premissas explícitas por linha do funil:
-- CONSERVADOR: melhora parcial das taxas (ex.: agendamento vai ao piso "aceitável")
-- REALISTA: taxas atingem o meio da faixa "aceitável" + ticket otimizado pelo mix
+Três cenários com premissas explícitas por linha do funil, usando as faixas da Etapa 2:
+- CONSERVADOR: melhora parcial das taxas (ex.: agendamento atinge o piso da faixa
+  aceitável do benchmark)
+- REALISTA: taxas atingem o meio da faixa aceitável + ticket otimizado pelo mix
 - ACELERADO: taxas de alta performance + verba adicional (indique quanto)
 Para cada um: leads, agendamentos, comparecimentos, fechamentos, ticket, receita nova/mês
 e faturamento total projetado. Feche com o veredito sobre a meta declarada e o caminho
@@ -163,10 +194,9 @@ recomendado.
   premissa declarada em \`premissas\`.
 - Proibido genérico ("melhorar o atendimento", "investir em marketing"). Toda frase deve
   passar no teste: "o gestor sabe exatamente o que fazer segunda-feira de manhã?"
-- Nomeie as pessoas/papéis citados no formulário quando existirem (ex.: responsável da
-  unidade).
+- Nomeie as pessoas/papéis citados no formulário quando existirem (ex.: \`nome_responsavel\`).
 - Não recomende anunciar tratamentos vetados pelo cliente.
-- Valores sempre em R$ com separador de milhar.
+- Valores sempre em R$ com separador de milhar (e já convertidos de centavos).
 
 # FORMATO DE SAÍDA
 
@@ -180,9 +210,7 @@ o schema abaixo. Strings de texto corrido podem ter até 120 palavras; nada de c
   "score": {
     "geral": 0.0,
     "estagio": "",
-    "pilares": [
-      { "pilar": "", "nota": 0.0, "peso": 0.0, "justificativa": "" }
-    ]
+    "pilares": [ { "pilar": "", "nota": 0.0, "peso": 0.0, "justificativa": "" } ]
   },
   "resumo_executivo": {
     "paragrafo": "",
@@ -191,7 +219,7 @@ o schema abaixo. Strings de texto corrido podem ter até 120 palavras; nada de c
   },
   "funil_atual": {
     "linhas": [ { "etapa": "", "valor": "", "taxa": "", "benchmark": "", "status": "critico|atencao|ok" } ],
-    "categorias": [ { "categoria": "", "indicadores": [ { "indicador": "", "valor": "", "benchmark": "", "status": "critico|atencao|ok" } ] } ],
+    "unit_economics": [ { "indicador": "", "valor": "", "benchmark": "", "status": "critico|atencao|ok" } ],
     "leitura": ""
   },
   "funil_reverso_meta": {
@@ -218,9 +246,7 @@ o schema abaixo. Strings de texto corrido podem ter até 120 palavras; nada de c
     {
       "janela": "1-7|8-15|16-30|31-90",
       "titulo_janela": "",
-      "acoes": [
-        { "titulo": "", "descricao": "", "responsavel": "", "metrica_sucesso": "", "prioridade": "alta|media|baixa" }
-      ]
+      "acoes": [ { "titulo": "", "descricao": "", "responsavel": "", "metrica_sucesso": "", "prioridade": "alta|media|baixa" } ]
     }
   ],
   "cenarios": [
@@ -302,24 +328,15 @@ export const aiReportResponseSchema = {
             }
           }
         },
-        categorias: {
+        unit_economics: {
           type: 'array',
           items: {
             type: 'object',
             properties: {
-              categoria: { type: 'string' },
-              indicadores: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    indicador: { type: 'string' },
-                    valor: { type: 'string' },
-                    benchmark: { type: 'string' },
-                    status: { type: 'string', enum: ['critico', 'atencao', 'ok'] }
-                  }
-                }
-              }
+              indicador: { type: 'string' },
+              valor: { type: 'string' },
+              benchmark: { type: 'string' },
+              status: { type: 'string', enum: ['critico', 'atencao', 'ok'] }
             }
           }
         },

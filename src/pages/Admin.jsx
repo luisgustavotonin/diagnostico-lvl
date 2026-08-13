@@ -306,12 +306,6 @@ export default function Admin() {
     setViewerOpen(true);
   };
 
-  const handleRegenerateBasic = async (project) => {
-    const text = buildBasicReport(project.answers_json || {}, modules, questions);
-    await updateProjectMutation.mutateAsync({ id: project.id, data: { report_basic_text: text } });
-    toast.success('Relatório básico regenerado na ordem correta');
-  };
-
   const handleGenerateAI = async (project) => {
     if (!aiEnabled) return;
     
@@ -523,7 +517,6 @@ export default function Admin() {
                 onEdit={handleEditReport}
                 onDelete={handleDeleteProject}
                 onPrint={handlePrintReport}
-                onRegenerateBasic={handleRegenerateBasic}
                 onGenerateAI={handleGenerateAI}
                 onViewAI={handleViewAIReport}
                 onOpenProject={handleOpenProject}
