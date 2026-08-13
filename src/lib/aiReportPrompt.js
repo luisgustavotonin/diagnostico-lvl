@@ -81,11 +81,11 @@ adotada no campo \`premissas\` do JSON — NUNCA invente números sem declarar a
    - Fechamentos × ticket médio (ponto médio da faixa de \`ticket\`) = receita atribuível
      ao funil
 
-2. UNIT ECONOMICS:
+2. KPIs DE CUSTO E RETORNO:
    - CPL = investimento mensal ÷ leads
    - Custo por agendamento, custo por comparecimento, CAC (custo por paciente fechado)
    - ROAS = receita atribuível ao funil ÷ investimento
-   - % do faturamento que vem do funil pago vs. outros canais (indicação, base)
+   - % do faturamento que vem da captação paga vs. outros canais (indicação, base)
 
 3. FUNIL REVERSO DA META:
    - Gap = faturamento desejado − faturamento atual
@@ -152,8 +152,11 @@ Liste 6 a 8 iniciativas e classifique cada uma em impacto (alto/médio/baixo) ×
 
 Monte o plano de mídia com a verba declarada pelo cliente (\`valor_investir\`, convertido
 de centavos):
-- Distribuição da verba por canal e por objetivo (aquisição / remarketing / marca),
-  em R$ e %
+- NUNCA cite nomes de plataformas de mídia (Google, Meta, Facebook, Instagram, TikTok
+  etc.) nem fracione a verba por plataforma — a definição de plataformas é etapa
+  posterior da IDK. Fale em termos de investimento, captação de leads e objetivo.
+- Distribuição da verba por FRENTE DE INVESTIMENTO e objetivo (aquisição de leads /
+  remarketing / autoridade e marca), em R$ e %
 - Campanhas por tratamento prioritário declarado — respeite RIGOROSAMENTE a lista de
   tratamentos que o cliente NÃO quer anunciar (\`naoquer_anunciar\`)
 - Públicos: alinhe idade (\`faixa_alvo\`), classe social (\`renda_ideal\`), região
@@ -196,6 +199,8 @@ recomendado.
   passar no teste: "o gestor sabe exatamente o que fazer segunda-feira de manhã?"
 - Nomeie as pessoas/papéis citados no formulário quando existirem (ex.: \`nome_responsavel\`).
 - Não recomende anunciar tratamentos vetados pelo cliente.
+- Não cite plataformas de anúncio em nenhuma parte do relatório; refira-se a
+  "mídia paga", "captação de leads", "remarketing".
 - Valores sempre em R$ com separador de milhar (e já convertidos de centavos).
 
 # FORMATO DE SAÍDA
@@ -219,7 +224,7 @@ o schema abaixo. Strings de texto corrido podem ter até 120 palavras; nada de c
   },
   "funil_atual": {
     "linhas": [ { "etapa": "", "valor": "", "taxa": "", "benchmark": "", "status": "critico|atencao|ok" } ],
-    "unit_economics": [ { "indicador": "", "valor": "", "benchmark": "", "status": "critico|atencao|ok" } ],
+    "kpis": [ { "indicador": "", "valor": "", "benchmark": "", "status": "critico|atencao|ok" } ],
     "leitura": ""
   },
   "funil_reverso_meta": {
@@ -237,7 +242,7 @@ o schema abaixo. Strings de texto corrido podem ter até 120 palavras; nada de c
   "riscos": [ { "risco": "", "consequencia": "", "mitigacao": "" } ],
   "estrategia_midia": {
     "verba_total": "",
-    "distribuicao": [ { "canal": "", "objetivo": "", "verba": "", "percentual": "" } ],
+    "distribuicao": [ { "frente": "", "objetivo": "", "verba": "", "percentual": "" } ],
     "campanhas": [ { "tratamento": "", "publico": "", "angulo": "", "oferta_entrada": "" } ],
     "metas_midia": [ { "indicador": "", "d30": "", "d60": "", "d90": "" } ],
     "observacao_compliance": ""
@@ -328,7 +333,7 @@ export const aiReportResponseSchema = {
             }
           }
         },
-        unit_economics: {
+        kpis: {
           type: 'array',
           items: {
             type: 'object',
@@ -412,7 +417,7 @@ export const aiReportResponseSchema = {
           items: {
             type: 'object',
             properties: {
-              canal: { type: 'string' },
+              frente: { type: 'string' },
               objetivo: { type: 'string' },
               verba: { type: 'string' },
               percentual: { type: 'string' }

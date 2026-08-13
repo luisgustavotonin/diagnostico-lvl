@@ -490,9 +490,18 @@ export function generateIDKReport(project, reportData) {
     d.y += d.paraH(funnelAtual.leitura, CW, 8.5, 13) + 5;
   }
 
-  // Categorias de benchmark dinâmicas (KPIs, Unit Economics, etc.)
-  const categorias = funnelAtual.categorias || [];
-  if (categorias.length) {
+  // KPIs de custo e retorno (CPL, CAC, ROAS, ticket...) — schema atual: funil_atual.kpis
+  const kpis = funnelAtual.kpis || funnelAtual.unit_economics || [];
+  if (kpis.length) {
+    d.sectionH2('KPIs de custo e retorno');
+    d.table(
+      ['Indicador','Você hoje','Benchmark','Status'],
+      kpis.map(u => [u.indicador, u.valor, u.benchmark||'—', u.status]),
+      [66, 50, 42, 18], 3
+    );
+  } else {
+    // Compatibilidade: relatórios antigos com categorias aninhadas
+    const categorias = funnelAtual.categorias || [];
     categorias.forEach((cat) => {
       const inds = cat.indicadores || [];
       if (!inds.length) return;
@@ -503,17 +512,6 @@ export function generateIDKReport(project, reportData) {
         [66, 50, 42, 18], 3
       );
     });
-  } else {
-    // Compatibilidade: relatórios gerados antes da mudança de schema
-    const ue = funnelAtual.unit_economics || [];
-    if (ue.length) {
-      d.sectionH2('Unit economics');
-      d.table(
-        ['Indicador','Você hoje','Benchmark','Status'],
-        ue.map(u => [u.indicador, u.valor, u.benchmark||'—', u.status]),
-        [66, 50, 42, 18], 3
-      );
-    }
   }
 
   // ════════════════════════════════════════════════════
@@ -705,7 +703,7 @@ export function generateIDKReport(project, reportData) {
   const barCols = [C.black, C.gray, C.green, C.grayLight];
   (midia.distribuicao||[]).forEach((item,i) => {
     const pct = parseFloat(String(item.percentual||'').replace('%',''))||10;
-    d.mediaBar(item.canal||'', `${item.verba||''}  (${item.percentual||''})`, pct, barCols[i%4]);
+    d.mediaBar(item.frente||item.canal||'', `${item.verba||''}  (${item.percentual||''})`, pct, barCols[i%4]);
   });
 
   d.gap(4);

@@ -175,60 +175,66 @@ export default function AiReportView({ project }) {
             </div>
           ))}
         </div>
-        {(funilAtual.categorias || []).map((cat, i) => (
-          <div key={i} className="mb-4">
-            <h3 className="text-sm font-bold text-foreground mb-2">{cat.categoria}</h3>
-            <div className="border border-border rounded-lg overflow-hidden">
-              <table className="w-full text-sm">
-                <thead className="bg-muted">
-                  <tr>
-                    <th className="text-left px-3 py-2 font-semibold text-muted-foreground">Indicador</th>
-                    <th className="text-left px-3 py-2 font-semibold text-muted-foreground">Você hoje</th>
-                    <th className="text-left px-3 py-2 font-semibold text-muted-foreground">Benchmark</th>
-                    <th className="text-left px-3 py-2 font-semibold text-muted-foreground">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(cat.indicadores || []).map((u, j) => (
-                    <tr key={j} className="border-t border-border">
-                      <td className="px-3 py-2 font-medium text-foreground">{u.indicador}</td>
-                      <td className="px-3 py-2 text-foreground">{u.valor}</td>
-                      <td className="px-3 py-2 text-muted-foreground">{u.benchmark || '—'}</td>
-                      <td className="px-3 py-2">{statusBadge(u.status)}</td>
+        {(() => {
+          const kpis = funilAtual.kpis || funilAtual.unit_economics || [];
+          if (kpis.length) {
+            return (
+              <div className="mb-4">
+                <h3 className="text-sm font-bold text-foreground mb-2">KPIs de custo e retorno</h3>
+                <div className="border border-border rounded-lg overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted">
+                      <tr>
+                        <th className="text-left px-3 py-2 font-semibold text-muted-foreground">Indicador</th>
+                        <th className="text-left px-3 py-2 font-semibold text-muted-foreground">Você hoje</th>
+                        <th className="text-left px-3 py-2 font-semibold text-muted-foreground">Benchmark</th>
+                        <th className="text-left px-3 py-2 font-semibold text-muted-foreground">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {kpis.map((u, j) => (
+                        <tr key={j} className="border-t border-border">
+                          <td className="px-3 py-2 font-medium text-foreground">{u.indicador}</td>
+                          <td className="px-3 py-2 text-foreground">{u.valor}</td>
+                          <td className="px-3 py-2 text-muted-foreground">{u.benchmark || '—'}</td>
+                          <td className="px-3 py-2">{statusBadge(u.status)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            );
+          }
+          // legado: relatórios antigos com categorias aninhadas
+          return (funilAtual.categorias || []).map((cat, i) => (
+            <div key={i} className="mb-4">
+              <h3 className="text-sm font-bold text-foreground mb-2">{cat.categoria}</h3>
+              <div className="border border-border rounded-lg overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted">
+                    <tr>
+                      <th className="text-left px-3 py-2 font-semibold text-muted-foreground">Indicador</th>
+                      <th className="text-left px-3 py-2 font-semibold text-muted-foreground">Você hoje</th>
+                      <th className="text-left px-3 py-2 font-semibold text-muted-foreground">Benchmark</th>
+                      <th className="text-left px-3 py-2 font-semibold text-muted-foreground">Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {(cat.indicadores || []).map((u, j) => (
+                      <tr key={j} className="border-t border-border">
+                        <td className="px-3 py-2 font-medium text-foreground">{u.indicador}</td>
+                        <td className="px-3 py-2 text-foreground">{u.valor}</td>
+                        <td className="px-3 py-2 text-muted-foreground">{u.benchmark || '—'}</td>
+                        <td className="px-3 py-2">{statusBadge(u.status)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        ))}
-        {(funilAtual.categorias || []).length === 0 && (funilAtual.unit_economics || []).length > 0 && (
-          <div className="mb-4">
-            <h3 className="text-sm font-bold text-foreground mb-2">Unit economics</h3>
-            <div className="border border-border rounded-lg overflow-hidden">
-              <table className="w-full text-sm">
-                <thead className="bg-muted">
-                  <tr>
-                    <th className="text-left px-3 py-2 font-semibold text-muted-foreground">Indicador</th>
-                    <th className="text-left px-3 py-2 font-semibold text-muted-foreground">Você hoje</th>
-                    <th className="text-left px-3 py-2 font-semibold text-muted-foreground">Benchmark</th>
-                    <th className="text-left px-3 py-2 font-semibold text-muted-foreground">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {funilAtual.unit_economics.map((u, j) => (
-                    <tr key={j} className="border-t border-border">
-                      <td className="px-3 py-2 font-medium text-foreground">{u.indicador}</td>
-                      <td className="px-3 py-2 text-foreground">{u.valor}</td>
-                      <td className="px-3 py-2 text-muted-foreground">{u.benchmark || '—'}</td>
-                      <td className="px-3 py-2">{statusBadge(u.status)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+          ));
+        })()}
         <Paragraph>{funilAtual.leitura}</Paragraph>
       </div>
 
@@ -339,7 +345,7 @@ export default function AiReportView({ project }) {
                 <table className="w-full text-sm">
                   <thead className="bg-muted">
                     <tr>
-                      <th className="text-left px-3 py-2 font-semibold text-muted-foreground">Canal</th>
+                      <th className="text-left px-3 py-2 font-semibold text-muted-foreground">Frente de investimento</th>
                       <th className="text-left px-3 py-2 font-semibold text-muted-foreground">Objetivo</th>
                       <th className="text-left px-3 py-2 font-semibold text-muted-foreground">Verba</th>
                       <th className="text-left px-3 py-2 font-semibold text-muted-foreground">%</th>
@@ -348,7 +354,7 @@ export default function AiReportView({ project }) {
                   <tbody>
                     {midia.distribuicao.map((d, i) => (
                       <tr key={i} className="border-t border-border">
-                        <td className="px-3 py-2 font-medium text-foreground">{d.canal}</td>
+                        <td className="px-3 py-2 font-medium text-foreground">{d.frente || d.canal}</td>
                         <td className="px-3 py-2 text-muted-foreground">{d.objetivo}</td>
                         <td className="px-3 py-2 text-foreground">{d.verba}</td>
                         <td className="px-3 py-2 text-foreground">{d.percentual}</td>
